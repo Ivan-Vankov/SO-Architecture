@@ -1,0 +1,7 @@
+{
+  "name": "vaflov.so-architecture",
+  "version": "1.0.0",
+  "displayName": "SO Architecture",
+  "description": "Scriptable Object (SO) Architecture provides scriptable object-based events, event listeners and constants.\nThe project is based on Ryan Hipple's talk at Unite Austin 2017 https://www.youtube.com/watch?v=raQ3iHhE_Kk.",
+  "unity": "2018.1"
+}

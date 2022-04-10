@@ -1,0 +1,16 @@
+{
+    "name": "vaflov.so-architecture.editor",
+    "rootNamespace": "",
+    "references": [
+        "vaflov.so-architecture"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
