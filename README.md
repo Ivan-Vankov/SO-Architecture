@@ -3,6 +3,8 @@
 
 SO Architecture provides scriptable object-based game events, game event listeners and constants.
 
+The project is based on [Ryan Hipple's talk at Unite Austin 2017](https://www.youtube.com/watch?v=raQ3iHhE_Kk).
+
 Game events named `<Game Event Name> Event` can be referenced in code as `GameEvents.<Game Event Name>`.
 
 Constants named `<Constant Name> Constant` can be referenced in code as `Constants.<Constant Name>`.
