@@ -1,5 +1,5 @@
 # Scriptable Object (SO) Architecture
-[![GitHub package.json version](https://img.shields.io/github/package-json/v/Ivan-Vankov/SO-Architecture?color=g)](https://github.com/Ivan-Vankov/SO-Architecture/releases/tag/v1.0.0)
+[![Releases](https://img.shields.io/github/release/Ivan-Vankov/SO-Architecture.svg)](https://github.com/Ivan-Vankov/SO-Architecture/releases)
 
 SO Architecture provides scriptable object-based game events, game event listeners and constants.
 
