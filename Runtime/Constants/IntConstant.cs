@@ -4,5 +4,5 @@ namespace Vaflov {
     [CreateAssetMenu(
         fileName = "Int Constant", 
         menuName = "SO Architecture/Constants/Int Constant")]
-    public class IntConstant : Constant<int> { }
+    public class IntConstant : ClampedConstant<int> { }
 }
