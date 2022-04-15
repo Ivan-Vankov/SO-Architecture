@@ -11,6 +11,7 @@ namespace Vaflov {
         public string singletonClassName;
         public string singletonInstanceName = "Instance";
         public string singletonConceptName;
+        public string singletonFieldSuffix;
         public string singletonDirectoryName = "SO Architecture";
         public StringBuilder singletonCodeBuilder = new StringBuilder();
         public System.Diagnostics.Stopwatch singletonCodegenTimer = new System.Diagnostics.Stopwatch();
@@ -39,6 +40,11 @@ namespace Vaflov {
             return this;
         }
 
+        public SingletonCodeGenerator SetSingletonFieldSuffix(string fieldSuffix) {
+            this.singletonFieldSuffix = fieldSuffix;
+            return this;
+        }
+
         public SingletonCodeGenerator SetSingletonConceptName(string conceptName) {
             this.singletonConceptName = conceptName;
             return this;
@@ -59,10 +65,11 @@ namespace Vaflov {
                 ? char.ToLower(singletonNameBuilder[0])
                 : char.ToUpper(singletonNameBuilder[0]);
             name = singletonNameBuilder.ToString();
-            var indexOfEvent = name.LastIndexOf(singletonConceptName);
-            return indexOfEvent == -1
+            var suffix = singletonFieldSuffix ?? singletonConceptName ?? "";
+            var suffixIndex = name.LastIndexOf(suffix);
+            return suffixIndex == -1
                 ? name
-                : name.Substring(0, indexOfEvent);
+                : name.Substring(0, suffixIndex);
         }
 
         public SingletonCodeGenerator AddSingletonHeader() {

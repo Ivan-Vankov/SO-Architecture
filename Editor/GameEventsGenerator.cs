@@ -11,6 +11,7 @@ namespace Vaflov {
         [MenuItem("Tools/SO Architecture/Generate Game Events")]
         public static void GenerateGameEvents() {
             new SingletonCodeGenerator(singletonClassName: "GameEvents", singletonConceptName: "GameEvent")
+            .SetSingletonFieldSuffix("Event")
             .StartSingletonCodegenTimer()
             .AddSingletonHeader()
             .AddSingletonCustomCode(codegen => {
