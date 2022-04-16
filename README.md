@@ -21,5 +21,5 @@ Window > Package Manager > + > Add package from git URL...
 ```
 2. Add the following line as a dependency in **Packages/manifest.json**:
 ```
-"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git"
+"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git",
 ```
