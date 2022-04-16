@@ -1,7 +1,9 @@
 {
-    "name": "vaflov.so-architecture",
+    "name": "com.vaflov.so-architecture.editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "com.vaflov.so-architecture"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

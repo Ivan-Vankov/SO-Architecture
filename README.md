@@ -15,7 +15,11 @@ Api Compatibility Level should be set to .NET 4.x. It can be set in:
 Edit > Project Settings > Player > Other Settings > Api Compatibility Level
 ```
 ## Installation
-Add `https://github.com/Ivan-Vankov/SO-Architecture.git` in:
+1. Add `https://github.com/Ivan-Vankov/SO-Architecture.git` in:
 ```
 Window > Package Manager > + > Add package from git URL...
+```
+2. Add the following line as a dependency in **Packages/manifest.json**:
+```
+"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git"
 ```
