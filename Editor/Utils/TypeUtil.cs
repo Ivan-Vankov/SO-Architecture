@@ -8,7 +8,11 @@ namespace Vaflov {
                 return false;
             }
 
-            if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == targetType) {
+            if (baseType.IsGenericType) {
+                if (baseType.GetGenericTypeDefinition() == targetType) {
+                    return true;
+                }
+            } else if (baseType == targetType) {
                 return true;
             }
 

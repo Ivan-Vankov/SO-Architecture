@@ -8,6 +8,7 @@ using static Vaflov.FileUtil;
 namespace Vaflov {
     public class SingletonCodeGenerator {
         public string singletonNamespaceName = typeof(SingletonCodeGenerator).Namespace;
+        public string singletonClassModifiers = "";
         public string singletonClassName;
         public string singletonInstanceName = "Instance";
         public string singletonConceptName;
@@ -25,8 +26,13 @@ namespace Vaflov {
             this.singletonConceptName = singletonConceptName;
         }
 
-        public SingletonCodeGenerator SetNamespaceName(string namespaceName) {
+        public SingletonCodeGenerator SetSingletonNamespaceName(string namespaceName) {
             this.singletonNamespaceName = namespaceName;
+            return this;
+        }
+
+        public SingletonCodeGenerator SetSingletonClassModifiers(string singletonClassModifiers) {
+            this.singletonClassModifiers = singletonClassModifiers;
             return this;
         }
 
@@ -81,7 +87,7 @@ namespace Vaflov {
                 .AppendLine("using UnityEngine;")
                 .AppendLine()
                 .AppendLine($"namespace {singletonNamespaceName} {{")
-                .AppendLine($"\tpublic class {singletonClassName} {{")
+                .AppendLine($"\tpublic{singletonClassModifiers} class {singletonClassName} {{")
                 .AppendLine($"\t\tpublic static {singletonClassName} _instance;")
                 .AppendLine($"\t\tpublic static {singletonClassName} {singletonInstanceName} {{")
                 .AppendLine("\t\t\tget {")

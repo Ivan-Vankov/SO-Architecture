@@ -47,7 +47,7 @@ namespace Vaflov {
                             var resourcesPathName = "Resources";
                             var resourcesIdx = assetPath.IndexOf(resourcesPathName);
                             if (resourcesIdx == -1) {
-                                Debug.LogError($"{conceptName} {eventFieldName} at path {assetPath} is not in the {resourcesPathName} folder");
+                                Debug.LogError($"{conceptName} {eventFieldName} at path {assetPath} is not in a {resourcesPathName} folder or subfolder");
                                 continue;
                             }
                             var resourcesAssetPath = assetPath.Substring(resourcesIdx + resourcesPathName.Length + 1);
