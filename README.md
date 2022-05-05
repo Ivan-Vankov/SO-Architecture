@@ -19,7 +19,7 @@ Edit > Project Settings > Player > Other Settings > Api Compatibility Level
 ```
 Window > Package Manager > + > Add package from git URL...
 ```
-2. Add the following line as a dependency in **Packages/manifest.json**:
+2. Alternatively you can add the following line as a dependency in **Packages/manifest.json**:
 ```
-"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git"
+"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git",
 ```
