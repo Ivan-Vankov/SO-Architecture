@@ -26,15 +26,18 @@ namespace Vaflov {
             AssetDatabase.ImportAsset(dirAssetPath, ImportAssetOptions.ForceUpdate);
         }
 
-        public static void TryCreateFileAsset(string fileContents, string filePath) {            
+        public static bool TryCreateFileAsset(string fileContents, string filePath) {            
             using (var fileStream = new StreamWriter(filePath, append: false)) {
                 fileStream.Write(fileContents);
                 fileStream.Flush();
             }
 
             var fileAssetPath = FullPathToAssetPath(filePath);
-            if (fileAssetPath == null) { return; }
+            if (fileAssetPath == null) { 
+                return false; 
+            }
             AssetDatabase.ImportAsset(fileAssetPath, ImportAssetOptions.ForceUpdate);
+            return true;
         }
     }
 }

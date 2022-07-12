@@ -2,7 +2,8 @@
     "name": "com.vaflov.so-architecture.editor",
     "rootNamespace": "",
     "references": [
-        "com.vaflov.so-architecture"
+        "com.vaflov.so-architecture",
+        "TypeReferences"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

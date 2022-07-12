@@ -1,17 +1,13 @@
-using System;
-using UnityEngine;
-using UnityEngine.Events;
+using ExtEvents;
 
 namespace Vaflov {
-    public class GameEventListener : MonoBehaviour {
+    public class GameEventListener : BaseGameEventListener {
 
         public GameEvent eventRef;
-        public Action actionResponse; 
-        public UnityEvent response;
+        public ExtEvent response;
 
         public void CallResponse() {
             response?.Invoke();
-            actionResponse?.Invoke();
         }
 
         public void OnEnable() {
