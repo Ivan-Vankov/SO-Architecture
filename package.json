@@ -1,15 +1,17 @@
 {
   "name": "com.vaflov.so-architecture",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "displayName": "SO Architecture",
   "author": {
     "name": "Vaflov",
     "url": "https://github.com/Ivan-Vankov"
   },
-  "description": "Scriptable Object (SO) Architecture provides scriptable object-based events, event listeners and constants.\nThe project is based on Ryan Hipple's talk at Unite Austin 2017 https://www.youtube.com/watch?v=raQ3iHhE_Kk.",
-  "unity": "2021.1",
+  "description": "Scriptable Object (SO) Architecture provides scriptable object-based events, event listeners, constants and enums.\nThe project is based on Ryan Hipple's talk at Unite Austin 2017 https://www.youtube.com/watch?v=raQ3iHhE_Kk and borrows from SolidAlloy's projects  and borrows from SolidAlloy's projects https://github.com/SolidAlloy.",
+  "unity": "2021.3",
   "dependencies": {
-    "com.solidalloy.extevents": "1.5.1",
-    "com.solidalloy.type-references": "2.15.1"
+    "com.solidalloy.util": "1.40.0",
+    "com.solidalloy.unity-dropdown": "1.2.0",
+    "com.solidalloy.extevents": "1.7.0",
+    "com.solidalloy.type-references": "2.16.0"
   }
 }

@@ -4,17 +4,18 @@ using System;
 
 [CustomEditor(typeof(ClampedConstant<>), true)]
 [CanEditMultipleObjects]
-public class ClampedConstantEditor : Editor {
+public class ClampedConstantEditor : ConstantEditor {
     SerializedProperty valueProperty;
     SerializedProperty isClampedProperty;
     SerializedProperty minProperty;
     SerializedProperty maxProperty;
 
-    void OnEnable() {
+    public new void OnEnable() {
         valueProperty = serializedObject.FindProperty("value");
         isClampedProperty = serializedObject.FindProperty("isClamped");
         minProperty = serializedObject.FindProperty("min");
         maxProperty = serializedObject.FindProperty("max");
+        base.OnEnable();
     }
 
     public enum NumericType {
@@ -62,6 +63,11 @@ public class ClampedConstantEditor : Editor {
     }
 
     public override void OnInspectorGUI() {
+        DrawClampedConstant();
+        DrawChangeClassFoldoutSafe();
+    }
+
+    public void DrawClampedConstant() {
         serializedObject.Update();
         EditorGUILayout.PropertyField(isClampedProperty);
         var isClamped = isClampedProperty.boolValue;

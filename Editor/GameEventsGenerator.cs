@@ -21,7 +21,7 @@ namespace Vaflov {
 
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract && !type.IsGenericType);
+                    .Where(type => type.IsClass && !type.IsAbstract);
 
                 var gameEventTypes = new[] {
                     typeof(GameEvent),
@@ -40,6 +40,9 @@ namespace Vaflov {
                         foreach (var gameEventGuid in gameEventGuids) {
                             var assetPath = AssetDatabase.GUIDToAssetPath(gameEventGuid);
                             var gameEventAsset = AssetDatabase.LoadAssetAtPath(assetPath, gameEventSubType);
+                            if (!gameEventAsset) {
+                                continue;
+                            }
 
                             var eventFieldTypeName = gameEventSubType.Name;
                             var eventFieldName = nameFilter(gameEventAsset.name, true);

@@ -32,7 +32,7 @@ namespace Vaflov {
                 var constantsCodeBuilder = new StringBuilder();
                 var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
+                    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
                     .ToList();
                 foreach (var constantType in constantTypes) {
                     var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
