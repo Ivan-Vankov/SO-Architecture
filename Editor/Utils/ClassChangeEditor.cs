@@ -193,7 +193,6 @@ namespace Vaflov {
                 AssetDatabase.CreateAsset(newSO, assetPath);
                 //EditorUtility.FocusProjectWindow();
                 Selection.activeObject = newSO;
-
             } else {
                 Debug.LogError("Unknown target type");
             }
