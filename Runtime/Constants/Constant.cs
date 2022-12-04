@@ -12,19 +12,23 @@ using static Vaflov.TypeUtil;
 
 namespace Vaflov {
     public class Constant<T> : ScriptableObject {
-        #if ODIN_INSPECTOR && UNITY_EDITOR
+        #if ODIN_INSPECTOR
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
+        [BoxGroup("Editor Props")]
         #endif
         public string editorGroup;
 
+        #if ODIN_INSPECTOR
+        [BoxGroup("Editor Props")]
+        #endif
         public string comment;
 
         [SerializeField] private T value = default;
         public T Value => value;
 
 
-        #if ODIN_INSPECTOR && UNITY_EDITOR
+        #if ODIN_INSPECTOR
         public IEnumerable<string> GetDropdownItems() {
             var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => !type.IsGenericType)
@@ -39,7 +43,9 @@ namespace Vaflov {
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
 
                     var groupName = groupField.GetValue(constantAsset) as string;
-                    groupName = groupName == null || groupName == "" ? "Default" : groupName;
+                    if (groupName == null || groupName == "") {
+                        continue;
+                    }
                     if (!seenGroups.Contains(groupName)) {
                         seenGroups.Add(groupName);
                         yield return groupName;

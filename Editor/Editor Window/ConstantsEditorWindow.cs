@@ -8,9 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using static Vaflov.TypeUtil;
-using static UnityEngine.Networking.UnityWebRequest;
 
 namespace Vaflov {
+
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
 
         [MenuItem("Tools/SO Architecture/Constants Editor")]
@@ -19,14 +19,13 @@ namespace Vaflov {
             window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 500);
         }
 
-        static OdinMenuStyle menuStyle;
-
         protected override OdinMenuTree BuildMenuTree() {
             var tree = new OdinMenuTree(true);
             tree.DefaultMenuStyle.IconSize = 28.00f;
+            tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
 
-            menuStyle ??= new OdinMenuStyle() {
+            var menuStyle = new OdinMenuStyle() {
                 TrianglePadding = 1.50f,
                 AlignTriangleLeft = true,
             };
@@ -76,6 +75,7 @@ namespace Vaflov {
 
             tree.EnumerateTree().ForEach(ShowTooltip);
             tree.EnumerateTree().ForEach(ShowValue);
+            tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
 
 
             //tree.AddObjectAtPath("Config", menuStyle);
@@ -85,15 +85,6 @@ namespace Vaflov {
         public void ShowTooltip(OdinMenuItem menuItem) {
             menuItem.OnDrawItem += x => {
                 GUI.Label(x.Rect, new GUIContent("", x.SmartName + " test tooltip"));
-                //var labelRect = x.LabelRect;
-                //var age = $" --{(x.Value as Character).Age} years old";
-                //var labelStyle = x.Style.DefaultLabelStyle;
-                //var labelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
-                //var ageRect = new Rect(labelRect.x + labelSize.x, labelRect.y, labelRect.width - labelSize.x, labelRect.height);
-
-                //GUIHelper.PushColor(Color.green);
-                //GUI.Label(ageRect, age, labelStyle);
-                //GUIHelper.PopColor();
             };
         }
 
@@ -106,6 +97,7 @@ namespace Vaflov {
                 var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
                 var valueField = GetFieldRecursive(valueType, "value", bindingFlags);
                 var value = valueField.GetValue(x.Value);
+                if (value == null) { return; }
                 var valueLabel = " " + value.ToString();
                 var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
                 var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
@@ -118,7 +110,7 @@ namespace Vaflov {
 
                 var commentField = GetFieldRecursive(valueType, "comment", bindingFlags);
                 var comment = commentField.GetValue(x.Value);
-                var commentLabel = comment.ToString();
+                var commentLabel = comment?.ToString();
                 if (commentLabel == "") { return; }
                 commentLabel = (" " + commentLabel).Trim('\n');
                 var valueLabelSize = labelStyle.CalcSize(valueContent);
@@ -137,11 +129,24 @@ namespace Vaflov {
 
             // Draws a toolbar with the name of the currently selected menu item.
             SirenixEditorGUI.BeginHorizontalToolbar(toolbarHeight);
-            if (selected != null) {
-                GUILayout.Label(selected.Name);
+            //if (selected != null) {
+            //    GUILayout.Label(selected.Name);
+            //}
+            if (MenuTree.Selection != null) {
+                var selectedNames = MenuTree.Selection?.Select(selected => selected.Name);
+                var selectionLabel = string.Join(", ", selectedNames);
+                if (selectionLabel?.Length > 40) {
+                    selectionLabel = selectionLabel.Substring(0, 40) + "...";
+                }
+                GUILayout.Label(selectionLabel);
             }
 
-            if (SirenixEditorGUI.ToolbarButton(new GUIContent("Test toolbar button"))) {
+            // TODO: Add icons with tooltips instead of text
+            if (SirenixEditorGUI.ToolbarButton(new GUIContent("Save"))) {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+            if (SirenixEditorGUI.ToolbarButton(new GUIContent("New"))) {
                 //ScriptableObjectCreator.ShowDialog<Item>("Assets/Plugins/Sirenix/Demos/Sample - RPG Editor/Items", obj => {
                 //    obj.Name = obj.name;
                 //    base.TrySelectMenuItemWithObject(obj); // Selects the newly created item in the editor
