@@ -4,11 +4,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
-using System.Xml.Linq;
-using UnityEditor.Graphs;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace Vaflov {
     public class ClampedConstantPropertyProcessor<C, T> : OdinPropertyProcessor<C>

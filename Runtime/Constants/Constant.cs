@@ -1,5 +1,6 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using System;
 #endif
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,16 @@ using UnityEngine;
 using static Vaflov.TypeUtil;
 
 namespace Vaflov {
+    public static class ConstantEditorEvents {
+        public static Action<string> OnConstantEditorGroupChanged;
+    }
+
     public class Constant<T> : ScriptableObject {
         #if ODIN_INSPECTOR
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
+        [OnValueChanged(nameof(OnEditorGroupChanged))]
         #endif
         public string editorGroup;
 
@@ -29,6 +35,10 @@ namespace Vaflov {
 
 
         #if ODIN_INSPECTOR
+        public void OnEditorGroupChanged() {
+            ConstantEditorEvents.OnConstantEditorGroupChanged?.Invoke(name);
+        }
+
         public IEnumerable<string> GetDropdownItems() {
             var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => !type.IsGenericType)
@@ -43,7 +53,7 @@ namespace Vaflov {
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
 
                     var groupName = groupField.GetValue(constantAsset) as string;
-                    if (groupName == null || groupName == "") {
+                    if (groupName == null) {
                         continue;
                     }
                     if (!seenGroups.Contains(groupName)) {

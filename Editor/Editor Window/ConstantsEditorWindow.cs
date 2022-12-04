@@ -8,30 +8,72 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using static Vaflov.TypeUtil;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
 
 namespace Vaflov {
 
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
 
+        public CancellationTokenSource rebuildEditorGroupsCTS;
+
         [MenuItem("Tools/SO Architecture/Constants Editor")]
         public static void Open() {
             var window = GetWindow<ConstantsEditorWindow>();
-            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 500);
+            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(600, 400);
+            window.MenuWidth = 300;
+        }
+
+        protected override void OnEnable() {
+            base.OnEnable();
+            ConstantEditorEvents.OnConstantEditorGroupChanged += RebuildEditorGroupsDelayed;
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            ConstantEditorEvents.OnConstantEditorGroupChanged -= RebuildEditorGroupsDelayed;
+        }
+
+        public void RebuildEditorGroupsDelayed(string _) {
+            rebuildEditorGroupsCTS?.Cancel();
+            rebuildEditorGroupsCTS?.Dispose();
+            rebuildEditorGroupsCTS = new CancellationTokenSource();
+            RebuildEditorGroups(rebuildEditorGroupsCTS.Token);
+        }
+
+        public async void RebuildEditorGroups(CancellationToken token) {
+            try {
+                await Task.Delay(500, token);
+            } catch (TaskCanceledException) {
+                // task cancellation is expected
+            }
+            if (token.IsCancellationRequested) { return; }
+
+            try {
+                var selectedObj = MenuTree.Selection.FirstOrDefault();
+                ForceMenuTreeRebuild();
+                if (selectedObj != null) {
+                    MenuTree.Selection.Add(selectedObj);
+                }
+            } catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
 
         protected override OdinMenuTree BuildMenuTree() {
             var tree = new OdinMenuTree(true);
-            tree.DefaultMenuStyle.IconSize = 28.00f;
             tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
 
             var menuStyle = new OdinMenuStyle() {
+                Height = 20,
+                IconSize = 15f,
                 TrianglePadding = 1.50f,
                 AlignTriangleLeft = true,
             };
             tree.Config.DefaultMenuStyle = menuStyle;
             tree.DefaultMenuStyle = menuStyle;
-            //tree.EnumerateTree().Where(x => x as OdinMenuStyle)
 
             var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => !type.IsGenericType)
@@ -41,25 +83,14 @@ namespace Vaflov {
             //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
             //    .ToList();
 
-            //var result = new HashSet<OdinMenuItem>();
             var groups = new Dictionary<string, HashSet<OdinMenuItem>>();
-            //var groupList = new List<string>();
-
-
             foreach (var constantType in constantTypes) {
                 var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
                 var groupField = GetFieldRecursive(constantType, "editorGroup", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constantAssetGuid in constantAssetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-
-                    //tree.AddAssetAtPath("Constants", assetPath, constantType);
-
                     var menuItem = new OdinMenuItem(tree, constantAsset.name, constantAsset);
-                    //tree.AddMenuItemAtPath(result, "Constants", menuItem);
-
-                    //var groupField = GetFieldRecursive(constantType, "editorGroup", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                    //var groupName = groupField.GetValue(constantAsset);
                     var groupName = groupField.GetValue(constantAsset) as string;
                     groupName = groupName == null || groupName == "" ? "Default" : groupName;
 
@@ -71,14 +102,11 @@ namespace Vaflov {
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }
             }
-            //tree.AddAllAssetsAtPath("Game Events", "Assets/Resources", typeof(GameEvent), true, true);
 
             tree.EnumerateTree().ForEach(ShowTooltip);
             tree.EnumerateTree().ForEach(ShowValue);
             tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
 
-
-            //tree.AddObjectAtPath("Config", menuStyle);
             return tree;
         }
 
@@ -127,11 +155,7 @@ namespace Vaflov {
             var selected = MenuTree.Selection.FirstOrDefault();
             var toolbarHeight = MenuTree.Config.SearchToolbarHeight;
 
-            // Draws a toolbar with the name of the currently selected menu item.
             SirenixEditorGUI.BeginHorizontalToolbar(toolbarHeight);
-            //if (selected != null) {
-            //    GUILayout.Label(selected.Name);
-            //}
             if (MenuTree.Selection != null) {
                 var selectedNames = MenuTree.Selection?.Select(selected => selected.Name);
                 var selectionLabel = string.Join(", ", selectedNames);
@@ -142,10 +166,6 @@ namespace Vaflov {
             }
 
             // TODO: Add icons with tooltips instead of text
-            if (SirenixEditorGUI.ToolbarButton(new GUIContent("Save"))) {
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
             if (SirenixEditorGUI.ToolbarButton(new GUIContent("New"))) {
                 //ScriptableObjectCreator.ShowDialog<Item>("Assets/Plugins/Sirenix/Demos/Sample - RPG Editor/Items", obj => {
                 //    obj.Name = obj.name;
