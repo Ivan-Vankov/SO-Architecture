@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Vaflov {
     public static class TypeUtil {
@@ -17,6 +18,20 @@ namespace Vaflov {
             }
 
             return IsInheritedFrom(baseType, targetType);
+        }
+
+        public static FieldInfo GetFieldRecursive(Type type, string name, BindingFlags flags) {
+            while (true) {
+                FieldInfo field = type.GetField(name, flags);
+                if (field != null)
+                    return field;
+
+                Type baseType = type.BaseType;
+                if (baseType == null)
+                    return null;
+
+                type = baseType;
+            }
         }
     }
 }

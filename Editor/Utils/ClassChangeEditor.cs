@@ -8,9 +8,18 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector.Editor;
+#endif
 
 namespace Vaflov {
-    public abstract class ClassChangeEditor : Editor {
+    public abstract class ClassChangeEditor :
+#if ODIN_INSPECTOR
+        OdinEditor
+#else
+        Editor
+#endif
+        {
         public class ClassChangeData {
             public Type type;
             public string error;
@@ -49,7 +58,11 @@ namespace Vaflov {
 
         public static Dictionary<string, EditorApplication.CallbackFunction> editorKeyToChangeClassAction = new Dictionary<string, EditorApplication.CallbackFunction>();
 
+#if ODIN_INSPECTOR
+        protected override void OnEnable() {
+#else
         public void OnEnable() {
+#endif
             editorSO = new SerializedObject(this);
             foldoutExpandedProp = editorSO.FindProperty(nameof(foldoutExpanded));
             typeCountProp = editorSO.FindProperty(nameof(typeCount));
@@ -60,7 +73,11 @@ namespace Vaflov {
             editorKeyToChangeClassAction.Add(ChangeClassEditorInstanceIDKey, TryChangeTargetClassDelayed);
         }
 
+#if ODIN_INSPECTOR
+        protected override void OnDisable() {
+#else
         public void OnDisable() {
+#endif
             editorKeyToChangeClassAction.Remove(ChangeClassEditorInstanceIDKey);
         }
 

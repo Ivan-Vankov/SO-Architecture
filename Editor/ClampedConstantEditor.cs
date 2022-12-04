@@ -1,6 +1,7 @@
 using UnityEditor;
 using Vaflov;
 using System;
+using UnityEngine;
 
 [CustomEditor(typeof(ClampedConstant<>), true)]
 [CanEditMultipleObjects]
@@ -72,8 +73,10 @@ public class ClampedConstantEditor : ConstantEditor {
         EditorGUILayout.PropertyField(isClampedProperty);
         var isClamped = isClampedProperty.boolValue;
         if (isClamped) {
-            EditorGUILayout.PropertyField(minProperty);
-            EditorGUILayout.PropertyField(maxProperty);
+            using (new GUILayout.HorizontalScope()) {
+                EditorGUILayout.PropertyField(minProperty);
+                EditorGUILayout.PropertyField(maxProperty);
+            }
             (var _, var min) = GetNumericTypeData(minProperty.GetRawValue());
             (var _, var max) = GetNumericTypeData(maxProperty.GetRawValue());
 

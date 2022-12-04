@@ -69,7 +69,6 @@ namespace Vaflov {
         public void DrawTypePicker() {
             serializedObject.Update();
 
-
             //// TODO: Do this only once. For some reason it resets when you choose a type
             //titleContent = new GUIContent("Choose Arguments");
 
@@ -93,9 +92,9 @@ namespace Vaflov {
                 }
             }
             if (error != null) {
-                GUI.enabled = false;
-                GUILayout.Button(new GUIContent("Create Asset", error));
-                GUI.enabled = true;
+                using (new EditorGUI.DisabledScope()) {
+                    GUILayout.Button(new GUIContent("Create Asset", error));
+                }
             } else if (GUILayout.Button("Create Asset")) {
                 Debug.Log("here");
                 //DestroyImmediate(this);
