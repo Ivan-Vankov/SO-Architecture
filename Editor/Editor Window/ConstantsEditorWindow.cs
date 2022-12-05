@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using static Vaflov.TypeUtil;
+using static Vaflov.CancellationTokenUtils;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
@@ -18,43 +19,54 @@ namespace Vaflov {
 
         public CancellationTokenSource rebuildEditorGroupsCTS;
 
+        public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
+
         [MenuItem("Tools/SO Architecture/Constants Editor")]
         public static void Open() {
             var window = GetWindow<ConstantsEditorWindow>();
-            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(600, 400);
-            window.MenuWidth = 300;
+            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(DEFAULT_EDITOR_SIZE.x, DEFAULT_EDITOR_SIZE.y);
+            window.MenuWidth = DEFAULT_EDITOR_SIZE.x / 2;
         }
 
         protected override void OnEnable() {
             base.OnEnable();
-            ConstantEditorEvents.OnConstantEditorGroupChanged += RebuildEditorGroupsDelayed;
+            ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroupsDelayed;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            ConstantEditorEvents.OnConstantEditorGroupChanged -= RebuildEditorGroupsDelayed;
+            ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroupsDelayed;
         }
 
-        public void RebuildEditorGroupsDelayed(string _) {
-            rebuildEditorGroupsCTS?.Cancel();
-            rebuildEditorGroupsCTS?.Dispose();
-            rebuildEditorGroupsCTS = new CancellationTokenSource();
-            RebuildEditorGroups(rebuildEditorGroupsCTS.Token);
+        public void RebuildEditorGroupsDelayed() {
+            ResetCancellationTokenSource(ref rebuildEditorGroupsCTS);
+            RebuildEditorGroupsTask(rebuildEditorGroupsCTS.Token);
         }
 
-        public async void RebuildEditorGroups(CancellationToken token) {
+        public async void RebuildEditorGroupsTask(CancellationToken token) {
             try {
                 await Task.Delay(500, token);
             } catch (TaskCanceledException) {
                 // task cancellation is expected
             }
-            if (token.IsCancellationRequested) { return; }
+            if (token.IsCancellationRequested || this == null) { return; }
 
             try {
-                var selectedObj = MenuTree.Selection.FirstOrDefault();
+                var oldSelectedItem = MenuTree.Selection.FirstOrDefault();
+                var oldSelectedObj = oldSelectedItem?.Value as UnityEngine.Object;
                 ForceMenuTreeRebuild();
-                if (selectedObj != null) {
-                    MenuTree.Selection.Add(selectedObj);
+                if (oldSelectedObj != null) {
+                    OdinMenuItem newSelectedItem = null;
+                    MenuTree.EnumerateTree(menuItem => {
+                        if (newSelectedItem != null) { return; }
+                        var newSelectedObj = menuItem.Value as UnityEngine.Object;
+                        if (oldSelectedObj == newSelectedObj) {
+                            newSelectedItem = menuItem;
+                        }
+                    });
+                    if (newSelectedItem != null) {
+                        MenuTree.Selection.Add(newSelectedItem);
+                    }
                 }
             } catch (Exception ex) {
                 Debug.LogException(ex);
@@ -83,21 +95,38 @@ namespace Vaflov {
             //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
             //    .ToList();
 
-            var groups = new Dictionary<string, HashSet<OdinMenuItem>>();
+            var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
             foreach (var constantType in constantTypes) {
                 var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
                 var groupField = GetFieldRecursive(constantType, "editorGroup", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constantAssetGuid in constantAssetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-                    var menuItem = new OdinMenuItem(tree, constantAsset.name, constantAsset);
                     var groupName = groupField.GetValue(constantAsset) as string;
                     groupName = groupName == null || groupName == "" ? "Default" : groupName;
 
-                    if(!groups.TryGetValue(groupName, out HashSet<OdinMenuItem> groupResult)) {
-                        groupResult = new HashSet<OdinMenuItem>();
+                    if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
+                        groupResult = new HashSet<UnityEngine.Object>();
                         groups[groupName] = groupResult;
                     }
+                    groupResult.Add(constantAsset);
+                }
+            }
+
+            foreach ((var groupName, var group) in groups) {
+                var groupList = group.ToList();
+                groupList.Sort((UnityEngine.Object obj1, UnityEngine.Object obj2) => {
+                    var sortKey1 = (obj1 as ISortKeyObject).SortKey;
+                    var sortKey2 = (obj2 as ISortKeyObject).SortKey;
+                    if (sortKey1 != sortKey2) {
+                        return sortKey1.CompareTo(sortKey2);
+                    } else {
+                        return obj1.name.CompareTo(obj2.name);
+                    }
+                });
+                var groupResult = new HashSet<OdinMenuItem>();
+                foreach (var constaint in groupList) {
+                    var menuItem = new OdinMenuItem(tree, constaint.name, constaint);
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }

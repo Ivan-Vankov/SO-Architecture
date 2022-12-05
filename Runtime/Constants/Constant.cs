@@ -13,19 +13,28 @@ using static Vaflov.TypeUtil;
 
 namespace Vaflov {
     public static class ConstantEditorEvents {
-        public static Action<string> OnConstantEditorGroupChanged;
+        public static Action OnConstantEditorPropChanged;
     }
 
-    public class Constant<T> : ScriptableObject {
+    public interface ISortKeyObject {
+        public int SortKey { get; set; }
+    }
+
+    public class Constant<T> : ScriptableObject, ISortKeyObject {
         #if ODIN_INSPECTOR
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
-        [OnValueChanged(nameof(OnEditorGroupChanged))]
+        [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
         public string editorGroup;
 
-        #if ODIN_INSPECTOR
+        [field: SerializeField]
+        [field: BoxGroup("Editor Props")]
+        [field: OnValueChanged(nameof(OnEditorPropChanged))]
+        public int SortKey { get; set; }
+
+#if ODIN_INSPECTOR
         [BoxGroup("Editor Props")]
         #endif
         public string comment;
@@ -33,10 +42,9 @@ namespace Vaflov {
         [SerializeField] private T value = default;
         public T Value => value;
 
-
-        #if ODIN_INSPECTOR
-        public void OnEditorGroupChanged() {
-            ConstantEditorEvents.OnConstantEditorGroupChanged?.Invoke(name);
+#if ODIN_INSPECTOR
+        public void OnEditorPropChanged() {
+            ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
         }
 
         public IEnumerable<string> GetDropdownItems() {
@@ -58,9 +66,13 @@ namespace Vaflov {
                     }
                     if (!seenGroups.Contains(groupName)) {
                         seenGroups.Add(groupName);
-                        yield return groupName;
                     }
                 }
+            }
+            var groupsList = new List<string>(seenGroups);
+            groupsList.Sort();
+            foreach (var groupName in groupsList) {
+                yield return groupName;
             }
         }
         #endif

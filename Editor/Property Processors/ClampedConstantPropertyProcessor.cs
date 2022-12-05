@@ -19,6 +19,10 @@ namespace Vaflov {
             ValueEntry.OnChildValueChanged += RefreshOnClamped;
         }
 
+        ~ClampedConstantPropertyProcessor() {
+            ValueEntry.OnChildValueChanged -= RefreshOnClamped;
+        }
+
         public void RefreshOnClamped(int _) {
             var isClamped = ValueEntry.SmartValue.isClamped;
             if (oldIsClamped != isClamped) {
@@ -59,6 +63,9 @@ namespace Vaflov {
                 minProp.GetEditableAttributesList().Add<HideInInspector>();
                 maxProp.GetEditableAttributesList().Add<HideInInspector>();
             }
+            propertyInfos.AddMember("name",
+                new BoxGroupAttribute("Editor Props"),
+                new OnValueChangedAttribute("OnEditorPropChanged"));
         }
     }
 }
