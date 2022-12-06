@@ -14,7 +14,6 @@ using System.Threading;
 using System;
 
 namespace Vaflov {
-
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
 
         public CancellationTokenSource rebuildEditorGroupsCTS;
@@ -79,7 +78,8 @@ namespace Vaflov {
             tree.Config.DrawSearchToolbar = true;
 
             var menuStyle = new OdinMenuStyle() {
-                Height = 20,
+                Borders = false,
+                Height = 18,
                 IconSize = 15f,
                 TrianglePadding = 1.50f,
                 AlignTriangleLeft = true,
@@ -98,11 +98,10 @@ namespace Vaflov {
             var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
             foreach (var constantType in constantTypes) {
                 var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
-                var groupField = GetFieldRecursive(constantType, "editorGroup", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constantAssetGuid in constantAssetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-                    var groupName = groupField.GetValue(constantAsset) as string;
+                    var groupName = (constantAsset as IEditorObject).EditorGroup;
                     groupName = groupName == null || groupName == "" ? "Default" : groupName;
 
                     if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
@@ -165,10 +164,8 @@ namespace Vaflov {
                 GUI.Label(valueRect, valueContent, labelStyle);
                 GUIHelper.PopColor();
 
-                var commentField = GetFieldRecursive(valueType, "comment", bindingFlags);
-                var comment = commentField.GetValue(x.Value);
-                var commentLabel = comment?.ToString();
-                if (commentLabel == "") { return; }
+                var commentLabel = (x.Value as IEditorObject)?.Comment;
+                if (commentLabel == null || commentLabel == "") { return; }
                 commentLabel = (" " + commentLabel).Trim('\n');
                 var valueLabelSize = labelStyle.CalcSize(valueContent);
                 var commentRect = new Rect(valueRect.x + valueLabelSize.x, valueRect.y, valueRect.width - valueLabelSize.x, valueRect.height);

@@ -1,48 +1,62 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using System;
 #endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
-using static Vaflov.TypeUtil;
 
 namespace Vaflov {
+    #if ODIN_INSPECTOR
     public static class ConstantEditorEvents {
         public static Action OnConstantEditorPropChanged;
     }
+    #endif
 
     public interface ISortKeyObject {
         public int SortKey { get; set; }
     }
 
-    public class Constant<T> : ScriptableObject, ISortKeyObject {
+    public interface IEditorObject {
+        public string EditorGroup { get; set; }
+        public string Comment { get; set; }
+    }
+
+
+    public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
         #if ODIN_INSPECTOR
+        [ShowInInspector]
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
+        [PropertyOrder(0)]
         [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
-        public string editorGroup;
+        public string EditorGroup { get; set; }
 
-        [field: SerializeField]
-        [field: BoxGroup("Editor Props")]
-        [field: OnValueChanged(nameof(OnEditorPropChanged))]
+        [ShowInInspector]
+        [BoxGroup("Editor Props")]
+        [PropertyOrder(5)]
+        [OnValueChanged(nameof(OnEditorPropChanged))]
         public int SortKey { get; set; }
 
-#if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR
+        [ShowInInspector]
         [BoxGroup("Editor Props")]
+        [PropertyOrder(10)]
+        [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
-        public string comment;
+        public string Comment { get; set; }
 
-        [SerializeField] private T value = default;
+        [SerializeField]
+        [PropertyOrder(20)]
+        private T value = default;
         public T Value => value;
 
-#if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR
         public void OnEditorPropChanged() {
             ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
         }
@@ -55,12 +69,11 @@ namespace Vaflov {
             var seenGroups = new HashSet<string>();
             foreach (var constantType in constantTypes) {
                 var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
-                var groupField = GetFieldRecursive(constantType, nameof(editorGroup), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constantAssetGuid in constantAssetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
                     var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
 
-                    var groupName = groupField.GetValue(constantAsset) as string;
+                    var groupName = (constantAsset as IEditorObject).EditorGroup;
                     if (groupName == null) {
                         continue;
                     }
