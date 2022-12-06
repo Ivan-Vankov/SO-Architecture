@@ -1,11 +1,9 @@
+using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using System;
 using System.Linq;
-using SolidUtilities;
-using SolidUtilities.Editor;
-using TypeReferences;
 using UnityEditor;
 using UnityEngine;
-using Vaflov;
 
 namespace Vaflov {
     /// <summary>
@@ -24,9 +22,8 @@ namespace Vaflov {
         public void CreateTypeSelectionWindow(Action<Type[]> onTypesSelected, string[] genericArgNames, Type[][] genericParamConstraints) {
             InitializeMembers(onTypesSelected, genericArgNames, genericParamConstraints);
             SubscribeToCloseWindow();
-
-            this.Resize(WindowWidth, GetWindowHeight(_typeRefs.Length));
-            this.CenterOnMainWin();
+            //this.Resize(WindowWidth, GetWindowHeight(_typeRefs.Length));
+            //this.CenterOnMainWin();
             Show();
         }
 
@@ -44,7 +41,7 @@ namespace Vaflov {
             for (int i = 0; i < typesArray.arraySize; i++) {
                 EditorGUILayout.PropertyField(
                     typesArray.GetArrayElementAtIndex(i),
-                    GUIContentHelper.Temp(_genericArgNames[i]));
+                    GUIHelper.TempContent(_genericArgNames[i]));
             }
 
             if (!GUILayout.Button("Create Asset"))
@@ -90,7 +87,7 @@ namespace Vaflov {
                 typeRefs[i] = new TypeReferenceWithBaseTypes {
                     BaseTypeNames = genericParamConstraints[i]
                         .Select(type => type != null
-                            ? $"{type.FullName}, {type.GetShortAssemblyName()}"
+                            ? $"{type.FullName}, {type.Name}"
                             : string.Empty)
                         .ToArray()
                 };

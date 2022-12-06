@@ -42,9 +42,9 @@ namespace Vaflov {
             RebuildEditorGroupsTask(rebuildEditorGroupsCTS.Token);
         }
 
-        public async void RebuildEditorGroupsTask(CancellationToken token) {
+        public void RebuildEditorGroupsTask(CancellationToken token) {
             try {
-                await Task.Delay(500, token);
+                //await Task.Delay(500, token);
             } catch (TaskCanceledException) {
                 // task cancellation is expected
             }
@@ -197,6 +197,7 @@ namespace Vaflov {
                 //    obj.Name = obj.name;
                 //    base.TrySelectMenuItemWithObject(obj); // Selects the newly created item in the editor
                 //});
+                OneTypeSelectionWindow.ShowInPopup(200);
             }
             SirenixEditorGUI.EndHorizontalToolbar();
         }

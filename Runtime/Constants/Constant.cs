@@ -33,6 +33,7 @@ namespace Vaflov {
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
         [PropertyOrder(0)]
+        [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
         public string EditorGroup { get; set; }
@@ -40,6 +41,7 @@ namespace Vaflov {
         [ShowInInspector]
         [BoxGroup("Editor Props")]
         [PropertyOrder(5)]
+        [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
         public int SortKey { get; set; }
 
@@ -47,6 +49,7 @@ namespace Vaflov {
         [ShowInInspector]
         [BoxGroup("Editor Props")]
         [PropertyOrder(10)]
+        [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
         public string Comment { get; set; }

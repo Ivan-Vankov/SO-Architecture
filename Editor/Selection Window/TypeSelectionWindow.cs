@@ -1,9 +1,6 @@
 using System;
 using System.Linq;
 //using SelectionWindow;
-using SolidUtilities;
-using UnityDropdown.Editor;
-using UnityEngine;
 
 namespace Vaflov {
     public static class TypeSelectionWindow {
@@ -12,7 +9,7 @@ namespace Vaflov {
                 .Select(type => type.GetGenericParameterConstraints())
                 .ToArray();
 
-            var genericArgNames = TypeHelper.GetNiceArgsOfGenericType(genericTypeWithoutArgs);
+            //var genericArgNames = TypeHelper.GetNiceArgsOfGenericType(genericTypeWithoutArgs);
 
             //ITypeSelectionWindow window;
             //Action<Action<Type[]>, string[], Type[][]> func;
@@ -23,8 +20,8 @@ namespace Vaflov {
             //    window = ScriptableObject.CreateInstance<MultipleTypeSelectionWindow>();
             //}
 
-            ScriptableObject.CreateInstance<MultipleTypeSelectionWindow>()
-                .CreateTypeSelectionWindow(onTypesSelected, genericArgNames, genericParamConstraints);
+            //ScriptableObject.CreateInstance<MultipleTypeSelectionWindow>()
+            //    .CreateTypeSelectionWindow(onTypesSelected, genericArgNames, genericParamConstraints);
         }
     }
 }

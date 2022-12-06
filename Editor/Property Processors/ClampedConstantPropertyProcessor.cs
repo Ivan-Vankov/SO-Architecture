@@ -32,6 +32,7 @@ namespace Vaflov {
             }
             propertyInfos.AddMember("name",
                 new BoxGroupAttribute("Editor Props"),
+                new DelayedPropertyAttribute(),
                 new OnValueChangedAttribute("OnEditorPropChanged"));
         }
     }

@@ -5,9 +5,7 @@
         "com.vaflov.so-architecture",
         "TypeReferences",
         "TypeReferences.Editor",
-        "SolidUtilities",
-        "UnityDropdown.Editor",
-        "SolidUtilities.Editor"
+        "UnityDropdown.Editor"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -73,26 +73,29 @@ namespace Vaflov {
             //titleContent = new GUIContent("Choose Arguments");
 
             //typeCount = EditorGUILayout.IntSlider("Type Count", typeCount, 0, MAX_TYPE_COUNT);
-            EditorGUILayout.PropertyField(typeCountProp);
+            if (!HasForcedTypeCount) {
+                EditorGUILayout.PropertyField(typeCountProp);
+            }
             //if (typeCount == 1) {
             //    EditorGUILayout.PropertyField(typesProp.GetArrayElementAtIndex(0), new GUIContent($"Arg"));
             //} else {
-            for (int i = 0; i < typeCount; i++) {
+            for (int i = 0; i < TypeCount; i++) {
                 EditorGUILayout.PropertyField(
                     typesProp.GetArrayElementAtIndex(i),
-                    new GUIContent($"Type {i + 1}"));
+                    GUIContent.none);
+                    //new GUIContent($"Type {i + 1}"));
             }
             //}
 
             string error = null;
-            for (int i = 0; i < typeCount; i++) {
+            for (int i = 0; i < TypeCount; i++) {
                 if (types[i].Type == null) {
                     error = "Choose all the type parameters first!";
                     break;
                 }
             }
             if (error != null) {
-                using (new EditorGUI.DisabledScope()) {
+                using (new EditorGUI.DisabledScope(true)) {
                     GUILayout.Button(new GUIContent("Create Asset", error));
                 }
             } else if (GUILayout.Button("Create Asset")) {
@@ -106,4 +109,37 @@ namespace Vaflov {
             serializedObject.ApplyModifiedProperties();
         }
     }
+
+    //public class TypeReferenceArrayListAttributeProcessor : OdinAttributeProcessor<TypeReference> {
+    //    public override bool CanProcessChildMemberAttributes(InspectorProperty parentProperty, MemberInfo member) {
+    //        //return typeof(Array).IsAssignableFrom(parentProperty.ParentType);
+    //        return false;
+    //    }
+
+    //    public override void ProcessChildMemberAttributes(InspectorProperty parentProperty, MemberInfo member, List<Attribute> attributes) {
+    //        attributes.Clear();
+
+    //        switch (member.Name) {
+    //            case "Icon":
+    //                attributes.Add(new HorizontalGroupAttribute("Split", width: 70));
+    //                attributes.Add(new PreviewFieldAttribute(70, ObjectFieldAlignment.Left));
+    //                attributes.Add(new PropertyOrderAttribute(-5));
+    //                attributes.Add(new HideLabelAttribute());
+    //                break;
+
+    //            case "Name":
+    //            case "Id":
+    //                attributes.Add(new BoxGroupAttribute("Split/$Name", true));
+    //                attributes.Add(new VerticalGroupAttribute("Split/$Name/Vertical"));
+    //                attributes.Add(new HorizontalGroupAttribute("Split/$Name/Vertical/NameId"));
+    //                attributes.Add(new LabelWidthAttribute(40));
+    //                break;
+
+    //            default:
+    //                attributes.Add(new FoldoutGroupAttribute("Split/$Name/Vertical/Properties", expanded: false));
+    //                attributes.Add(new LabelWidthAttribute(60));
+    //                break;
+    //        }
+    //    }
+    //}
 }
