@@ -27,6 +27,9 @@ namespace Vaflov {
 
 
     public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
+        [HideInInspector]
+        public string editorGroup;
+
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [LabelText("Group")]
@@ -36,23 +39,27 @@ namespace Vaflov {
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
-        public string EditorGroup { get; set; }
+        public string EditorGroup { get => editorGroup; set => editorGroup = value; }
 
+        [HideInInspector]
+        public int sortKey;
+        #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
         [PropertyOrder(5)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
-        public int SortKey { get; set; }
+        #endif
+        public int SortKey { get => sortKey; set => sortKey = value; }
 
+        [HideInInspector]
+        public string comment;
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
         [PropertyOrder(10)]
-        [DelayedProperty]
-        [OnValueChanged(nameof(OnEditorPropChanged))]
         #endif
-        public string Comment { get; set; }
+        public string Comment { get => comment; set => comment = value; }
 
         [SerializeField]
         [PropertyOrder(20)]

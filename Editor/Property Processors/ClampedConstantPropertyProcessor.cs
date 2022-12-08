@@ -21,7 +21,6 @@ namespace Vaflov {
         public void RefreshGUI() {
             Property.RefreshSetup();
             GUIHelper.RequestRepaint();
-
         }
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {

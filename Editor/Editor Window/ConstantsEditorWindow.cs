@@ -8,68 +8,111 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using static Vaflov.TypeUtil;
-using static Vaflov.CancellationTokenUtils;
-using System.Threading.Tasks;
-using System.Threading;
 using System;
+using Sirenix.OdinInspector;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
 
-        public CancellationTokenSource rebuildEditorGroupsCTS;
+        public class CreateNewConstant {
+            [HideInInspector]
+            //[HideLabel]
+            //[LabelWidth(40)]
+            //[LabelText("Type")]
+            public Type targetType;
+
+            [LabelWidth(40)]
+            public string name;
+
+            // This tooltip doesn't work
+            //[Tooltip("Select a type")]
+            //[DisableIf(nameof(IsSelectedTypeInvalid))]
+            //[Button]
+            //public void CreateAsset() {
+            //    Debug.Log("Here");
+            //}
+
+            //public bool IsSelectedTypeInvalid() {
+            //    return selectedType.Type == null;
+            //}
+
+            private OdinSelector<Type> SelectType(Rect arg) {
+                var targetTypeFlags = AssemblyTypeFlags.GameTypes;
+                TypeSelector typeSelector = new TypeSelector(targetTypeFlags, supportsMultiSelect: false);
+                typeSelector.SelectionChanged += types => {
+                    Type type = types.FirstOrDefault();
+                    if (type != null) {
+                        targetType = type;
+                        //base.titleContent = new GUIContent(targetType.GetNiceName());
+                    }
+                };
+                typeSelector.SetSelection(targetType);
+                typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
+                return typeSelector;
+            }
+
+
+            [OnInspectorGUI]
+            private void OnInspectorGUI() {
+                var typeText = targetType == null ? "Select Type" : targetType.GetNiceName();
+                typeText = typeText.Length <= 25 ? typeText : typeText.Substring(0, 25) + "...";
+                var typeTextContent = new GUIContent(typeText);
+                //var typeTextStyle = EditorStyles.toolbarButton;
+                var typeTextStyle = EditorStyles.toolbarDropDown;
+                var rect = GUILayoutUtility.GetRect(typeTextContent, typeTextStyle);
+                //rect = rect.SetWidth(Mathf.Max(rect.width, maxSize.x));
+                //Rect rect = GUILayoutUtility.GetRect(0f, 21f, SirenixGUIStyles.ToolbarBackground);
+                //GUILayoutUtility.GetRect(typeText, EditorS)
+                //Rect rect2 = rect.AlignRight(80f);
+                //Rect rect3 = rect.SetXMax(rect2.xMin);
+                OdinSelector<Type>.DrawSelectorDropdown(rect, typeTextContent, SelectType, typeTextStyle);
+
+
+
+                if (targetType == null) {
+                    using (new EditorGUI.DisabledScope(true)) {
+                        GUILayout.Button(new GUIContent("Create Asset", "test tooltip"));
+                    }
+                } else if (GUILayout.Button("Create Asset")) {
+                    Debug.Log("here");
+
+                    //EditorIconsOverview.OpenEditorIconsOverview();
+
+                    //DestroyImmediate(this);
+                    //serializedObject.Dispose();
+                    //onGenericSOCreated?.Invoke();
+                }
+            }
+        }
 
         public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
+
+        public CreateNewConstant newConstantCreator;
 
         [MenuItem("Tools/SO Architecture/Constants Editor")]
         public static void Open() {
             var window = GetWindow<ConstantsEditorWindow>();
             window.position = GUIHelper.GetEditorWindowRect().AlignCenter(DEFAULT_EDITOR_SIZE.x, DEFAULT_EDITOR_SIZE.y);
             window.MenuWidth = DEFAULT_EDITOR_SIZE.x / 2;
+            var tex = Resources.Load<Texture2D>("pi");
+            window.titleContent = new GUIContent("Constants", tex);
         }
 
         protected override void OnEnable() {
+            newConstantCreator = new CreateNewConstant();
             base.OnEnable();
-            ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroupsDelayed;
+            ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroupsDelayed;
+            ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroups;
         }
 
-        public void RebuildEditorGroupsDelayed() {
-            ResetCancellationTokenSource(ref rebuildEditorGroupsCTS);
-            RebuildEditorGroupsTask(rebuildEditorGroupsCTS.Token);
-        }
-
-        public void RebuildEditorGroupsTask(CancellationToken token) {
-            try {
-                //await Task.Delay(500, token);
-            } catch (TaskCanceledException) {
-                // task cancellation is expected
-            }
-            if (token.IsCancellationRequested || this == null) { return; }
-
-            try {
-                var oldSelectedItem = MenuTree.Selection.FirstOrDefault();
-                var oldSelectedObj = oldSelectedItem?.Value as UnityEngine.Object;
-                ForceMenuTreeRebuild();
-                if (oldSelectedObj != null) {
-                    OdinMenuItem newSelectedItem = null;
-                    MenuTree.EnumerateTree(menuItem => {
-                        if (newSelectedItem != null) { return; }
-                        var newSelectedObj = menuItem.Value as UnityEngine.Object;
-                        if (oldSelectedObj == newSelectedObj) {
-                            newSelectedItem = menuItem;
-                        }
-                    });
-                    if (newSelectedItem != null) {
-                        MenuTree.Selection.Add(newSelectedItem);
-                    }
-                }
-            } catch (Exception ex) {
-                Debug.LogException(ex);
-            }
+        public void RebuildEditorGroups() {
+            var oldSelectedObj = MenuTree.Selection.FirstOrDefault()?.Value;
+            ForceMenuTreeRebuild();
+            TrySelectMenuItemWithObject(oldSelectedObj);
         }
 
         protected override OdinMenuTree BuildMenuTree() {
@@ -135,6 +178,8 @@ namespace Vaflov {
             tree.EnumerateTree().ForEach(ShowValue);
             tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
 
+            tree.Add("", newConstantCreator);
+
             return tree;
         }
 
@@ -180,7 +225,6 @@ namespace Vaflov {
             if (MenuTree == null) { return; }
             var selected = MenuTree.Selection.FirstOrDefault();
             var toolbarHeight = MenuTree.Config.SearchToolbarHeight;
-
             SirenixEditorGUI.BeginHorizontalToolbar(toolbarHeight);
             if (MenuTree.Selection != null) {
                 var selectedNames = MenuTree.Selection?.Select(selected => selected.Name);
@@ -191,14 +235,31 @@ namespace Vaflov {
                 GUILayout.Label(selectionLabel);
             }
 
-            // TODO: Add icons with tooltips instead of text
-            if (SirenixEditorGUI.ToolbarButton(new GUIContent("New"))) {
-                //ScriptableObjectCreator.ShowDialog<Item>("Assets/Plugins/Sirenix/Demos/Sample - RPG Editor/Items", obj => {
-                //    obj.Name = obj.name;
-                //    base.TrySelectMenuItemWithObject(obj); // Selects the newly created item in the editor
-                //});
-                OneTypeSelectionWindow.ShowInPopup(200);
+            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Plus, toolbarHeight, tooltip: "Add a new constant")) {
+                newConstantCreator.name = null;
+                newConstantCreator.targetType = null;
+                TrySelectMenuItemWithObject(newConstantCreator);
+                //OneTypeSelectionWindow.ShowInPopup(200);
+                //EditorIconsOverview.OpenEditorIconsOverview();
             }
+
+            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.X, toolbarHeight, tooltip: "Delete the selected constant")) {
+                var selectedConstant = MenuTree.Selection.SelectedValue as UnityEngine.Object;
+                string path = AssetDatabase.GetAssetPath(selectedConstant);
+                if (!string.IsNullOrEmpty(path)) {
+                    Debug.Log("Deleting asset " + path);
+                    AssetDatabase.DeleteAsset(path);
+                    AssetDatabase.SaveAssets();
+                } else {
+                    Debug.Log("No asset path for " + selectedConstant);
+                }
+                //OneTypeSelectionWindow.ShowInPopup(200);
+                //EditorIconsOverview.OpenEditorIconsOverview();
+            }
+
+            //if (SirenixEditorGUI.ToolbarButton(EditorIcons.Plus)) {
+            //    OneTypeSelectionWindow.ShowInPopup(200);
+            //}
             SirenixEditorGUI.EndHorizontalToolbar();
         }
     }
