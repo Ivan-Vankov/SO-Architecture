@@ -12,27 +12,28 @@ namespace Vaflov {
 
     public class ClampedConstant<T> : Constant<T> where T: IComparable, IComparable<T>, IEquatable<T> {
         #if ODIN_INSPECTOR
-        [PropertyOrder(100)]        
+        [LabelWidth(60)]
+        [PropertyOrder(100)]
         [OnValueChanged(nameof(OnClampedChanged))]
         #endif
-        public bool isClamped = false;
+        public bool clamped = false;
 
         #if ODIN_INSPECTOR
         [MaxValue(nameof(max))]
-        [ShowIf(nameof(isClamped))]
-        [PropertyOrder(15)]
+        [ShowIf(nameof(clamped))]
         [LabelWidth(30)]
         [HorizontalGroup("Slider")]
-        #endif
+        [PropertyOrder(15)]
+#endif
         public T min;
 
         #if ODIN_INSPECTOR
         [MinValue(nameof(min))]
-        [ShowIf(nameof(isClamped))]
-        [PropertyOrder(16)]
-        [LabelWidth(30)]
+        [ShowIf(nameof(clamped))]
+        [LabelWidth(25)]
         [HorizontalGroup("Slider")]
-        #endif
+        [PropertyOrder(16)]
+#endif
         public T max;
 
         #if ODIN_INSPECTOR

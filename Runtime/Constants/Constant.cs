@@ -1,7 +1,9 @@
 ﻿#if ODIN_INSPECTOR
+using Microsoft.CSharp;
 using Sirenix.OdinInspector;
 #endif
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
@@ -35,6 +37,7 @@ namespace Vaflov {
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
+        [LabelWidth(60)]
         [PropertyOrder(0)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -46,6 +49,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
+        [LabelWidth(60)]
         [PropertyOrder(5)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -57,18 +61,41 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
+        [LabelWidth(60)]
         [PropertyOrder(10)]
         #endif
         public string Comment { get => comment; set => comment = value; }
 
         [SerializeField]
+        #if ODIN_INSPECTOR
+        [LabelWidth(60)]
+        [InlineProperty]
         [PropertyOrder(20)]
+        #endif
         private T value = default;
         public T Value => value;
+
+        public static readonly CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+        [HideInInspector]
+        [NonSerialized]
+        public CodeTypeReference typeRef = new CodeTypeReference(typeof(T));
+
+        [ShowInInspector]
+        [ReadOnly]
+        [LabelWidth(60)]
+        [PropertyOrder(11)]
+        public string Type => codeProvider.GetTypeOutput(typeRef);
 
         #if ODIN_INSPECTOR
         public void OnEditorPropChanged() {
             ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
+        }
+
+        [BoxGroup("Editor Props")]
+        [OnInspectorGUI]
+        public void ShowName() {
+            // TODO: Add the asset name change here
+            EditorGUILayout.LabelField("abc");
         }
 
         public IEnumerable<string> GetDropdownItems() {

@@ -13,7 +13,7 @@ public class ClampedConstantEditor : ConstantEditor {
 
     public new void OnEnable() {
         valueProperty = serializedObject.FindProperty("value");
-        isClampedProperty = serializedObject.FindProperty("isClamped");
+        isClampedProperty = serializedObject.FindProperty("clamped");
         minProperty = serializedObject.FindProperty("min");
         maxProperty = serializedObject.FindProperty("max");
         base.OnEnable();

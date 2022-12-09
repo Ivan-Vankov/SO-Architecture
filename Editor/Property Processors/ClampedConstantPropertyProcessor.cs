@@ -26,7 +26,7 @@ namespace Vaflov {
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var constant = ValueEntry.SmartValue;
             var valueProp = propertyInfos.Find("value");
-            if (constant.isClamped) {
+            if (constant.clamped) {
                 valueProp.GetEditableAttributesList().Add(new PropertyRangeAttribute("min", "max"));
             }
             propertyInfos.AddMember("name",
