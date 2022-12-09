@@ -47,6 +47,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector.Editor.Validation;
 
 namespace Vaflov {
     public class OneTypeSelectionWindow : OdinEditorWindow {
@@ -80,7 +81,11 @@ namespace Vaflov {
         public Type targetType;
 
         [LabelWidth(40)]
+        [DelayedProperty]
+        [UniqueConstantName]
         public new string name;
+
+        //Sirenix.OdinInspector.Editor.Validation.DefaultValidatorLocator
 
         // This tooltip doesn't work
         //[Tooltip("Select a type")]
@@ -133,6 +138,7 @@ namespace Vaflov {
                 }
             } else if (GUILayout.Button("Create Asset")) {
                 Debug.Log("here");
+                //Debug.Log(typeof(UniqueConstantNameValidator).InheritsFrom(typeof(Validator)) ? "inh" : "not inh");
 
                 //EditorIconsOverview.OpenEditorIconsOverview();
 

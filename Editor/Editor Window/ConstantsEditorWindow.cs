@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using static Vaflov.TypeUtil;
 using System;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor.Validation;
+using Sirenix.OdinInspector.Editor.Drawers;
+using static UnityEngine.Networking.UnityWebRequest;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
@@ -21,8 +24,17 @@ namespace Vaflov {
             //[LabelText("Type")]
             public Type targetType;
 
-            [LabelWidth(40)]
+            //[LabelWidth(40)]
+            //[DelayedProperty]
+            //[UniqueConstantName]
+            [HideInInspector]
             public string name;
+
+            [HideInInspector]
+            public string nameError;
+
+            [HideInInspector]
+            public List<string> constantNames;
 
             // This tooltip doesn't work
             //[Tooltip("Select a type")]
@@ -36,29 +48,75 @@ namespace Vaflov {
             //    return selectedType.Type == null;
             //}
 
+            public void Reset() {
+                targetType = null;
+                name = null;
+                nameError = null;
+            }
+
+            public string ValidateConstantNameUniqueness(string targetName) {
+                if (constantNames == null) {
+                    constantNames = new List<string>();
+                    var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
+                        .Where(type => !type.IsGenericType)
+                        .ToList();
+
+                    foreach (var constantType in constantTypes) {
+                        var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
+                        foreach (var constantAssetGuid in constantAssetGuids) {
+                            var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
+                            var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
+
+                            constantNames.Add(constantAsset.name);
+                        }
+                    }
+                }
+                for (int i = 0; i < constantNames.Count; ++i) {
+                    if (string.Compare(constantNames[i], targetName, StringComparison.OrdinalIgnoreCase) == 0) {
+                        return "Name is not unique";
+                    }
+                }
+                return null;
+            }
+
             private OdinSelector<Type> SelectType(Rect arg) {
                 var targetTypeFlags = AssemblyTypeFlags.GameTypes;
                 TypeSelector typeSelector = new TypeSelector(targetTypeFlags, supportsMultiSelect: false);
                 typeSelector.SelectionChanged += types => {
-                    Type type = types.FirstOrDefault();
-                    if (type != null) {
-                        targetType = type;
-                        //base.titleContent = new GUIContent(targetType.GetNiceName());
-                    }
+                    targetType = types.FirstOrDefault();
                 };
                 typeSelector.SetSelection(targetType);
                 typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
                 return typeSelector;
             }
 
-
             [OnInspectorGUI]
             private void OnInspectorGUI() {
+                var currNameError = string.IsNullOrEmpty(name)
+                    ? "Name is empty"
+                    : nameError;
+                if (!string.IsNullOrEmpty(currNameError)) {
+                    SirenixEditorGUI.ErrorMessageBox(currNameError);
+                }
+                GUIHelper.PushLabelWidth(40);
+                var oldName = name;
+                name = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), name);
+                if (name != oldName) {
+                    nameError = ValidateConstantNameUniqueness(name);
+                }
+                //SirenixEditorGUI.ErrorMessageBox("error");
+                GUIHelper.PopLabelWidth();
+
+                var targetTypeError = targetType == null ? "Type is empty" : null; 
+                if (!string.IsNullOrEmpty(targetTypeError)) {
+                    SirenixEditorGUI.ErrorMessageBox(targetTypeError);
+                }
                 var typeText = targetType == null ? "Select Type" : targetType.GetNiceName();
                 typeText = typeText.Length <= 25 ? typeText : typeText.Substring(0, 25) + "...";
                 var typeTextContent = new GUIContent(typeText);
                 //var typeTextStyle = EditorStyles.toolbarButton;
-                var typeTextStyle = EditorStyles.toolbarDropDown;
+                //var typeTextStyle = EditorStyles.toolbarDropDown;
+                var typeTextStyle = EditorStyles.layerMaskField;
                 var rect = GUILayoutUtility.GetRect(typeTextContent, typeTextStyle);
                 //rect = rect.SetWidth(Mathf.Max(rect.width, maxSize.x));
                 //Rect rect = GUILayoutUtility.GetRect(0f, 21f, SirenixGUIStyles.ToolbarBackground);
@@ -69,12 +127,13 @@ namespace Vaflov {
 
 
 
-                if (targetType == null) {
+                if (!string.IsNullOrEmpty(currNameError) || !string.IsNullOrEmpty(targetTypeError)) {
                     using (new EditorGUI.DisabledScope(true)) {
-                        GUILayout.Button(new GUIContent("Create Asset", "test tooltip"));
+                        GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                     }
                 } else if (GUILayout.Button("Create Asset")) {
                     Debug.Log("here");
+                    Debug.Log(typeof(UniqueConstantNameValidator).InheritsFrom(typeof(Validator)) ? "inh" : "not inh");
 
                     //EditorIconsOverview.OpenEditorIconsOverview();
 
@@ -178,7 +237,8 @@ namespace Vaflov {
             tree.EnumerateTree().ForEach(ShowValue);
             tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
 
-            tree.Add("", newConstantCreator);
+            //tree.Add("", newConstantCreator);
+            tree.AddMenuItemAtPath(new List<OdinMenuItem>(), "", new OdinMenuItem(tree, "", newConstantCreator));
 
             return tree;
         }
@@ -236,8 +296,7 @@ namespace Vaflov {
             }
 
             if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Plus, toolbarHeight, tooltip: "Add a new constant")) {
-                newConstantCreator.name = null;
-                newConstantCreator.targetType = null;
+                newConstantCreator.Reset();
                 TrySelectMenuItemWithObject(newConstantCreator);
                 //OneTypeSelectionWindow.ShowInPopup(200);
                 //EditorIconsOverview.OpenEditorIconsOverview();
