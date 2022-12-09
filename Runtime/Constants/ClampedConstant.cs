@@ -30,7 +30,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [MinValue(nameof(min))]
         [ShowIf(nameof(clamped))]
-        [LabelWidth(25)]
+        [LabelWidth(30)]
         [HorizontalGroup("Slider")]
         [PropertyOrder(16)]
 #endif

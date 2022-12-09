@@ -29,10 +29,6 @@ namespace Vaflov {
             if (constant.clamped) {
                 valueProp.GetEditableAttributesList().Add(new PropertyRangeAttribute("min", "max"));
             }
-            propertyInfos.AddMember("name",
-                new BoxGroupAttribute("Editor Props"),
-                new DelayedPropertyAttribute(),
-                new OnValueChangedAttribute("OnEditorPropChanged"));
         }
     }
 }

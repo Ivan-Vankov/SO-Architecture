@@ -1,6 +1,7 @@
 ﻿#if ODIN_INSPECTOR
 using Microsoft.CSharp;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities.Editor;
 #endif
 using System;
 using System.CodeDom;
@@ -86,16 +87,26 @@ namespace Vaflov {
         [PropertyOrder(11)]
         public string Type => codeProvider.GetTypeOutput(typeRef);
 
-        #if ODIN_INSPECTOR
-        public void OnEditorPropChanged() {
-            ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
-        }
-
+#if ODIN_INSPECTOR
         [BoxGroup("Editor Props")]
         [OnInspectorGUI]
         public void ShowName() {
-            // TODO: Add the asset name change here
-            EditorGUILayout.LabelField("abc");
+            // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg
+            // Or at liest it should become multi-editing aware
+            // It should use the same logic as the "new constant" name
+            var oldName = name;
+            GUIHelper.PushLabelWidth(60);
+            var newName = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
+            GUIHelper.PopLabelWidth();
+            if (oldName != newName) {
+                var assetPath = AssetDatabase.GetAssetPath(this);
+                AssetDatabase.RenameAsset(assetPath, newName);
+                OnEditorPropChanged();
+            }
+        }
+
+        public void OnEditorPropChanged() {
+            ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
         }
 
         public IEnumerable<string> GetDropdownItems() {
