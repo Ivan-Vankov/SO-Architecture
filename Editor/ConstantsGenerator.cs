@@ -17,7 +17,9 @@ namespace Vaflov {
         public static readonly string GENERATED_CONSTANT_NAME_KEY = nameof(GENERATED_CONSTANT_NAME_KEY);
         public static readonly string GENERATED_CONSTANT_TYPE_KEY = nameof(GENERATED_CONSTANT_TYPE_KEY);
 
-        public static UnityEngine.Object GenerateConstantAsset(string name, Type wrappedConstantType) {
+        public static event Action<ScriptableObject> OnConstantAssetGenerated;
+
+        public static void GenerateConstantAsset(string name, Type wrappedConstantType) {
             var constantType = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => {
                     if (type.IsGenericType)
@@ -34,13 +36,13 @@ namespace Vaflov {
                 EditorPrefs.SetString(GENERATED_CONSTANT_NAME_KEY, name);
                 EditorPrefs.SetString(GENERATED_CONSTANT_TYPE_KEY, wrappedConstantType.AssemblyQualifiedName);
                 GenerateConstantClass(wrappedConstantType);
-                return null;
+                return;
             }
 
             var constantAsset = ScriptableObject.CreateInstance(constantType);
             AssetDatabase.CreateAsset(constantAsset, $"Assets/Resources/Constant/{name}.asset");
             AssetDatabase.SaveAssets();
-            return constantAsset;
+            OnConstantAssetGenerated?.Invoke(constantAsset);
         }
 
         public static void GenerateConstantClass(Type wrappedConstantType) {

@@ -37,11 +37,13 @@ namespace Vaflov {
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
             ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
+            ConstantsGenerator.OnConstantAssetGenerated += TrySelectMenuItemWithObject;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
             ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroups;
+            ConstantsGenerator.OnConstantAssetGenerated -= TrySelectMenuItemWithObject;
         }
 
         public void OpenConstantCreationMenu() {
@@ -124,11 +126,6 @@ namespace Vaflov {
             //};
             tree.AddMenuItemAtPath("", constantCreatorMenuItem);
 
-            if (CreateNewConstant.lastCreatedObject != null) {
-                TrySelectMenuItemWithObject(CreateNewConstant.lastCreatedObject);
-                CreateNewConstant.lastCreatedObject = null;
-            }
-
             return tree;
         }
 
@@ -162,9 +159,11 @@ namespace Vaflov {
                 }
             }
 
-            //if (SirenixEditorGUI.ToolbarButton(EditorIcons.Plus)) {
-            //    OneTypeSelectionWindow.ShowInPopup(200);
-            //}
+            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Refresh, toolbarHeight, tooltip: "Regenerate constants")) {
+                ConstantsGenerator.GenerateConstants();
+                ForceMenuTreeRebuild();
+            }
+
             SirenixEditorGUI.EndHorizontalToolbar();
         }
     }
@@ -238,8 +237,6 @@ namespace Vaflov {
 
         [HideInInspector]
         public TypeSelector typeSelector;
-
-        public static UnityEngine.Object lastCreatedObject;
 
         public const int labelWidth = 40;
 
@@ -327,14 +324,7 @@ namespace Vaflov {
                     GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                 }
             } else if (GUILayout.Button("Create Asset")) {
-
-                lastCreatedObject = ConstantsGenerator.GenerateConstantAsset(name, targetType);
-
-                //EditorIconsOverview.OpenEditorIconsOverview();
-
-                //DestroyImmediate(this);
-                //serializedObject.Dispose();
-                //onGenericSOCreated?.Invoke();
+                ConstantsGenerator.GenerateConstantAsset(name, targetType);
             }
         }
     }

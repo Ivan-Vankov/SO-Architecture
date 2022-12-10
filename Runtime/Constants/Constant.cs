@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 using UnityEngine;
+using static Vaflov.Config;
 
 namespace Vaflov {
     #if ODIN_INSPECTOR
@@ -38,7 +39,7 @@ namespace Vaflov {
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
-        [LabelWidth(60)]
+        [LabelWidth(editorLabelWidth)]
         [PropertyOrder(0)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -50,7 +51,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
-        [LabelWidth(60)]
+        [LabelWidth(editorLabelWidth)]
         [PropertyOrder(5)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -62,14 +63,14 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
-        [LabelWidth(60)]
+        [LabelWidth(editorLabelWidth)]
         [PropertyOrder(10)]
         #endif
         public string Comment { get => comment; set => comment = value; }
 
         [SerializeField]
         #if ODIN_INSPECTOR
-        [LabelWidth(60)]
+        [LabelWidth(editorLabelWidth)]
         [InlineProperty]
         [PropertyOrder(20)]
         #endif
@@ -83,7 +84,7 @@ namespace Vaflov {
 
         [ShowInInspector]
         [ReadOnly]
-        [LabelWidth(60)]
+        [LabelWidth(editorLabelWidth)]
         [PropertyOrder(11)]
         public string Type => codeProvider.GetTypeOutput(typeRef);
 
@@ -95,7 +96,7 @@ namespace Vaflov {
             // Or at liest it should become multi-editing aware
             // It should use the same logic as the "new constant" name
             var oldName = name;
-            GUIHelper.PushLabelWidth(60);
+            GUIHelper.PushLabelWidth(70);
             var newName = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
             GUIHelper.PopLabelWidth();
             if (oldName != newName) {
