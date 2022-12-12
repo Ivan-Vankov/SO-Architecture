@@ -5,7 +5,7 @@ namespace Vaflov {
     [CreateAssetMenu(
         fileName = "Game Event", 
         menuName = "SO Architecture/Events/Game Event")]
-    public class GameEvent : ScriptableObject {
+    public class GameEventVoid : GameEventBase {
         public Action action;
 
         public void Raise() {

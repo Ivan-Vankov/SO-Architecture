@@ -1,9 +1,7 @@
 using System;
-using UnityEngine;
 
 namespace Vaflov {
-    public class GameEvent1Arg<T> : ScriptableObject {
-
+    public class GameEvent1Arg<T> : GameEventBase {
         public Action<T> action;
 
         public void Raise(T arg1) {

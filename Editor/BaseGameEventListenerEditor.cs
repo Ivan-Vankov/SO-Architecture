@@ -15,11 +15,11 @@ using System.IO;
 
 namespace Vaflov {
 
-    [CustomEditor(typeof(BaseGameEventListener), true)]
+    //[CustomEditor(typeof(BaseGameEventListener), true)]
     public class BaseGameEventListenerEditor : ClassChangeEditor {
-        public override Type ZeroGenericArgTargetType => typeof(GameEventListener);
+        public override Type ZeroGenericArgTargetType => typeof(GameEventListenerVoid);
 
-        public override string BaseClassName => nameof(GameEventListener);
+        public override string BaseClassName => nameof(GameEventListenerVoid);
 
         public override string ClassDirectory => "Listeners";
 

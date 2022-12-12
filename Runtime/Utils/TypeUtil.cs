@@ -33,5 +33,19 @@ namespace Vaflov {
                 type = baseType;
             }
         }
+
+        public static PropertyInfo GetPropertyRecursive(Type type, string name, BindingFlags flags) {
+            while (true) {
+                PropertyInfo property = type.GetProperty(name, flags);
+                if (property != null)
+                    return property;
+
+                Type baseType = type.BaseType;
+                if (baseType == null)
+                    return null;
+
+                type = baseType;
+            }
+        }
     }
 }

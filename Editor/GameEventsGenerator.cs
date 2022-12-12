@@ -24,7 +24,7 @@ namespace Vaflov {
                     .Where(type => type.IsClass && !type.IsAbstract);
 
                 var gameEventTypes = new[] {
-                    typeof(GameEvent),
+                    typeof(GameEventVoid),
                     typeof(GameEvent1Arg<>),
                     typeof(GameEvent2Arg<,>)
                 };

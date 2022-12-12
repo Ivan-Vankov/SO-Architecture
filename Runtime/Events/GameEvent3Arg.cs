@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Vaflov {
-    public class GameEvent3Arg<T, U, V> : ScriptableObject {
+    public class GameEvent3Arg<T, U, V> : GameEventBase {
 
         public Action<T, U, V> action;
 

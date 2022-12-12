@@ -1,8 +1,10 @@
 ﻿using ExtEvents;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Vaflov {
-    public class GameEventListener3Arg<T, U, V> : BaseGameEventListener {
-
+    public class GameEventListener3Arg<T, U, V> : GameEventListenerBase {
+        [HideInInspector]
         public GameEvent3Arg<T, U, V> eventRef;
         public ExtEvent<T, U, V> response;
 
@@ -20,6 +22,10 @@ namespace Vaflov {
             if (eventRef) {
                 eventRef.action -= CallResponse;
             }
+        }
+
+        public override void AssignGameEvent() {
+            eventRef = (GameEvent3Arg<T, U, V>)gameEvent;
         }
     }
 }

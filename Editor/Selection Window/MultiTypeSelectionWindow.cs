@@ -7,7 +7,7 @@ namespace Vaflov {
 
         public GenericSOGenerator genericSOGenerator;
 
-        [MenuItem("Tools/Test Multi Type Selection Window")]
+        [MenuItem("Tools/SO Architecture/Test Multi Type Selection Window")]
         public static void CreateMultiTypeSelectionWindow() {
             var window = CreateInstance<MultiTypeSelectionWindow>();
             window.Show();
@@ -19,7 +19,7 @@ namespace Vaflov {
 
             genericSOGenerator = GenericSOGenerator.CreateGenericSOGenerator(
                 "namespace",
-                typeof(GameEvent),
+                typeof(GameEventVoid),
                 "base class name",
                 "class dir",
                 -1

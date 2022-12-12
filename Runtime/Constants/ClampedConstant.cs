@@ -2,6 +2,7 @@
 using Sirenix.OdinInspector;
 #endif
 using System;
+using static Vaflov.Config;
 
 namespace Vaflov {
     #if ODIN_INSPECTOR
@@ -12,7 +13,7 @@ namespace Vaflov {
 
     public class ClampedConstant<T> : Constant<T> where T: IComparable, IComparable<T>, IEquatable<T> {
         #if ODIN_INSPECTOR
-        [LabelWidth(60)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(100)]
         [OnValueChanged(nameof(OnClampedChanged))]
         #endif

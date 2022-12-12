@@ -85,7 +85,6 @@ namespace Vaflov {
             GenerateConstantAsset(constantName, wrappedConstantType);
         }
 
-        [MenuItem("Tools/SO Architecture/Generate Constants")]
         public static void GenerateConstants() {
             new SingletonCodeGenerator(singletonClassName: "Constants", singletonConceptName: "Constant")
             .StartSingletonCodegenTimer()
@@ -105,9 +104,11 @@ namespace Vaflov {
                 }
 
                 var constantsCodeBuilder = new StringBuilder();
-                var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
+                var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
+                    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
+                    //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
+                    //    .SelectMany(assembly => assembly.GetTypes())
+                    //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
                     .ToList();
                 foreach (var constantType in constantTypes) {
                     var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
@@ -118,7 +119,7 @@ namespace Vaflov {
                         var constantFieldTypeName = constantType.Name;
                         var constantFieldGenericType = constantType.BaseType.GenericTypeArguments[0];
                         var constantFieldGenericTypeName = GetTruncatedTypeName(constantFieldGenericType);
-                        var constantFieldName = nameFilter(constantAsset.name, true);
+                        var constantFieldName = "_" + nameFilter(constantAsset.name, true);
 
                         var resourcesPathName = "Resources";
                         var resourcesIdx = assetPath.IndexOf(resourcesPathName);
@@ -132,7 +133,7 @@ namespace Vaflov {
                             .AppendLine($"\t\t\t{constantFieldName} = {resourcesPathName}.Load<{constantFieldTypeName}>(\"{resourcesAssetPath}\");");
 
                         constantsCodeBuilder
-                            .AppendLine($"\t\tpublic {constantFieldTypeName} @{constantFieldName};")
+                            .AppendLine($"\t\tpublic {constantFieldTypeName} {constantFieldName};")
                             .AppendLine($"\t\tpublic static {constantFieldGenericTypeName} {nameFilter(constantAsset.name, false)} => {instanceName}.{constantFieldName}.Value;")
                             .AppendLine();
                     }
@@ -149,22 +150,23 @@ namespace Vaflov {
         }
     }
 
-    public class ConstantsUpdater : AssetPostprocessor {
-        public static bool CheckUpdateConstants(string[] modifiedAssetPaths) {
-            for (int i = 0; i < modifiedAssetPaths.Length; ++i) {
-                if (modifiedAssetPaths[i].EndsWith("Constant.asset")) {
-                    ConstantsGenerator.GenerateConstants();
-                    return true;
-                }
-            }
-            return false;
-        }
+    // TODO: This might be the culprit for unity crashing after a recompile
+    //public class ConstantsUpdater : AssetPostprocessor {
+    //    public static bool CheckUpdateConstants(string[] modifiedAssetPaths) {
+    //        for (int i = 0; i < modifiedAssetPaths.Length; ++i) {
+    //            if (modifiedAssetPaths[i].EndsWith("Constant.asset")) {
+    //                ConstantsGenerator.GenerateConstants();
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
 
-        public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
-            if (CheckUpdateConstants(importedAssets)) { return; }
-            if (CheckUpdateConstants(deletedAssets)) { return; }
-            if (CheckUpdateConstants(movedAssets)) { return; }
-            if (CheckUpdateConstants(movedFromAssetPaths)) { return; }
-        }
-    }
+    //    public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+    //        if (CheckUpdateConstants(importedAssets)) { return; }
+    //        if (CheckUpdateConstants(deletedAssets)) { return; }
+    //        if (CheckUpdateConstants(movedAssets)) { return; }
+    //        if (CheckUpdateConstants(movedFromAssetPaths)) { return; }
+    //    }
+    //}
 }

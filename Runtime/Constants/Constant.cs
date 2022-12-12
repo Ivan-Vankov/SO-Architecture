@@ -39,7 +39,7 @@ namespace Vaflov {
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
         [BoxGroup("Editor Props")]
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(0)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -51,7 +51,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(5)]
         [DelayedProperty]
         [OnValueChanged(nameof(OnEditorPropChanged))]
@@ -63,14 +63,14 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [BoxGroup("Editor Props")]
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]
         #endif
         public string Comment { get => comment; set => comment = value; }
 
         [SerializeField]
         #if ODIN_INSPECTOR
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [InlineProperty]
         [PropertyOrder(20)]
         #endif
@@ -84,7 +84,7 @@ namespace Vaflov {
 
         [ShowInInspector]
         [ReadOnly]
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(11)]
         public string Type => codeProvider.GetTypeOutput(typeRef);
 

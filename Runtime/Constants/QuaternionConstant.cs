@@ -12,7 +12,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [EnumToggleButtons]
-        [LabelWidth(editorLabelWidth)]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(12)]
         public QuaternionDrawMode DrawMode {
             get => GlobalConfig<GeneralDrawerConfig>.Instance.QuaternionDrawMode;
