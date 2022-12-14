@@ -1,8 +1,7 @@
-using ExtEvents;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using System;
-using System.Linq;
-using UnityEditor;
+#endif
+using ExtEvents;
 using UnityEngine;
 
 namespace Vaflov {
@@ -27,8 +26,10 @@ namespace Vaflov {
             }
         }
 
+        #if UNITY_EDITOR && ODIN_INSPECTOR
         public override void AssignGameEvent() {
             eventRef = (GameEvent1Arg<T>)gameEvent;
         }
+        #endif
     }
 }

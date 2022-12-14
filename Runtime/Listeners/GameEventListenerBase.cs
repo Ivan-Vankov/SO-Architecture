@@ -6,10 +6,24 @@ using UnityEngine;
 
 namespace Vaflov {
     public class GameEventListenerBase : MonoBehaviour {
+        #if UNITY_EDITOR && ODIN_INSPECTOR
+
+        [HorizontalGroup("Event Ref", MaxWidth = 15)]
+        [ValueDropdown(nameof(valueList), DropdownWidth = 100)]
+        [HideLabel]
+        public bool useValue = true;
+
+        [HorizontalGroup("Event Ref")]
         [AssetsOnly]
         [OnValueChanged(nameof(AdaptGameEventListenerClassToGameEvent))]
         [Required]
+        [LabelText("Event Ref")]
         public GameEventBase gameEvent;
+
+        private ValueDropdownList<bool> valueList = new ValueDropdownList<bool>() {
+            { "Value", true },
+            { "Reference", false },
+        };
 
         public void AdaptGameEventListenerClassToGameEvent() {
             Type listenerType;
@@ -56,5 +70,6 @@ namespace Vaflov {
         public virtual void AssignGameEvent() {
             Debug.Assert(true, "Override this!");
         }
+        #endif
     }
 }
