@@ -5,13 +5,14 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Vaflov {
-    public class GameEventListenerBase : MonoBehaviour {
+    [DefaultExecutionOrder(-2000)]
+    public abstract class GameEventListenerBase : MonoBehaviour {
         #if UNITY_EDITOR && ODIN_INSPECTOR
 
-        [HorizontalGroup("Event Ref", MaxWidth = 15)]
-        [ValueDropdown(nameof(valueList), DropdownWidth = 100)]
-        [HideLabel]
-        public bool useValue = true;
+        //[HorizontalGroup("Event Ref", MaxWidth = 15)]
+        //[ValueDropdown(nameof(valueList), DropdownWidth = 100)]
+        //[HideLabel]
+        //public bool useValue = true;
 
         [HorizontalGroup("Event Ref")]
         [AssetsOnly]
@@ -20,10 +21,10 @@ namespace Vaflov {
         [LabelText("Event Ref")]
         public GameEventBase gameEvent;
 
-        private ValueDropdownList<bool> valueList = new ValueDropdownList<bool>() {
-            { "Value", true },
-            { "Reference", false },
-        };
+        //private ValueDropdownList<bool> valueList = new ValueDropdownList<bool>() {
+        //    { "Value", true },
+        //    { "Reference", false },
+        //};
 
         public void AdaptGameEventListenerClassToGameEvent() {
             Type listenerType;
