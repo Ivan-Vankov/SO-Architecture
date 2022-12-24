@@ -25,7 +25,7 @@ namespace Vaflov {
         [LabelWidth(30)]
         [HorizontalGroup("Slider")]
         [PropertyOrder(15)]
-#endif
+        #endif
         public T min;
 
         #if ODIN_INSPECTOR

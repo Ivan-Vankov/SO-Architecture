@@ -11,6 +11,7 @@ using static Vaflov.SingletonCodeGenerator;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor.Callbacks;
 using System.IO;
+using Sirenix.Utilities;
 
 namespace Vaflov {
     public class ConstantsGenerator {
@@ -49,9 +50,21 @@ namespace Vaflov {
             var wrappedClassName = wrappedConstantType.Name.Replace("+", "");
             var wrapperClassName = wrappedClassName + "Constant";
             var wrappedDerivedClassName = wrappedConstantType.FullName.Replace('+', '.');
+
+            var parentClassName = "Constant";
+            foreach (var constantParentType in TypeCache.GetTypesDerivedFrom(typeof(Constant<>))) {
+                if (!constantParentType.IsGenericType) continue;
+                var genericArg = constantParentType.GetGenericArguments()[0];
+                if (genericArg.GenericParameterIsFulfilledBy(wrappedConstantType)) {
+                    parentClassName = constantParentType.Name;
+                    parentClassName = parentClassName.Remove(parentClassName.IndexOf('`'));
+                    break;
+                }
+            }
+
             var code =
                 "namespace Vaflov {" +
-                $"\n\tpublic class {wrapperClassName} : Constant<{wrappedDerivedClassName}> {{ }}" +
+                $"\n\tpublic class {wrapperClassName} : {parentClassName}<{wrappedDerivedClassName}> {{ }}" +
                 "\n}" +
                 "\n";
             var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Constants"));

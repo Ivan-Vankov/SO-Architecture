@@ -1,8 +1,3 @@
-﻿using UnityEngine;
-
-namespace Vaflov {
-    [CreateAssetMenu(
-        fileName = "String Constant",
-        menuName = "SO Architecture/Constants/String Constant")]
+﻿namespace Vaflov {
     public class StringConstant : Constant<string> { }
 }

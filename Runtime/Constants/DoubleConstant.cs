@@ -1,8 +1,3 @@
-﻿using UnityEngine;
-
-namespace Vaflov {
-    [CreateAssetMenu(
-        fileName = "Double Constant",
-        menuName = "SO Architecture/Constants/Double Constant")]
+﻿namespace Vaflov {
     public class DoubleConstant : ClampedConstant<double> { }
 }

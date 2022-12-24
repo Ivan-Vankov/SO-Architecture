@@ -14,9 +14,10 @@
   },
   "samples": [
     {
-        "displayName": "Healthbar Binding",
-        "description": "Sample for SO event listeners - healthbar binding",
-        "path": "Samples~/Healthbar Binding"
+      "displayName": "Healthbar Binding",
+      "description": "Sample for SO event listeners - healthbar binding",
+      "path": "Samples~/Healthbar Binding"
     }
-  ]
+  ],
+  "type": "tool"
 }

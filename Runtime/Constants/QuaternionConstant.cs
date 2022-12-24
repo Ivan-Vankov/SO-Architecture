@@ -9,7 +9,7 @@ using static Vaflov.Config;
 
 namespace Vaflov {
     public class QuaternionConstant : Constant<Quaternion> {
-        #if ODIN_INSPECTOR
+        #if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowInInspector]
         [EnumToggleButtons]
         [LabelWidth(preferedEditorLabelWidth)]
