@@ -13,6 +13,10 @@ namespace Vaflov {
             valueField = GetFieldRecursive(value.GetType(), "value", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
         }
 
+        public ConstantAssetOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value, FieldInfo valueField) : base(tree, name, value) {
+            this.valueField = valueField;
+        }
+
         protected override void OnDrawMenuItem(Rect rect, Rect labelRect) {
             //GUI.Label(rect, new GUIContent((string)null, SmartName + " test tooltip"));
 

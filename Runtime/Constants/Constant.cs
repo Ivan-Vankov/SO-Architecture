@@ -70,8 +70,7 @@ namespace Vaflov {
 
         [SerializeField]
         #if ODIN_INSPECTOR
-        [LabelWidth(preferedEditorLabelWidth)]
-        [InlineProperty]
+        [HideLabel]
         [PropertyOrder(20)]
         #endif
         private T value = default;
@@ -88,7 +87,7 @@ namespace Vaflov {
         [PropertyOrder(11)]
         public string Type => codeProvider.GetTypeOutput(typeRef);
 
-#if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR
         [BoxGroup("Editor Props")]
         [OnInspectorGUI]
         public void ShowName() {

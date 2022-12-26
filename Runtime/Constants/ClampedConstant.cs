@@ -14,7 +14,7 @@ namespace Vaflov {
     public class ClampedConstant<T> : Constant<T> where T: IComparable, IComparable<T>, IEquatable<T> {
         #if ODIN_INSPECTOR
         [LabelWidth(preferedEditorLabelWidth)]
-        [PropertyOrder(100)]
+        [PropertyOrder(13)]
         [OnValueChanged(nameof(OnClampedChanged))]
         #endif
         public bool clamped = false;
@@ -34,7 +34,7 @@ namespace Vaflov {
         [LabelWidth(30)]
         [HorizontalGroup("Slider")]
         [PropertyOrder(16)]
-#endif
+        #endif
         public T max;
 
         #if ODIN_INSPECTOR

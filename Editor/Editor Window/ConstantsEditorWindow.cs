@@ -12,9 +12,14 @@ using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Validation;
+using UnityEngine.TextCore.Text;
+using System.Drawing;
+using UnityEditor.UIElements;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
+
+        private Texture prefabIcon;
 
         public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
 
@@ -34,6 +39,7 @@ namespace Vaflov {
         }
 
         protected override void OnEnable() {
+            prefabIcon = EditorGUIUtility.FindTexture("Prefab Icon");
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
             ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
@@ -98,6 +104,7 @@ namespace Vaflov {
                 }
             }
 
+            var gameObjectValueField = GetFieldRecursive(typeof(GameObjectConstant), "value", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             foreach ((var groupName, var group) in groups) {
                 var groupList = group.ToList();
                 groupList.Sort((UnityEngine.Object obj1, UnityEngine.Object obj2) => {
@@ -112,6 +119,23 @@ namespace Vaflov {
                 var groupResult = new HashSet<OdinMenuItem>();
                 foreach (var constant in groupList) {
                     var menuItem = new ConstantAssetOdinMenuItem(tree, constant.name, constant);
+                    var constantInnerType = constant.GetType().BaseType.GetGenericArguments()[0];
+                    var icon = EditorGUIUtility.ObjectContent(null, constantInnerType).image;
+                    if (constantInnerType == typeof(GameObject)) {
+                        var gameObjectValue = (GameObject)gameObjectValueField.GetValue(constant);
+                        if (gameObjectValue != null) {
+                            var r = PrefabUtility.GetNearestPrefabInstanceRoot(gameObjectValue);
+                            if (r != null) {
+                                icon = PrefabUtility.GetIconForGameObject(r);
+                            } else {
+                                icon = prefabIcon;
+                            }
+                        }
+                    }
+                    if (icon != null) {
+                        menuItem.IconGetter = () => icon;
+                    }
+
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }

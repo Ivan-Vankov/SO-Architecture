@@ -1,11 +1,21 @@
 ﻿using Sirenix.OdinInspector;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using static Vaflov.Config;
 
 namespace Vaflov {
-    public enum ObjectPreviewKind {
-        None,
-        InlineEditor,
-        PreviewField
+    public static class UnityObjectContantConfig {
+        public static readonly Dictionary<Type, InlineEditorModes> defaultInlineEditorModes = new Dictionary<Type, InlineEditorModes>() {
+            { typeof(Texture), InlineEditorModes.GUIAndPreview },
+            { typeof(Texture2D), InlineEditorModes.GUIAndPreview },
+            { typeof(Texture3D), InlineEditorModes.GUIAndPreview },
+            { typeof(Texture2DArray), InlineEditorModes.GUIAndPreview },
+            { typeof(AudioClip), InlineEditorModes.LargePreview },
+        };
+        public static readonly HashSet<Type> inlineEditorModesBlacklist = new HashSet<Type>() {
+            typeof(GameObject),
+        };
     }
 
     public static class UnityObjectConstantEditorEvents {
@@ -14,30 +24,9 @@ namespace Vaflov {
 
     public class UnityObjectConstant<T> : Constant<T> where T : UnityEngine.Object {
         [OnValueChanged(nameof(OnUnityObjectConstantChanged))]
-        [PropertyOrder(15)]
-        public ObjectPreviewKind preview = ObjectPreviewKind.InlineEditor;
-
-        [ShowIf(nameof(IsInlineEditor))]
-        [OnValueChanged(nameof(OnUnityObjectConstantChanged))]
+        [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(16)]
         public InlineEditorModes editorMode = InlineEditorModes.GUIOnly;
-
-        [ShowIf(nameof(IsPreviewField))]
-        [OnValueChanged(nameof(OnUnityObjectConstantChanged))]
-        [PropertyOrder(16)]
-        public ObjectFieldAlignment alignment = ObjectFieldAlignment.Right;
-
-        //[AssetsOnly]
-        //[InlineEditor(InlineEditorModes.FullEditor)]
-        //[PreviewField(ObjectFieldAlignment.)]
-        //public GameObject SomePrefab;
-        public bool IsInlineEditor() {
-            return preview == ObjectPreviewKind.InlineEditor;
-        }
-
-        public bool IsPreviewField() {
-            return preview == ObjectPreviewKind.PreviewField;
-        }
 
         public void OnUnityObjectConstantChanged() {
             UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged?.Invoke();

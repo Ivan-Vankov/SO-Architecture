@@ -6,16 +6,15 @@ using System;
 using System.Collections.Generic;
 
 namespace Vaflov {
-    public class ClampedConstantPropertyProcessor<C, T> : OdinPropertyProcessor<C>, IDisposable
-        where C : ClampedConstant<T>
-        where T : IComparable, IComparable<T>, IEquatable<T> {
+    public class RangeConstantPropertyProcessor<C, T> : OdinPropertyProcessor<C>, IDisposable
+        where C : RangeConstant<T> {
 
         protected override void Initialize() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged += RefreshGUI;
+            RangeConstantEditorEvents.OnConstantRangeChanged += RefreshGUI;
         }
 
         public void Dispose() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged -= RefreshGUI;
+            RangeConstantEditorEvents.OnConstantRangeChanged -= RefreshGUI;
         }
 
         public void RefreshGUI() {
@@ -25,9 +24,9 @@ namespace Vaflov {
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var constant = ValueEntry.SmartValue;
-            if (constant.clamped) {
+            if (constant.isRange) {
                 var valueAttributes = propertyInfos.Find("value").GetEditableAttributesList();
-                valueAttributes.Add(new PropertyRangeAttribute("min", "max"));
+                valueAttributes.Add(new MinMaxSliderAttribute("range", true));
             }
         }
     }
