@@ -1,5 +1,3 @@
-﻿using UnityEngine;
-
-namespace Vaflov {
-    public class Vector2IntConstant : RangeConstant<Vector2Int, int> { }
+﻿namespace Vaflov {
+    public class Vector2IntConstant : RangeConstant<UnityEngine.Vector2Int, int> { }
 }

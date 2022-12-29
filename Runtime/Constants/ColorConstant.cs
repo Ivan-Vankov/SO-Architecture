@@ -1,4 +1,5 @@
 ﻿using Sirenix.OdinInspector;
+using Sirenix.Utilities.Editor;
 using System;
 using UnityEngine;
 using static Vaflov.Config;
@@ -57,6 +58,10 @@ namespace Vaflov {
 
         public void OnColorConstantChanged() {
             ColorConstantEditorEvents.OnColorConstantChanged?.Invoke();
+        }
+
+        public override string EditorToString() {
+            return "#" + ColorUtility.ToHtmlStringRGBA(Value);
         }
     }
 }

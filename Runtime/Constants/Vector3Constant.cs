@@ -1,5 +1,3 @@
-﻿using UnityEngine;
-
-namespace Vaflov {
-    public class Vector3Constant : Constant<Vector3> { }
+﻿namespace Vaflov {
+    public class Vector3Constant : Constant<UnityEngine.Vector3> { }
 }

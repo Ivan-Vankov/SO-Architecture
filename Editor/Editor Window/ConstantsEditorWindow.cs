@@ -66,7 +66,6 @@ namespace Vaflov {
             tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
             //tree.Config.AutoFocusSearchBar = false;
-
             var menuStyle = new OdinMenuStyle() {
                 Borders = false,
                 Height = 18,
@@ -117,6 +116,7 @@ namespace Vaflov {
                 foreach (var constant in groupList) {
                     var menuItem = new ConstantAssetOdinMenuItem(tree, constant.name, constant);
                     menuItem.IconGetter = (constant as IEditorObject).GetEditorIcon;
+                    menuItem.OnRightClick += ConstantAssetOdinMenuItem.OpenRightClickMenu;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }
@@ -176,6 +176,18 @@ namespace Vaflov {
             }
 
             SirenixEditorGUI.EndHorizontalToolbar();
+        }
+    }
+
+    public class ContextMenuItem {
+        public string name;
+        public Action action;
+        public KeyCode? shortcut;
+
+        public ContextMenuItem(string name, Action action, KeyCode? shortcut = null) {
+            this.name = name;
+            this.action = action;
+            this.shortcut = shortcut;
         }
     }
 

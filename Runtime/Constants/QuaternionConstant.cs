@@ -19,5 +19,19 @@ namespace Vaflov {
             set => GlobalConfig<GeneralDrawerConfig>.Instance.QuaternionDrawMode = value;
         }
         #endif
+
+        public override string EditorToString() {
+            var v = Value;
+            switch (DrawMode) {
+                case QuaternionDrawMode.Eulers:
+                    return v.eulerAngles.ToString();
+                case QuaternionDrawMode.AngleAxis:
+                    v.ToAngleAxis(out float angle, out Vector3 axis);
+                    return axis.ToString() + " " + angle.ToString("0.00") + "°";
+                case QuaternionDrawMode.Raw:
+                    return new Vector4(v.x, v.y, v.z, v.w).ToString();
+                default: return null;
+            }
+        }
     }
 }

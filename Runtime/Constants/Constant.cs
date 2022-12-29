@@ -26,15 +26,15 @@ namespace Vaflov {
 
     public interface IEditorObject {
         public string EditorGroup { get; set; }
-        public string Comment { get; set; }
+        public string EditorComment { get; set; }
         public Texture GetEditorIcon();
+        public string EditorToString();
     }
 
 
     public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector]
         public string editorGroup;
-
         #if ODIN_INSPECTOR
         [ShowInInspector]
         [LabelText("Group")]
@@ -67,7 +67,7 @@ namespace Vaflov {
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]
         #endif
-        public string Comment { get => comment; set => comment = value; }
+        public string EditorComment { get => comment; set => comment = value; }
 
         public virtual Texture GetEditorIcon() => null;
 
@@ -140,5 +140,18 @@ namespace Vaflov {
             }
         }
         #endif
+
+        public virtual string EditorToString() {
+            if (default(T) == null && Value.Equals(default(T))) {
+                return "null";
+            }
+            var str = Value.ToString();
+            if (str.Length > 100) {
+                str = "...";
+            } else {
+                str = str.Replace("\n", " ");
+            }
+            return str;
+        }
     }
 }

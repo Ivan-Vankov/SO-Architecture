@@ -1,40 +1,56 @@
-﻿using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
+﻿using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.UI.WebControls.Expressions;
+using UnityEditor;
 using UnityEngine;
-using static Vaflov.TypeUtil;
 
 namespace Vaflov {
-    [CustomContextMenu("Test", nameof(SayHello))]
     public class ConstantAssetOdinMenuItem : OdinMenuItem {
-        public FieldInfo valueField;
-
         public ConstantAssetOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value) : base(tree, name, value) {
-            valueField = GetFieldRecursive(value.GetType(), "value", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            //OnRightClick += OpenRightClickMenu;
         }
 
-        public ConstantAssetOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value, FieldInfo valueField) : base(tree, name, value) {
-            this.valueField = valueField;
-        }
+        public static void OpenRightClickMenu(OdinMenuItem self) {
+            if (!self.MenuTree.Selection.Contains(self)) {
+                self.Select(true);
+            }
+            var source = new List<ContextMenuItem>() {
+                new ContextMenuItem("Duplicate", () => Debug.Log("duplicate"), KeyCode.Escape),
+                new ContextMenuItem("Delete", () => Debug.Log("delete"), KeyCode.Delete),
+            };
+            var selector = new GenericSelector<ContextMenuItem>(null, false, x => x.name, source);
 
-        public void SayHello() {
-            Debug.Log("Hello");
+            //odinMenuItem2.OnDrawItem = (Action<OdinMenuItem>)Delegate.Combine(odinMenuItem2.OnDrawItem, (Action<OdinMenuItem>)delegate (OdinMenuItem x) {
+            //    GUI.Label(x.Rect.Padding(10f, 0f).AlignCenterY(16f), t2.Namespace, SirenixGUIStyles.RightAlignedGreyMiniLabel);
+            //});
+
+            (var offset, var height) = (5, 20);
+
+            selector.SelectionTree.EnumerateTree(x => {
+                if (x.Value is not ContextMenuItem contextMenuItem || contextMenuItem.shortcut == null) { return; }
+                x.OnDrawItem += y => {
+                    GUI.Label(y.Rect.Padding(offset, 0).AlignCenterY(height), contextMenuItem.shortcut.ToString(), SirenixGUIStyles.RightAlignedGreyMiniLabel);
+                };
+            });
+
+            selector.EnableSingleClickToSelect();
+            selector.SelectionTree.Config.DrawSearchToolbar = false;
+            selector.SelectionTree.DefaultMenuStyle.Offset = offset;
+            selector.SelectionTree.DefaultMenuStyle.Borders = false;
+            selector.SelectionTree.DefaultMenuStyle.Height = height;
+            selector.SelectionConfirmed += selection => selection.FirstOrDefault()?.action?.Invoke();
+            var window = selector.ShowInPopup(150);
         }
 
         protected override void OnDrawMenuItem(Rect rect, Rect labelRect) {
             //GUI.Label(rect, new GUIContent((string)null, SmartName + " test tooltip"));
 
-            var value = valueField.GetValue(Value);
-            if (value == null) { return; }
-            var valueLabel = value.ToString();
-            if (valueLabel.Length > 100) {
-                valueLabel = "...";
-            } else {
-                valueLabel = valueLabel.Replace("\n", " ");
-            }
-            valueLabel = " " + valueLabel;
+            var editorObj = Value as IEditorObject;
+            var valueLabel = " " + editorObj.EditorToString();
             var labelStyle = IsSelected ? Style.SelectedLabelStyle : Style.DefaultLabelStyle;
             var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(SmartName));
             var valueRect = new Rect(labelRect.x + nameLabelSize.x, labelRect.y, labelRect.width - nameLabelSize.x, labelRect.height);
@@ -44,7 +60,7 @@ namespace Vaflov {
             GUI.Label(valueRect, valueContent, labelStyle);
             GUIHelper.PopColor();
 
-            var commentLabel = (Value as IEditorObject)?.Comment;
+            var commentLabel = editorObj.EditorComment;
             if (string.IsNullOrEmpty(commentLabel)) { return; }
             commentLabel = (" " + commentLabel).Trim('\n');
             var valueLabelSize = labelStyle.CalcSize(valueContent);
