@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using System;
 using System.Reflection;
@@ -6,6 +7,7 @@ using UnityEngine;
 using static Vaflov.TypeUtil;
 
 namespace Vaflov {
+    [CustomContextMenu("Test", nameof(SayHello))]
     public class ConstantAssetOdinMenuItem : OdinMenuItem {
         public FieldInfo valueField;
 
@@ -15,6 +17,10 @@ namespace Vaflov {
 
         public ConstantAssetOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value, FieldInfo valueField) : base(tree, name, value) {
             this.valueField = valueField;
+        }
+
+        public void SayHello() {
+            Debug.Log("Hello");
         }
 
         protected override void OnDrawMenuItem(Rect rect, Rect labelRect) {

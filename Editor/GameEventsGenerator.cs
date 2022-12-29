@@ -77,22 +77,22 @@ namespace Vaflov {
         }
     }
 
-    public class GameEventsUpdater : AssetPostprocessor {
-        public static bool CheckUpdateGameEvents(string[] modifiedAssetPaths) {
-            for (int i = 0; i < modifiedAssetPaths.Length; ++i) {
-                if (modifiedAssetPaths[i].EndsWith("Event.asset")) {
-                    GameEventsGenerator.GenerateGameEvents();
-                    return true;
-                }
-            }
-            return false;
-        }
+    //public class GameEventsUpdater : AssetPostprocessor {
+    //    public static bool CheckUpdateGameEvents(string[] modifiedAssetPaths) {
+    //        for (int i = 0; i < modifiedAssetPaths.Length; ++i) {
+    //            if (modifiedAssetPaths[i].EndsWith("Event.asset")) {
+    //                GameEventsGenerator.GenerateGameEvents();
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
 
-        public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
-            if (CheckUpdateGameEvents(importedAssets)) { return; }
-            if (CheckUpdateGameEvents(deletedAssets)) { return; }
-            if (CheckUpdateGameEvents(movedAssets)) { return; }
-            if (CheckUpdateGameEvents(movedFromAssetPaths)) { return; }
-        }
-    }
+    //    public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+    //        if (CheckUpdateGameEvents(importedAssets)) { return; }
+    //        if (CheckUpdateGameEvents(deletedAssets)) { return; }
+    //        if (CheckUpdateGameEvents(movedAssets)) { return; }
+    //        if (CheckUpdateGameEvents(movedFromAssetPaths)) { return; }
+    //    }
+    //}
 }

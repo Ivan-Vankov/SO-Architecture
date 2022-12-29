@@ -54,6 +54,7 @@ namespace Vaflov {
             var parentClassName = "Constant";
             foreach (var constantParentType in TypeCache.GetTypesDerivedFrom(typeof(Constant<>))) {
                 if (!constantParentType.IsGenericType) continue;
+                if (constantParentType.GetAttribute<CodegenInapplicable>() != null) continue;
                 var genericArg = constantParentType.GetGenericArguments()[0];
                 if (genericArg.GenericParameterIsFulfilledBy(wrappedConstantType)) {
                     parentClassName = constantParentType.Name;

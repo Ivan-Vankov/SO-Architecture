@@ -39,7 +39,7 @@ namespace Vaflov {
 
         #if ODIN_INSPECTOR
         public void OnClampedChanged() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged.Invoke();
+            ClampedConstantEditorEvents.OnConstantClampedChanged?.Invoke();
         }
         #endif
     }

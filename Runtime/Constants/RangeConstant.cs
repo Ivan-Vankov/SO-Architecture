@@ -1,31 +1,48 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using System;
 using static Vaflov.Config;
 
 namespace Vaflov {
-#if ODIN_INSPECTOR
+    #if ODIN_INSPECTOR
     public static class RangeConstantEditorEvents {
         public static Action OnConstantRangeChanged;
     }
-#endif
+    #endif
 
-    public class RangeConstant<T> : Constant<T> {
+    [CodegenInapplicable]
+    public class RangeConstant<T, C> : Constant<T> {
+        #if ODIN_INSPECTOR
         [LabelText("Range")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(13)]
         [OnValueChanged(nameof(OnRangeChanged))]
+        #endif
         public bool isRange = false;
 
-        [HideLabel]
+        #if ODIN_INSPECTOR
+        [MaxValue(nameof(max))]
         [ShowIf(nameof(isRange))]
+        [LabelWidth(30)]
+        [HorizontalGroup("Slider")]
+        [PropertyOrder(15)]
+        #endif
+        public C min;
+
+        #if ODIN_INSPECTOR
+        [MinValue(nameof(min))]
+        [ShowIf(nameof(isRange))]
+        [LabelWidth(30)]
+        [HorizontalGroup("Slider")]
         [PropertyOrder(16)]
-        public T range;
+        #endif
+        public C max;
 
-
-#if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR
         public void OnRangeChanged() {
             RangeConstantEditorEvents.OnConstantRangeChanged.Invoke();
         }
-#endif
+        #endif
     }
 }

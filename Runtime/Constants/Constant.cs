@@ -27,6 +27,7 @@ namespace Vaflov {
     public interface IEditorObject {
         public string EditorGroup { get; set; }
         public string Comment { get; set; }
+        public Texture GetEditorIcon();
     }
 
 
@@ -67,6 +68,8 @@ namespace Vaflov {
         [PropertyOrder(10)]
         #endif
         public string Comment { get => comment; set => comment = value; }
+
+        public virtual Texture GetEditorIcon() => null;
 
         [SerializeField]
         #if ODIN_INSPECTOR

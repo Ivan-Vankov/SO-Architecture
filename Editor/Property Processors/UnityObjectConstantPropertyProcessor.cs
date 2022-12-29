@@ -1,32 +1,19 @@
 ﻿using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vaflov {
-    public class UnityObjectConstantPropertyProcessor<T, C> : OdinPropertyProcessor<T>, IDisposable
+    public class UnityObjectConstantPropertyProcessor<T, C> : ReloadingPropertyProcessor<T>, IDisposable
         where T : UnityObjectConstant<C>
         where C : UnityEngine.Object {
-
-        protected override void Initialize() {
-            UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged += RefreshGUI;
-        }
-
-        public void Dispose() {
-            UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged -= RefreshGUI;
-        }
-
-        public void RefreshGUI() {
-            Property.RefreshSetup();
-            GUIHelper.RequestRepaint();
-        }
+        public override ref Action ReloadAction => ref UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged;
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var valueAttributes = propertyInfos.Find("value").GetEditableAttributesList();
             valueAttributes.Add(new AssetsOnlyAttribute());
-            valueAttributes.Add(new SerializeReference());
+            //valueAttributes.Add(new SerializeReference());
             var hideEditorMode = false;
             InlineEditorModes? editorMode = null;
             if (UnityObjectContantConfig.inlineEditorModesBlacklist.Contains(typeof(C))) {

@@ -6,22 +6,11 @@ using System;
 using System.Collections.Generic;
 
 namespace Vaflov {
-    public class ClampedConstantPropertyProcessor<C, T> : OdinPropertyProcessor<C>, IDisposable
+    public class ClampedConstantPropertyProcessor<C, T> : ReloadingPropertyProcessor<C>, IDisposable
         where C : ClampedConstant<T>
         where T : IComparable, IComparable<T>, IEquatable<T> {
 
-        protected override void Initialize() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged += RefreshGUI;
-        }
-
-        public void Dispose() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged -= RefreshGUI;
-        }
-
-        public void RefreshGUI() {
-            Property.RefreshSetup();
-            GUIHelper.RequestRepaint();
-        }
+        public override ref Action ReloadAction => ref ClampedConstantEditorEvents.OnConstantClampedChanged;
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var constant = ValueEntry.SmartValue;

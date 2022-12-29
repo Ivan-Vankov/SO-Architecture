@@ -18,9 +18,6 @@ using UnityEditor.UIElements;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
-
-        private Texture prefabIcon;
-
         public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
 
         public CreateNewConstant newConstantCreator;
@@ -39,7 +36,6 @@ namespace Vaflov {
         }
 
         protected override void OnEnable() {
-            prefabIcon = EditorGUIUtility.FindTexture("Prefab Icon");
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
             ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
@@ -53,7 +49,8 @@ namespace Vaflov {
         }
 
         public void OpenConstantCreationMenu() {
-            newConstantCreator.Reset();
+            //newConstantCreator.Reset();
+            newConstantCreator.name = null;
             TrySelectMenuItemWithObject(newConstantCreator);
         }
 
@@ -64,6 +61,7 @@ namespace Vaflov {
         }
 
         protected override OdinMenuTree BuildMenuTree() {
+            newConstantCreator.ResetCachedTypes();
             var tree = new OdinMenuTree(true);
             tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
@@ -104,7 +102,6 @@ namespace Vaflov {
                 }
             }
 
-            var gameObjectValueField = GetFieldRecursive(typeof(GameObjectConstant), "value", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             foreach ((var groupName, var group) in groups) {
                 var groupList = group.ToList();
                 groupList.Sort((UnityEngine.Object obj1, UnityEngine.Object obj2) => {
@@ -119,23 +116,7 @@ namespace Vaflov {
                 var groupResult = new HashSet<OdinMenuItem>();
                 foreach (var constant in groupList) {
                     var menuItem = new ConstantAssetOdinMenuItem(tree, constant.name, constant);
-                    var constantInnerType = constant.GetType().BaseType.GetGenericArguments()[0];
-                    var icon = EditorGUIUtility.ObjectContent(null, constantInnerType).image;
-                    if (constantInnerType == typeof(GameObject)) {
-                        var gameObjectValue = (GameObject)gameObjectValueField.GetValue(constant);
-                        if (gameObjectValue != null) {
-                            var r = PrefabUtility.GetNearestPrefabInstanceRoot(gameObjectValue);
-                            if (r != null) {
-                                icon = PrefabUtility.GetIconForGameObject(r);
-                            } else {
-                                icon = prefabIcon;
-                            }
-                        }
-                    }
-                    if (icon != null) {
-                        menuItem.IconGetter = () => icon;
-                    }
-
+                    menuItem.IconGetter = (constant as IEditorObject).GetEditorIcon;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }
@@ -151,6 +132,18 @@ namespace Vaflov {
             tree.AddMenuItemAtPath("", constantCreatorMenuItem);
 
             return tree;
+        }
+
+        public void TryDeleteSelectedConstant() {
+            var selectedConstant = MenuTree.Selection.SelectedValue as UnityEngine.Object;
+            string path = AssetDatabase.GetAssetPath(selectedConstant);
+            if (string.IsNullOrEmpty(path))
+                return;
+            if (!EditorUtility.DisplayDialog("Delete selected asset?",
+                path + Environment.NewLine + "You cannot undo the delete assets action.", "Delete", "Cancel"))
+                return;
+            AssetDatabase.DeleteAsset(path);
+            AssetDatabase.SaveAssets();
         }
 
         protected override void OnBeginDrawEditors() {
@@ -174,13 +167,7 @@ namespace Vaflov {
             }
 
             if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.X, toolbarHeight, tooltip: "Delete the selected constant")) {
-                var selectedConstant = MenuTree.Selection.SelectedValue as UnityEngine.Object;
-                string path = AssetDatabase.GetAssetPath(selectedConstant);
-                if (!string.IsNullOrEmpty(path)) {
-                    Debug.Log("Deleting asset " + path);
-                    AssetDatabase.DeleteAsset(path);
-                    AssetDatabase.SaveAssets();
-                }
+                TryDeleteSelectedConstant();
             }
 
             if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Refresh, toolbarHeight, tooltip: "Regenerate constants")) {
@@ -209,12 +196,12 @@ namespace Vaflov {
         public List<Type> types;
 
         [HideInInspector]
-        public TypeSelector typeSelector;
+        public VaflovTypeSelector typeSelector;
 
         public const int labelWidth = 40;
 
-        public CreateNewConstant() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(delegate (Type x) {
+        public void ResetCachedTypes() {
+            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
                 if (x.Name == null)
                     return false;
                 if (x.IsGenericType)
@@ -222,7 +209,9 @@ namespace Vaflov {
                 string text = x.Name.TrimStart(Array.Empty<char>());
                 return text.Length != 0 && char.IsLetter(text[0]);
             }).ToList();
-            typeSelector = new TypeSelector(types, supportsMultiSelect: false);
+            typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
+                //FlattenTree = true,
+            };
             typeSelector.SelectionChanged += types => {
                 targetType = types.FirstOrDefault();
             };
@@ -294,7 +283,8 @@ namespace Vaflov {
 
             if (!string.IsNullOrEmpty(currNameError) || !string.IsNullOrEmpty(targetTypeError)) {
                 using (new EditorGUI.DisabledScope(true)) {
-                    GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
+                    //GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
+                    GUILayout.Button(new GUIContent("Create Asset"));
                 }
             } else if (GUILayout.Button("Create Asset")) {
                 ConstantsGenerator.GenerateConstantAsset(name, targetType);
