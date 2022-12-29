@@ -63,6 +63,7 @@ namespace Vaflov {
         public string comment;
         #if ODIN_INSPECTOR
         [ShowInInspector]
+        [LabelText("Comment")]
         [BoxGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]

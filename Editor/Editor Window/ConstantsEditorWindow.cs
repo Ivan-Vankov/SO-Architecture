@@ -116,7 +116,6 @@ namespace Vaflov {
                 foreach (var constant in groupList) {
                     var menuItem = new ConstantAssetOdinMenuItem(tree, constant.name, constant);
                     menuItem.IconGetter = (constant as IEditorObject).GetEditorIcon;
-                    menuItem.OnRightClick += ConstantAssetOdinMenuItem.OpenRightClickMenu;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }
@@ -182,12 +181,14 @@ namespace Vaflov {
     public class ContextMenuItem {
         public string name;
         public Action action;
-        public KeyCode? shortcut;
+        public KeyCode shortcut;
+        public EventModifiers modifiers;
 
-        public ContextMenuItem(string name, Action action, KeyCode? shortcut = null) {
+        public ContextMenuItem(string name, Action action, KeyCode shortcut = KeyCode.None, EventModifiers modifiers = EventModifiers.None) {
             this.name = name;
             this.action = action;
             this.shortcut = shortcut;
+            this.modifiers = modifiers;
         }
     }
 
