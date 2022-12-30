@@ -72,10 +72,9 @@ namespace Vaflov {
                 : char.ToUpper(singletonNameBuilder[0]);
             name = singletonNameBuilder.ToString();
             var suffix = singletonFieldSuffix ?? singletonConceptName ?? "";
-            var suffixIndex = name.LastIndexOf(suffix);
-            return suffixIndex == -1
-                ? name
-                : name.Substring(0, suffixIndex);
+            return name.EndsWith(suffix)
+                ? name.Substring(0, name.Length - suffix.Length)
+                : name;
         }
 
         public SingletonCodeGenerator AddSingletonHeader() {

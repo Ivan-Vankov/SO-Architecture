@@ -137,7 +137,7 @@ namespace Vaflov {
 
         public void HandleShortcuts() {
             var selected = MenuTree?.Selection?.FirstOrDefault();
-            if (selected?.Value is IEditorObject editorObject) {
+            if (selected != null && selected.Value is IEditorObject editorObject) {
                 HandleContextMenuItemShortcuts(editorObject.GetContextMenuItems());
             }
         }
