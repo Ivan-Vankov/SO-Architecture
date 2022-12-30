@@ -1,5 +1,6 @@
-﻿using Sirenix.OdinInspector;
-using Sirenix.Utilities.Editor;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 using static Vaflov.Config;
@@ -32,8 +33,8 @@ namespace Vaflov {
             var width = colorTex.width - 1;
             Color color;
             Color gridColor;
-            for (int y = 1; y < height; y++) {
-                for (int x = 1; x < width; x++) {
+            for (int y = 1; y < height; ++y) {
+                for (int x = 1; x < width; ++x) {
                     color = Value;
                     if (colorTexSize - x - y < 0) {
                         gridColor = gridColors[(x / transparentGridSize + y / transparentGridSize) % 2];

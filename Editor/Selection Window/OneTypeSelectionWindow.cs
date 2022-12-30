@@ -42,7 +42,6 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using Sirenix.Utilities;
 using System;
-using TypeReferences;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;

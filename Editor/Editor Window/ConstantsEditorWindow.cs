@@ -5,16 +5,11 @@ using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using static Vaflov.TypeUtil;
 using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor.Validation;
-using UnityEngine.TextCore.Text;
-using System.Drawing;
-using UnityEditor.UIElements;
+using static Vaflov.ContextMenuItemShortcutHandler;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
@@ -39,12 +34,14 @@ namespace Vaflov {
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
             ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
+            ConstantEditorEvents.OnConstantDuplicated += TrySelectMenuItemWithObject;
             ConstantsGenerator.OnConstantAssetGenerated += TrySelectMenuItemWithObject;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
             ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroups;
+            ConstantEditorEvents.OnConstantDuplicated -= TrySelectMenuItemWithObject;
             ConstantsGenerator.OnConstantAssetGenerated -= TrySelectMenuItemWithObject;
         }
 
@@ -65,7 +62,7 @@ namespace Vaflov {
             var tree = new OdinMenuTree(true);
             tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
-            //tree.Config.AutoFocusSearchBar = false;
+            tree.Config.AutoFocusSearchBar = false;
             var menuStyle = new OdinMenuStyle() {
                 Borders = false,
                 Height = 18,
@@ -135,19 +132,19 @@ namespace Vaflov {
 
         public void TryDeleteSelectedConstant() {
             var selectedConstant = MenuTree.Selection.SelectedValue as UnityEngine.Object;
-            string path = AssetDatabase.GetAssetPath(selectedConstant);
-            if (string.IsNullOrEmpty(path))
-                return;
-            if (!EditorUtility.DisplayDialog("Delete selected asset?",
-                path + Environment.NewLine + "You cannot undo the delete assets action.", "Delete", "Cancel"))
-                return;
-            AssetDatabase.DeleteAsset(path);
-            AssetDatabase.SaveAssets();
+            EditorUtil.TryDeleteAsset(selectedConstant);
+        }
+
+        public void HandleShortcuts() {
+            var selected = MenuTree?.Selection?.FirstOrDefault();
+            if (selected?.Value is IEditorObject editorObject) {
+                HandleContextMenuItemShortcuts(editorObject.GetContextMenuItems());
+            }
         }
 
         protected override void OnBeginDrawEditors() {
-            if (MenuTree == null) { return; }
-            var selected = MenuTree.Selection.FirstOrDefault();
+            if (MenuTree == null)
+                return;
             var toolbarHeight = MenuTree.Config.SearchToolbarHeight;
             SirenixEditorGUI.BeginHorizontalToolbar(toolbarHeight);
             if (MenuTree.Selection != null) {
@@ -175,20 +172,8 @@ namespace Vaflov {
             }
 
             SirenixEditorGUI.EndHorizontalToolbar();
-        }
-    }
 
-    public class ContextMenuItem {
-        public string name;
-        public Action action;
-        public KeyCode shortcut;
-        public EventModifiers modifiers;
-
-        public ContextMenuItem(string name, Action action, KeyCode shortcut = KeyCode.None, EventModifiers modifiers = EventModifiers.None) {
-            this.name = name;
-            this.action = action;
-            this.shortcut = shortcut;
-            this.modifiers = modifiers;
+            HandleShortcuts();
         }
     }
 
@@ -296,8 +281,7 @@ namespace Vaflov {
 
             if (!string.IsNullOrEmpty(currNameError) || !string.IsNullOrEmpty(targetTypeError)) {
                 using (new EditorGUI.DisabledScope(true)) {
-                    //GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
-                    GUILayout.Button(new GUIContent("Create Asset"));
+                    GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                 }
             } else if (GUILayout.Button("Create Asset")) {
                 ConstantsGenerator.GenerateConstantAsset(name, targetType);

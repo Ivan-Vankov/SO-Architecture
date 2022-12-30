@@ -13,37 +13,37 @@ namespace Vaflov {
             window.Show();
         }
 
-        public void OnEnable() {
-            titleContent = new GUIContent("Choose Arguments");
-            //serializedObject = new SerializedObject(this);
+        //public void OnEnable() {
+        //    titleContent = new GUIContent("Choose Arguments");
+        //    //serializedObject = new SerializedObject(this);
 
-            genericSOGenerator = GenericSOGenerator.CreateGenericSOGenerator(
-                "namespace",
-                typeof(GameEventVoid),
-                "base class name",
-                "class dir",
-                -1
-            );
-            genericSOGenerator.onGenericSOCreated += Close;
-            EditorApplication.projectChanged += Close;
-            EditorApplication.quitting += Close;
-            AssemblyReloadEvents.beforeAssemblyReload += Close;
-        }
+        //    genericSOGenerator = GenericSOGenerator.CreateGenericSOGenerator(
+        //        "namespace",
+        //        typeof(GameEventVoid),
+        //        "base class name",
+        //        "class dir",
+        //        -1
+        //    );
+        //    genericSOGenerator.onGenericSOCreated += Close;
+        //    EditorApplication.projectChanged += Close;
+        //    EditorApplication.quitting += Close;
+        //    AssemblyReloadEvents.beforeAssemblyReload += Close;
+        //}
 
-        public void OnDisable() {
-            genericSOGenerator.onGenericSOCreated -= Close;
-            DestroyImmediate(genericSOGenerator);
-            EditorApplication.projectChanged -= Close;
-            EditorApplication.quitting -= Close;
-            AssemblyReloadEvents.beforeAssemblyReload -= Close;
-        }
+        //public void OnDisable() {
+        //    genericSOGenerator.onGenericSOCreated -= Close;
+        //    DestroyImmediate(genericSOGenerator);
+        //    EditorApplication.projectChanged -= Close;
+        //    EditorApplication.quitting -= Close;
+        //    AssemblyReloadEvents.beforeAssemblyReload -= Close;
+        //}
 
-        public void OnGUI() {
-            //serializedObject.Update();
-            genericSOGenerator.DrawTypePicker();
-            //if (this) {
-            //    serializedObject.ApplyModifiedProperties();
-            //}
-        }
+        //public void OnGUI() {
+        //    //serializedObject.Update();
+        //    genericSOGenerator.DrawTypePicker();
+        //    //if (this) {
+        //    //    serializedObject.ApplyModifiedProperties();
+        //    //}
+        //}
     }
 }

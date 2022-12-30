@@ -2,7 +2,6 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using TypeReferences;
 using System;
 using System.Linq;
 using UnityEditor.Callbacks;
@@ -17,13 +16,13 @@ namespace Vaflov {
 
     //[CustomEditor(typeof(BaseGameEventListener), true)]
     public class BaseGameEventListenerEditor : ClassChangeEditor {
-        public override Type ZeroGenericArgTargetType => typeof(GameEventListenerVoid);
+        //public override Type ZeroGenericArgTargetType => typeof(GameEventListenerVoid);
 
-        public override string BaseClassName => nameof(GameEventListenerVoid);
+        //public override string BaseClassName => nameof(GameEventListenerVoid);
 
-        public override string ClassDirectory => "Listeners";
+        //public override string ClassDirectory => "Listeners";
 
-        public override string FoldoutLabel => "Change Listener Type";
+        //public override string FoldoutLabel => "Change Listener Type";
     }
 
     //[CustomEditor(typeof(BaseGameEventListener), true)]

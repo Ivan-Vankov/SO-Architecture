@@ -2,6 +2,7 @@
 using Microsoft.CSharp;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities.Editor;
+using SolidUtilities.UnityEngineInternals;
 #endif
 using System;
 using System.CodeDom;
@@ -14,11 +15,10 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    #if ODIN_INSPECTOR
     public static class ConstantEditorEvents {
         public static Action OnConstantEditorPropChanged;
+        public static Action<ScriptableObject> OnConstantDuplicated;
     }
-    #endif
 
     public interface ISortKeyObject {
         public int SortKey { get; set; }
@@ -29,8 +29,22 @@ namespace Vaflov {
         public string EditorComment { get; set; }
         public Texture GetEditorIcon();
         public string EditorToString();
+        public List<ContextMenuItem> GetContextMenuItems();
     }
 
+    public class ContextMenuItem {
+        public string name;
+        public Action action;
+        public KeyCode shortcut;
+        public EventModifiers modifiers;
+
+        public ContextMenuItem(string name, Action action, KeyCode shortcut = KeyCode.None, EventModifiers modifiers = EventModifiers.None) {
+            this.name = name;
+            this.action = action;
+            this.shortcut = shortcut;
+            this.modifiers = modifiers;
+        }
+    }
 
     public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector]
@@ -153,6 +167,29 @@ namespace Vaflov {
                 str = str.Replace("\n", " ");
             }
             return str;
+        }
+
+        public virtual List<ContextMenuItem> GetContextMenuItems() {
+            return new List<ContextMenuItem> {
+                new ContextMenuItem("Duplicate", () => {
+                    #if UNITY_EDITOR
+                    var copy = Instantiate(this);
+                    var path = AssetDatabase.GetAssetPath(this);
+                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+                    copy.name = newPath[(newPath.LastIndexOf('/') + 1) .. newPath.LastIndexOf('.')];
+
+                    AssetDatabase.CreateAsset(copy, newPath);
+                    AssetDatabase.SaveAssets();
+
+                    ConstantEditorEvents.OnConstantDuplicated?.Invoke(copy);
+                    #endif
+                }, KeyCode.D, EventModifiers.Control),
+                new ContextMenuItem("Delete", () => {
+                    #if UNITY_EDITOR
+                    EditorUtil.TryDeleteAsset(this);
+                    #endif
+                }, KeyCode.Delete),
+            };
         }
     }
 }

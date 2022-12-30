@@ -1,5 +1,4 @@
 using System;
-using TypeReferences;
 
 namespace Vaflov {
     /// <summary>
@@ -7,8 +6,8 @@ namespace Vaflov {
     /// argument selection only to the types that can be chosen as a generic argument.
     /// </summary>
     [Serializable]
-    public class TypeReferenceWithBaseTypes : TypeReference {
-        public string[] BaseTypeNames;
-        public bool TriggerDropdownImmediately;
+    public class TypeReferenceWithBaseTypes {
+        //public string[] BaseTypeNames;
+        //public bool TriggerDropdownImmediately;
     }
 }

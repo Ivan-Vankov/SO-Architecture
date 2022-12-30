@@ -2,10 +2,7 @@
     "name": "com.vaflov.so-architecture.editor",
     "rootNamespace": "",
     "references": [
-        "com.vaflov.so-architecture",
-        "TypeReferences",
-        "TypeReferences.Editor",
-        "UnityDropdown.Editor"
+        "com.vaflov.so-architecture"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
