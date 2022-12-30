@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using static Vaflov.CancellationTokenUtils;
+using UnityEditor;
 
 namespace Vaflov {
     public class ContextMenuItemSelector : GenericSelector<ContextMenuItem> {
@@ -57,27 +58,48 @@ namespace Vaflov {
 
         public OdinEditorWindow ShowInPopup(int width) {
             var window = base.ShowInPopup(width);
-            ContextMenuItemShortcutHandler.HandleSelector(this);
-            window.OnClose += () => ContextMenuItemShortcutHandler.CancelSelectorHandling(this);
+            ContextMenuItemShortcutHandler.HandleSelector(this, window);
             return window;
         }
     }
 
     public static class ContextMenuItemShortcutHandler {
+        public static OdinEditorWindow selectorWindow;
         public static ContextMenuItemSelector selector;
         public static CancellationTokenSource cts;
 
-        public static void HandleSelector(ContextMenuItemSelector _selector) {
+        public static void HandleSelector(ContextMenuItemSelector _selector, OdinEditorWindow _selectorWindow) {
             selector = _selector;
+            selectorWindow = _selectorWindow;
+
+            selectorWindow.OnEndGUI += () => {
+                //GUIUtility.hotControl = 0;
+                var _event = Event.current;
+                var contextMenuItems = selector.SelectionTree.RootMenuItem.GetChildMenuItemsRecursive(false);
+                foreach (var menuItem in contextMenuItems) {
+                    if (menuItem.Value is not ContextMenuItem contextMenuItem
+                        || contextMenuItem.shortcut == KeyCode.None) {
+                        continue;
+                    }
+                    if (_event.OnKeyDown(contextMenuItem.shortcut, false) && _event.modifiers.HasFlag(contextMenuItem.modifiers)) {
+                        menuItem.Select();
+                        menuItem.MenuTree.Selection.ConfirmSelection();
+                        Debug.Log($"{_event.keyCode} {_event.modifiers}");
+                        _event.Use();
+                        selectorWindow.Close();
+                        break;
+                    }
+                }
+            };
+            selectorWindow.OnClose += CancelSelectorHandling;
+
             cts = new CancellationTokenSource();
             HandleSelectorTask(cts.Token);
         }
 
-        public static void CancelSelectorHandling(ContextMenuItemSelector _selector) {
-            if (selector == _selector) {
-                cts?.Cancel();
-                cts?.Dispose();
-            }
+        public static void CancelSelectorHandling() {
+            cts?.Cancel();
+            cts?.Dispose();
         }
 
         public static async void HandleSelectorTask(CancellationToken token) {
@@ -85,15 +107,7 @@ namespace Vaflov {
                 while (!token.IsCancellationRequested) {
                     await Task.Delay(100, token);
                     if (token.IsCancellationRequested || selector == null) return;
-                    Debug.Log(Event.current?.keyCode);
-                    selector.SelectionTree.EnumerateTree(x => {
-                        if (x.Value is not ContextMenuItem contextMenuItem
-                            || contextMenuItem.shortcut == KeyCode.None) {
-                            return;
-                        }
-                        //Debug.Log(Event.current.keyCode);
-                        //Event.current.modifiers = EventModifiers
-                    });
+                    selectorWindow.Repaint();
                 }
             } catch (Exception ex) {
                 Debug.LogException(ex);
