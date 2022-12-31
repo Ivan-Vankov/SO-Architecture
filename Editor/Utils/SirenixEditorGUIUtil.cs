@@ -1,12 +1,22 @@
 ﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
 namespace Vaflov {
     public static class SirenixEditorGUIUtil {
+        public static bool ToolbarSDFIconButton(SdfIconType sdfIconType, int toolbarHeight, string text = null, string tooltip = null) {
+            return ToolbarSDFIconButton(sdfIconType, toolbarHeight, GUIHelper.TempContent(text, tooltip));
+        }
+
+        public static bool ToolbarSDFIconButton(SdfIconType sdfIconType, int toolbarHeight, GUIContent guiContent) {
+            var rect = GUILayoutUtility.GetRect(toolbarHeight, 0f, GUILayoutOptions.ExpandWidth(expand: false).ExpandHeight());
+            return SirenixEditorGUI.SDFIconButton(rect, guiContent, sdfIconType, style: SirenixGUIStyles.ToolbarButton);
+        }
+
         public static bool ToolbarButton(EditorIcon editorIcon, int toolbarHeight, string text = null, string tooltip = null) {
-            return ToolbarButton(editorIcon, toolbarHeight, new GUIContent(text, tooltip));
+            return ToolbarButton(editorIcon, toolbarHeight, GUIHelper.TempContent(text, tooltip));
         }
 
         public static bool ToolbarButton(EditorIcon editorIcon, int toolbarHeight, GUIContent guiContent) {

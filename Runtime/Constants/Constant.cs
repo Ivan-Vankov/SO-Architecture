@@ -1,17 +1,20 @@
 ﻿#if ODIN_INSPECTOR
 using Microsoft.CSharp;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
-using SolidUtilities.UnityEngineInternals;
+#endif
 #endif
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
+using static Sirenix.OdinInspector.SelfValidationResult;
 using static Vaflov.Config;
 
 namespace Vaflov {
@@ -37,12 +40,53 @@ namespace Vaflov {
         public Action action;
         public KeyCode shortcut;
         public EventModifiers modifiers;
+        #if ODIN_INSPECTOR && UNITY_EDITOR
+        public SdfIconType icon;
+        #endif
+        public string shortcutFormated;
+        public string tooltip;
 
-        public ContextMenuItem(string name, Action action, KeyCode shortcut = KeyCode.None, EventModifiers modifiers = EventModifiers.None) {
+        public ContextMenuItem(string name, Action action,
+                               KeyCode shortcut = KeyCode.None,
+                               EventModifiers modifiers = EventModifiers.None,
+                               #if ODIN_INSPECTOR && UNITY_EDITOR
+                               SdfIconType icon = SdfIconType.None
+                               #endif
+                               ) {
             this.name = name;
             this.action = action;
             this.shortcut = shortcut;
             this.modifiers = modifiers;
+            this.icon = icon;
+            this.shortcutFormated = FormatShortcut();
+            this.tooltip = FormatTooltip();
+        }
+
+        public string FormatShortcut() {
+            if (shortcut == KeyCode.None)
+                return null;
+            var shortcutStrBuilder = new StringBuilder();
+            if (modifiers != EventModifiers.None) {
+                if (modifiers.HasFlag(EventModifiers.Control)) {
+                    shortcutStrBuilder.Append("Ctrl+");
+                }
+                if (modifiers.HasFlag(EventModifiers.Alt)) {
+                    shortcutStrBuilder.Append("Alt+");
+                }
+                if (modifiers.HasFlag(EventModifiers.Shift)) {
+                    shortcutStrBuilder.Append("Shift+");
+                }
+            }
+            shortcutStrBuilder.Append(shortcut);
+            return shortcutStrBuilder.ToString();
+        }
+
+        public string FormatTooltip() {
+            if (string.IsNullOrEmpty(shortcutFormated)) {
+                return name;
+            } else {
+                return $"{name} ({shortcutFormated})";
+            }
         }
     }
 
@@ -105,7 +149,7 @@ namespace Vaflov {
         [PropertyOrder(11)]
         public string Type => codeProvider.GetTypeOutput(typeRef);
 
-        #if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         [BoxGroup("Editor Props")]
         [OnInspectorGUI]
         public void ShowName() {
@@ -170,9 +214,9 @@ namespace Vaflov {
         }
 
         public virtual List<ContextMenuItem> GetContextMenuItems() {
+            #if ODIN_INSPECTOR && UNITY_EDITOR
             return new List<ContextMenuItem> {
                 new ContextMenuItem("Duplicate", () => {
-                    #if UNITY_EDITOR
                     var copy = Instantiate(this);
                     var path = AssetDatabase.GetAssetPath(this);
                     var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
@@ -182,14 +226,14 @@ namespace Vaflov {
                     AssetDatabase.SaveAssets();
 
                     ConstantEditorEvents.OnConstantDuplicated?.Invoke(copy);
-                    #endif
-                }, KeyCode.D, EventModifiers.Control),
+                }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
                 new ContextMenuItem("Delete", () => {
-                    #if UNITY_EDITOR
                     EditorUtil.TryDeleteAsset(this);
-                    #endif
-                }, KeyCode.Delete),
+                }, KeyCode.Delete, icon: SdfIconType.Trash),
             };
+            #else
+            return null
+            #endif
         }
     }
 }

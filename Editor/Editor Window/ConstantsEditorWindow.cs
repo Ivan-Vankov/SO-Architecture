@@ -10,6 +10,7 @@ using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
 using static Vaflov.ContextMenuItemShortcutHandler;
+using Sirenix.OdinInspector.Editor.Internal;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
@@ -46,9 +47,11 @@ namespace Vaflov {
         }
 
         public void OpenConstantCreationMenu() {
-            //newConstantCreator.Reset();
-            newConstantCreator.name = null;
-            TrySelectMenuItemWithObject(newConstantCreator);
+            var selected = MenuTree?.Selection?.FirstOrDefault();
+            if (selected == null || selected.Value is not CreateNewConstant) {
+                newConstantCreator.name = null;
+                TrySelectMenuItemWithObject(newConstantCreator);
+            }
         }
 
         public void RebuildEditorGroups() {
@@ -142,6 +145,23 @@ namespace Vaflov {
             }
         }
 
+        public List<ContextMenuItem> GetToolbarItems() {
+            var items = new List<ContextMenuItem>();
+            items.Add(new ContextMenuItem("Add a new constant", () => {
+                OpenConstantCreationMenu();
+                // EditorIconsOverview.OpenEditorIconsOverview();
+            }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
+            var selected = MenuTree?.Selection?.FirstOrDefault();
+            if (selected != null && selected.Value is IEditorObject editorObject) {
+                items.AddRange(editorObject.GetContextMenuItems());
+            }
+            items.Add(new ContextMenuItem("Regenerate constants", () => {
+                ConstantsGenerator.GenerateConstants();
+                //ForceMenuTreeRebuild();
+            }, KeyCode.S, EventModifiers.Control, SdfIconType.ArrowRepeat));
+            return items;
+        }
+
         protected override void OnBeginDrawEditors() {
             if (MenuTree == null)
                 return;
@@ -156,24 +176,15 @@ namespace Vaflov {
                 GUILayout.Label(selectionLabel);
             }
 
-            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Plus, toolbarHeight, tooltip: "Add a new constant")) {
-                OpenConstantCreationMenu();
-                //OneTypeSelectionWindow.ShowInPopup(200);
-                //EditorIconsOverview.OpenEditorIconsOverview();
+            var toolbarItems = GetToolbarItems();
+            foreach (var contextMenuItem in toolbarItems) {
+                if (SirenixEditorGUIUtil.ToolbarSDFIconButton(contextMenuItem.icon, toolbarHeight, tooltip: contextMenuItem.tooltip)) {
+                    contextMenuItem.action?.Invoke();
+                }
             }
-
-            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.X, toolbarHeight, tooltip: "Delete the selected constant")) {
-                TryDeleteSelectedConstant();
-            }
-
-            if (SirenixEditorGUIUtil.ToolbarButton(EditorIcons.Refresh, toolbarHeight, tooltip: "Regenerate constants")) {
-                ConstantsGenerator.GenerateConstants();
-                ForceMenuTreeRebuild();
-            }
-
             SirenixEditorGUI.EndHorizontalToolbar();
 
-            HandleShortcuts();
+            HandleContextMenuItemShortcuts(toolbarItems);
         }
     }
 

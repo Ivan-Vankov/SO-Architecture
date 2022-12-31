@@ -37,22 +37,16 @@ namespace Vaflov {
             UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged?.Invoke();
         }
 
-        #if ODIN_INSPECTOR
-        [Button(Icon = SdfIconType.HandIndexThumbFill)]
-        [PropertyOrder(20)]
-        #endif
-        public void SelectInProject() {
-            #if UNITY_EDITOR
-            if (Value == null) { return; }
-            Selection.activeObject = Value;
-            EditorGUIUtility.PingObject(Selection.activeObject);
-            #endif
-        }
-
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         public override List<ContextMenuItem> GetContextMenuItems() {
             var items = base.GetContextMenuItems();
-            items.Add(new ContextMenuItem("Select in project", SelectInProject));
+            items.Add(new ContextMenuItem("Select in project", () => {
+                if (Value == null) { return; }
+                Selection.activeObject = Value;
+                EditorGUIUtility.PingObject(Selection.activeObject);
+            }, icon: SdfIconType.HandIndexThumb));
             return items;
         }
+        #endif
     }
 }

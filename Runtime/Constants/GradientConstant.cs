@@ -28,6 +28,10 @@ namespace Vaflov {
                     gradientTex.SetPixel(x, y, color);
                 }
             }
+            for (int x = 0; x < gradientTex.width; ++x) {
+                gradientTex.SetPixel(x, 0, Color.black);
+                gradientTex.SetPixel(x, gradientTex.height - 1, Color.black);
+            }
             gradientTex.Apply();
             return gradientTex;
         }

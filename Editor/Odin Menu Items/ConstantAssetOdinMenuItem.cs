@@ -26,22 +26,8 @@ namespace Vaflov {
                 || contextMenuItem.shortcut == KeyCode.None) {
                     return;
                 }
-                var shortcutStrBuilder = new StringBuilder();
-                if (contextMenuItem.modifiers != EventModifiers.None) {
-                    if (contextMenuItem.modifiers.HasFlag(EventModifiers.Control)) {
-                        shortcutStrBuilder.Append("Ctrl+");
-                    }
-                    if (contextMenuItem.modifiers.HasFlag(EventModifiers.Alt)) {
-                        shortcutStrBuilder.Append("Alt+");
-                    }
-                    if (contextMenuItem.modifiers.HasFlag(EventModifiers.Shift)) {
-                        shortcutStrBuilder.Append("Shift+");
-                    }
-                }
-                shortcutStrBuilder.Append(contextMenuItem.shortcut);
-                var shortcutStr = shortcutStrBuilder.ToString();
                 x.OnDrawItem += y => {
-                    GUI.Label(y.Rect.Padding(offset, 0).AlignCenterY(height), shortcutStr, SirenixGUIStyles.RightAlignedGreyMiniLabel);
+                    GUI.Label(y.Rect.Padding(offset, 0).AlignCenterY(height), contextMenuItem.shortcutFormated, SirenixGUIStyles.RightAlignedGreyMiniLabel);
                 };
             });
 
