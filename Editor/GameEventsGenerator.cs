@@ -8,7 +8,7 @@ using static Vaflov.SingletonCodeGenerator;
 
 namespace Vaflov {
     public class GameEventsGenerator {
-        [MenuItem("Tools/SO Architecture/Generate Game Events")]
+        //[MenuItem("Tools/SO Architecture/Generate Game Events")]
         public static void GenerateGameEvents() {
             new SingletonCodeGenerator(singletonClassName: "GameEvents", singletonConceptName: "GameEvent")
             .SetSingletonFieldSuffix("Event")
@@ -18,6 +18,10 @@ namespace Vaflov {
                 (var namespaceName, var className        ) = (codegen.singletonNamespaceName, codegen.singletonClassName  );
                 (var instanceName , var conceptName      ) = (codegen.singletonInstanceName , codegen.singletonConceptName);
                 (var codeBuilder  , NameFilter nameFilter) = (codegen.singletonCodeBuilder  , codegen.SingletonNameFilter );
+
+                // TODO: Optimize this with var types = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
+                // .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
+                // .ToList();
 
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes())

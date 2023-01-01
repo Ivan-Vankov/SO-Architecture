@@ -14,7 +14,6 @@ using System.Text;
 using UnityEditor;
 #endif
 using UnityEngine;
-using static Sirenix.OdinInspector.SelfValidationResult;
 using static Vaflov.Config;
 
 namespace Vaflov {

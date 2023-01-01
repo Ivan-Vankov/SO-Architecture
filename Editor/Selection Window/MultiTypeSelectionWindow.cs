@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace Vaflov {
     public class MultiTypeSelectionWindow : EditorWindow {
-        [HideInInspector] public SerializedObject serializedObject;
+        //[HideInInspector] public SerializedObject serializedObject;
 
-        public GenericSOGenerator genericSOGenerator;
+        //public GenericSOGenerator genericSOGenerator;
 
-        [MenuItem("Tools/SO Architecture/Test Multi Type Selection Window")]
-        public static void CreateMultiTypeSelectionWindow() {
-            var window = CreateInstance<MultiTypeSelectionWindow>();
-            window.Show();
-        }
+        //[MenuItem("Tools/SO Architecture/Test Multi Type Selection Window")]
+        //public static void CreateMultiTypeSelectionWindow() {
+        //    var window = CreateInstance<MultiTypeSelectionWindow>();
+        //    window.Show();
+        //}
 
         //public void OnEnable() {
         //    titleContent = new GUIContent("Choose Arguments");

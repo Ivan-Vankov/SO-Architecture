@@ -1,19 +1,15 @@
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
-using ExtEvents;
+﻿using ExtEvents;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Vaflov {
-    public class GameEventListener1Arg<T> : GameEventListenerBase {
+    public class Test2ArgGameEventListener : GameEventListenerBase {
         [HideInInspector]
-        public GameEvent1Arg<T> eventRef;
-        //[EventArguments("Test")]
-        public ExtEvent<T> response;
+        public Test2ArgGameEvent eventRef;
+        [EventArguments("testArg1", "testArg2")]
+        public ExtEvent<int, CustomData> response;
 
-        public void CallResponse(T arg1) {
-            response?.Invoke(arg1);
+        public void CallResponse(int testArg1, CustomData testArg2) {
+            response?.Invoke(testArg1, testArg2);
         }
 
         public void OnEnable() {
@@ -30,7 +26,7 @@ namespace Vaflov {
 
         #if UNITY_EDITOR && ODIN_INSPECTOR
         public override void AssignGameEvent() {
-            eventRef = (GameEvent1Arg<T>)gameEvent;
+            eventRef = (Test2ArgGameEvent)gameEvent;
         }
         #endif
     }

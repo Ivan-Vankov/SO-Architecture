@@ -10,7 +10,6 @@ using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
 using static Vaflov.ContextMenuItemShortcutHandler;
-using Sirenix.OdinInspector.Editor.Internal;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : OdinMenuEditorWindow {
@@ -50,8 +49,8 @@ namespace Vaflov {
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected == null || selected.Value is not CreateNewConstant) {
                 newConstantCreator.name = null;
-                TrySelectMenuItemWithObject(newConstantCreator);
             }
+            TrySelectMenuItemWithObject(newConstantCreator);
         }
 
         public void RebuildEditorGroups() {
@@ -76,7 +75,7 @@ namespace Vaflov {
             tree.Config.DefaultMenuStyle = menuStyle;
             tree.DefaultMenuStyle = menuStyle;
 
-            var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
+            var types = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => !type.IsGenericType)
                 .ToList();
             //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -85,19 +84,19 @@ namespace Vaflov {
             //    .ToList();
 
             var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
-            foreach (var constantType in constantTypes) {
-                var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
-                foreach (var constantAssetGuid in constantAssetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
-                    var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-                    var groupName = (constantAsset as IEditorObject).EditorGroup;
+            foreach (var type in types) {
+                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
+                foreach (var assetGuid in assetGuids) {
+                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
+                    var groupName = (asset as IEditorObject).EditorGroup;
                     groupName = groupName == null || groupName == "" ? "Default" : groupName;
 
                     if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
                         groupResult = new HashSet<UnityEngine.Object>();
                         groups[groupName] = groupResult;
                     }
-                    groupResult.Add(constantAsset);
+                    groupResult.Add(asset);
                 }
             }
 
@@ -114,7 +113,7 @@ namespace Vaflov {
                 });
                 var groupResult = new HashSet<OdinMenuItem>();
                 foreach (var constant in groupList) {
-                    var menuItem = new ConstantAssetOdinMenuItem(tree, constant.name, constant);
+                    var menuItem = new EditorObjectOdinMenuItem(tree, constant.name, constant);
                     menuItem.IconGetter = (constant as IEditorObject).GetEditorIcon;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
@@ -131,18 +130,6 @@ namespace Vaflov {
             tree.AddMenuItemAtPath("", constantCreatorMenuItem);
 
             return tree;
-        }
-
-        public void TryDeleteSelectedConstant() {
-            var selectedConstant = MenuTree.Selection.SelectedValue as UnityEngine.Object;
-            EditorUtil.TryDeleteAsset(selectedConstant);
-        }
-
-        public void HandleShortcuts() {
-            var selected = MenuTree?.Selection?.FirstOrDefault();
-            if (selected != null && selected.Value is IEditorObject editorObject) {
-                HandleContextMenuItemShortcuts(editorObject.GetContextMenuItems());
-            }
         }
 
         public List<ContextMenuItem> GetToolbarItems() {

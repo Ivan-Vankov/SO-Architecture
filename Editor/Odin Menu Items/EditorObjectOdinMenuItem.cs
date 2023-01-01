@@ -52,13 +52,13 @@ namespace Vaflov {
         }
     }
 
-    public class ConstantAssetOdinMenuItem : OdinMenuItem {
-        public ConstantAssetOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value) : base(tree, name, value) {
+    public class EditorObjectOdinMenuItem : OdinMenuItem {
+        public EditorObjectOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value) : base(tree, name, value) {
             OnRightClick += OpenRightClickMenu;
         }
 
         public static void OpenRightClickMenu(OdinMenuItem self) {
-            (self as ConstantAssetOdinMenuItem).OpenRightClickMenu();
+            (self as EditorObjectOdinMenuItem).OpenRightClickMenu();
         }
 
         public void OpenRightClickMenu() {
