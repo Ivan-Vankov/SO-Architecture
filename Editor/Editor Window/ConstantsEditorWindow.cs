@@ -118,6 +118,20 @@ namespace Vaflov {
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
                 }
+                var groupMenuItem = tree.GetMenuItem(groupName);
+                if (groupMenuItem != null) {
+                    groupMenuItem.OnDrawItem += x => {
+                        var itemCountLabel = $" ({x.ChildMenuItems.Count})";
+                        var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
+                        var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
+                        var valueRect = new Rect(x.LabelRect.x + nameLabelSize.x, x.LabelRect.y, x.LabelRect.width - nameLabelSize.x, x.LabelRect.height);
+                        var valueContent = GUIHelper.TempContent(itemCountLabel);
+
+                        GUIHelper.PushColor(Color.green);
+                        GUI.Label(valueRect, valueContent, labelStyle);
+                        GUIHelper.PopColor();
+                    };
+                }
             }
 
             tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
@@ -198,9 +212,7 @@ namespace Vaflov {
 
         public void ResetCachedTypes() {
             types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
-                if (x.Name == null)
-                    return false;
-                if (x.IsGenericType)
+                if (x.Name == null || x.IsGenericType || x.IsNotPublic)
                     return false;
                 string text = x.Name.TrimStart(Array.Empty<char>());
                 return text.Length != 0 && char.IsLetter(text[0]);
