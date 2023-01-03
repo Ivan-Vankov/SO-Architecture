@@ -200,7 +200,7 @@ namespace Vaflov {
         #endif
 
         public virtual string EditorToString() {
-            if (default(T) == null && Value.Equals(default(T))) {
+            if (Value == null) {
                 return "null";
             }
             var str = Value.ToString();
