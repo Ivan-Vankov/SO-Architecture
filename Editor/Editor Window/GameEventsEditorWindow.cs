@@ -10,7 +10,7 @@ using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
-using UnityEditor.Graphs;
+using Sirenix.OdinInspector.Editor.Drawers;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : OdinMenuEditorWindow {
@@ -182,7 +182,7 @@ namespace Vaflov {
         [HideInInspector]
         public List<Type> types;
 
-        public const int labelWidth = 70;
+        public const int labelWidth = 40;
 
         public void ResetCachedTypes() {
             types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
@@ -252,49 +252,44 @@ namespace Vaflov {
             if (name != oldName) {
                 nameError = ValidateGameEventNameUniqueness(name);
             }
-
-            argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, 3);
-            
             GUIHelper.PopLabelWidth();
-
+            GUIHelper.PushLabelWidth(70);
+            argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, 3);
+            GUIHelper.PopLabelWidth();
             for (int i = 0; i < argCount; ++i) {
                 var arg = argData[i];
-                using (new GUILayout.HorizontalScope()) {
-                    using (new GUILayout.VerticalScope()) {
-                        GUIHelper.PushLabelWidth(labelWidth);
-                        // TODO: Proper arg name validation
-                        if (string.IsNullOrEmpty(arg.argName)) {
-                            ErrorMessageBox($"Arg {i} name is empty");
-                        }
-                        else if (arg.argName.Contains(' ')) {
-                            ErrorMessageBox("Name contains a whitespace");
-                        }
-                        arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
-                        GUIHelper.PopLabelWidth();
-                    }
 
-                    using (new GUILayout.VerticalScope()) {
-                        var targetType = arg.argType;
-                        var targetTypeError = targetType == null ? "Type is empty" : null;
-                        if (!string.IsNullOrEmpty(targetTypeError)) {
-                            ErrorMessageBox(targetTypeError);
-                        }
-                        var typeText = targetType == null ? "Select Type" : targetType.GetNiceFullName();
-                        var typeTextContent = new GUIContent(typeText);
-                        var typeTextStyle = EditorStyles.layerMaskField;
-                        var rect = GUILayoutUtility.GetRect(typeTextContent, typeTextStyle);
-                        var typeLabelRect = rect.SetSize(labelWidth, rect.height);
-                        var typeSelectorRect = new Rect(rect.x + labelWidth + 2, rect.y, Max(rect.width - labelWidth - 2, 0), rect.height);
-                        EditorGUI.LabelField(typeLabelRect, GUIHelper.TempContent("Type"));
-
-                        var typeSelector = arg.typeSelector;
-                        OdinSelector<Type>.DrawSelectorDropdown(typeSelectorRect, typeTextContent, _ => {
-                            typeSelector.SetSelection(targetType);
-                            typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
-                            return typeSelector;
-                        }, typeTextStyle);
-                    }
+                SirenixEditorGUI.BeginBox(null);
+                GUIHelper.PushLabelWidth(labelWidth);
+                // TODO: Proper arg name validation
+                if (string.IsNullOrEmpty(arg.argName)) {
+                    ErrorMessageBox("Name is empty");
                 }
+                else if (arg.argName.Contains(' ')) {
+                    ErrorMessageBox("Name contains a whitespace");
+                }
+                arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
+                GUIHelper.PopLabelWidth();
+                var targetType = arg.argType;
+                var targetTypeError = targetType == null ? "Type is empty" : null;
+                if (!string.IsNullOrEmpty(targetTypeError)) {
+                    ErrorMessageBox(targetTypeError);
+                }
+                var typeText = targetType == null ? "Select Type" : targetType.GetNiceFullName();
+                var typeTextContent = new GUIContent(typeText);
+                var typeTextStyle = EditorStyles.layerMaskField;
+                var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight, typeTextStyle);
+                var typeLabelRect = rect.SetSize(labelWidth, rect.height);
+                var typeSelectorRect = new Rect(rect.x + labelWidth + 2, rect.y, Max(rect.width - labelWidth - 2, 0), rect.height);
+                EditorGUI.LabelField(typeLabelRect, GUIHelper.TempContent("Type"));
+
+                var typeSelector = arg.typeSelector;
+                OdinSelector<Type>.DrawSelectorDropdown(typeSelectorRect, typeTextContent, _ => {
+                    typeSelector.SetSelection(targetType);
+                    typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
+                    return typeSelector;
+                }, typeTextStyle);
+                SirenixEditorGUI.EndBox();
             }
 
             if (error) {
