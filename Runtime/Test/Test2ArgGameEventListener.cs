@@ -15,7 +15,7 @@ namespace Vaflov {
         //public ExtEvent<int, CustomData> response;
         //public override ExtEvent<int, CustomData> Response => response;
 
-            [HideInInspector]
+        [HideInInspector]
         public Test2ArgGameEvent eventRef;
         [EventArguments("testArg1", "testArg2")]
         public ExtEvent<int, CustomData> response;

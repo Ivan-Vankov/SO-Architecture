@@ -33,6 +33,10 @@ namespace Vaflov {
             return EditorGUIUtility.ObjectContent(Value, typeof(T)).image;
         }
 
+        public override string EditorToString() {
+            return base.EditorToString().Replace("UnityEngine.", "");
+        }
+
         public void OnUnityObjectConstantChanged() {
             UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged?.Invoke();
         }

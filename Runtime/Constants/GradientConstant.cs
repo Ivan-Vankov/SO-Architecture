@@ -11,6 +11,10 @@ namespace Vaflov {
         public static readonly Color[] gradientColors = new Color[gradientTexSize];
         public static Texture2D gradientTex;
 
+        public override string EditorToString() {
+            return null;
+        }
+
         public override Texture GetEditorIcon() {
             gradientTex = gradientTex == null ? new Texture2D(gradientTexSize, gradientTexSize) : gradientTex;
             for (int i = 0; i < gradientTexSize; ++i) {

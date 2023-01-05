@@ -121,7 +121,7 @@ namespace Vaflov {
                 var groupMenuItem = tree.GetMenuItem(groupName);
                 if (groupMenuItem != null) {
                     groupMenuItem.OnDrawItem += x => {
-                        var itemCountLabel = $" ({x.ChildMenuItems.Count})";
+                        var itemCountLabel = $" {x.ChildMenuItems.Count}";
                         var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
                         var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
                         var valueRect = new Rect(x.LabelRect.x + nameLabelSize.x, x.LabelRect.y, x.LabelRect.width - nameLabelSize.x, x.LabelRect.height);

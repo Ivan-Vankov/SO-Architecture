@@ -73,7 +73,10 @@ namespace Vaflov {
             //GUI.Label(rect, new GUIContent((string)null, SmartName + " test tooltip"));
 
             var editorObj = Value as IEditorObject;
-            var valueLabel = " " + editorObj.EditorToString();
+            var valueLabel = editorObj.EditorToString();
+            if (!string.IsNullOrEmpty(valueLabel)) {
+                valueLabel = " " + valueLabel;
+            }
             var labelStyle = IsSelected ? Style.SelectedLabelStyle : Style.DefaultLabelStyle;
             var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(SmartName));
             var valueRect = new Rect(labelRect.x + nameLabelSize.x, labelRect.y, labelRect.width - nameLabelSize.x, labelRect.height);

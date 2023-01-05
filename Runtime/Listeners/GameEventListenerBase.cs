@@ -1,6 +1,7 @@
 ﻿using Sirenix.OdinInspector;
 using System;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -39,6 +40,10 @@ namespace Vaflov {
                 var gameEventGenericArgs = gameEventType.BaseType.GenericTypeArguments;
                 listenerType = TypeCache.GetTypesDerivedFrom<GameEventListenerBase>()
                     .Where(type => {
+                        var eventRefField = type.GetField("eventRef", BindingFlags.Public | BindingFlags.Instance);
+                        if (eventRefField?.FieldType == gameEventType) {
+                            return true;
+                        }
                         if (type.IsGenericType || !type.BaseType.IsGenericType) {
                             return false;
                         }

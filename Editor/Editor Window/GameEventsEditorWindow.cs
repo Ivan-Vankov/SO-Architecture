@@ -152,20 +152,20 @@ namespace Vaflov {
         }
     }
 
-    public class CreateNewGameEvent {
-        public class ArgData {
-            public string argName;
-            public Type argType;
-            public VaflovTypeSelector typeSelector;
-        }
+    public class GameEventArgData {
+        public string argName;
+        public Type argType;
+        public VaflovTypeSelector typeSelector;
+    }
 
+    public class CreateNewGameEvent {
         public const int MAX_ARG_COUNT = 3;
 
         [HideInInspector]
-        public readonly List<ArgData> argData = new List<ArgData>(MAX_ARG_COUNT) {
-            new ArgData(),
-            new ArgData(),
-            new ArgData(),
+        public readonly List<GameEventArgData> argData = new List<GameEventArgData>(MAX_ARG_COUNT) {
+            new GameEventArgData(),
+            new GameEventArgData(),
+            new GameEventArgData(),
         };
 
         [HideInInspector]
@@ -304,8 +304,11 @@ namespace Vaflov {
                     GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                 }
             } else if (GUILayout.Button("Create Asset")) {
-                Debug.Log("here");
-                //GameEventsGenerator.GenerateGameEventAndListener(name, argData);
+                var passedArgData = new List<GameEventArgData>(argCount);
+                for (int i = 0; i < argCount; ++i) {
+                    passedArgData.Add(argData[i]);
+                }
+                GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
             }
         }
     }
