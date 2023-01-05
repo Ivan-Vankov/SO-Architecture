@@ -11,6 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 using Sirenix.OdinInspector.Editor.Drawers;
+using System.Security.AccessControl;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : OdinMenuEditorWindow {
@@ -35,8 +36,16 @@ namespace Vaflov {
             base.OnEnable();
         }
 
+        public void OpenGameEventCreationMenu() {
+            var selected = MenuTree?.Selection?.FirstOrDefault();
+            if (selected == null || selected.Value is not CreateNewGameEvent) {
+                createNewGameEvent.name = CreateNewGameEvent.DEFAULT_GAME_EVENT_NAME;
+            }
+            TrySelectMenuItemWithObject(createNewGameEvent);
+        }
+
         protected override OdinMenuTree BuildMenuTree() {
-            createNewGameEvent.ResetCachedTypes();
+            createNewGameEvent.Reset();
             var tree = new OdinMenuTree(true);
             tree.Selection.SupportsMultiSelect = false;
             tree.Config.DrawSearchToolbar = true;
@@ -100,14 +109,6 @@ namespace Vaflov {
             return tree;
         }
 
-        public void OpenGameEventCreationMenu() {
-            var selected = MenuTree?.Selection?.FirstOrDefault();
-            if (selected == null || selected.Value is not CreateNewGameEvent) {
-                createNewGameEvent.name = null;
-            }
-            TrySelectMenuItemWithObject(createNewGameEvent);
-        }
-
         public List<ContextMenuItem> GetToolbarItems() {
             var items = new List<ContextMenuItem>();
             items.Add(new ContextMenuItem("Add a new game event", () => {
@@ -161,7 +162,7 @@ namespace Vaflov {
         public const int MAX_ARG_COUNT = 3;
 
         [HideInInspector]
-        public List<ArgData> argData = new List<ArgData>(MAX_ARG_COUNT) {
+        public readonly List<ArgData> argData = new List<ArgData>(MAX_ARG_COUNT) {
             new ArgData(),
             new ArgData(),
             new ArgData(),
@@ -170,8 +171,10 @@ namespace Vaflov {
         [HideInInspector]
         public int argCount;
 
+        public const string DEFAULT_GAME_EVENT_NAME = "New Game Event";
+
         [HideInInspector]
-        public string name;
+        public string name = DEFAULT_GAME_EVENT_NAME;
 
         [HideInInspector]
         public string nameError;
@@ -184,6 +187,11 @@ namespace Vaflov {
 
         public const int labelWidth = 40;
 
+        public void Reset() {
+            ResetCachedTypes();
+            ResetArgData();
+        }
+
         public void ResetCachedTypes() {
             types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
                 if (x.Name == null)
@@ -193,14 +201,6 @@ namespace Vaflov {
                 string text = x.Name.TrimStart(Array.Empty<char>());
                 return text.Length != 0 && char.IsLetter(text[0]);
             }).ToList();
-            foreach (var arg in argData) {
-                arg.typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
-                    //FlattenTree = true,
-                };
-                arg.typeSelector.SelectionChanged += types => {
-                    arg.argType = types.FirstOrDefault();
-                };
-            }
 
             assetNames = new List<string>();
             var eventTypes = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
@@ -216,12 +216,19 @@ namespace Vaflov {
             }
         }
 
-        //public string ValidateArgName(string targetName) {
-        //    if (targetName.Contains(' ')) {
-        //        return "Name contains whitespace";
-        //    }
-        //    return null;
-        //}
+        public void ResetArgData() {
+            for (int i = 0; i < argData.Count; i++) {
+                var arg = argData[i];
+                arg.argName = $"Arg{i}";
+                arg.argType = typeof(int);
+                arg.typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
+                    //FlattenTree = true,
+                };
+                arg.typeSelector.SelectionChanged += types => {
+                    arg.argType = types.FirstOrDefault();
+                };
+            }
+        }
 
         public string ValidateGameEventNameUniqueness(string targetName) {
             for (int i = 0; i < assetNames.Count; ++i) {

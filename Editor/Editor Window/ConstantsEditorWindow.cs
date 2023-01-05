@@ -48,7 +48,7 @@ namespace Vaflov {
         public void OpenConstantCreationMenu() {
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected == null || selected.Value is not CreateNewConstant) {
-                newConstantCreator.name = null;
+                newConstantCreator.name = CreateNewConstant.DEFAULT_CONSTANT_NAME;
             }
             TrySelectMenuItemWithObject(newConstantCreator);
         }
@@ -191,10 +191,12 @@ namespace Vaflov {
 
     public class CreateNewConstant {
         [HideInInspector]
-        public Type targetType;
+        public Type targetType = typeof(int);
+
+        public const string DEFAULT_CONSTANT_NAME = "New Constant";
 
         [HideInInspector]
-        public string name;
+        public string name = DEFAULT_CONSTANT_NAME;
 
         [HideInInspector]
         public string nameError;
@@ -236,12 +238,6 @@ namespace Vaflov {
                     constantNames.Add(constantAsset.name);
                 }
             }
-        }
-
-        public void Reset() {
-            targetType = null;
-            name = null;
-            nameError = null;
         }
 
         public string ValidateConstantNameUniqueness(string targetName) {
