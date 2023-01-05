@@ -37,15 +37,14 @@ namespace Vaflov {
 #endif
         public int SortKey { get => sortKey; set => sortKey = value; }
 
-        [HideInInspector]
-        public string comment;
-#if ODIN_INSPECTOR
-        [ShowInInspector]
+        #if ODIN_INSPECTOR
         [LabelText("Comment")]
+        [TextArea(1, 5)]
         [BoxGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]
-#endif
+        #endif
+        public string comment;
         public string EditorComment { get => comment; set => comment = value; }
 
         public virtual Texture GetEditorIcon() => null;

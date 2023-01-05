@@ -305,7 +305,7 @@ namespace Vaflov {
                 }
             } else if (GUILayout.Button("Create Asset")) {
                 Debug.Log("here");
-                //ConstantsGenerator.GenerateConstantAsset(name, targetType);
+                //GameEventsGenerator.GenerateGameEventAndListener(name, argData);
             }
         }
     }

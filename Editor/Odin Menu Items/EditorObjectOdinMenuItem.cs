@@ -85,7 +85,7 @@ namespace Vaflov {
 
             var commentLabel = editorObj.EditorComment;
             if (!string.IsNullOrEmpty(commentLabel)) {
-                commentLabel = (" " + commentLabel).Trim('\n');
+                commentLabel = (" " + commentLabel).Replace('\n', ' ');
                 var valueLabelSize = labelStyle.CalcSize(valueContent);
                 var commentRect = new Rect(valueRect.x + valueLabelSize.x, valueRect.y, valueRect.width - valueLabelSize.x, valueRect.height);
 
