@@ -54,7 +54,7 @@ namespace Vaflov {
         }
 
         public void RebuildEditorGroups() {
-            var oldSelectedObj = MenuTree.Selection.FirstOrDefault()?.Value;
+            var oldSelectedObj = MenuTree.Selection?.FirstOrDefault()?.Value;
             ForceMenuTreeRebuild();
             TrySelectMenuItemWithObject(oldSelectedObj);
         }

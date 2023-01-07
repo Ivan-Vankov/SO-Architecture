@@ -47,6 +47,19 @@ namespace Vaflov {
         public string comment;
         public string EditorComment { get => comment; set => comment = value; }
 
+        #if ODIN_INSPECTOR
+        [ReadOnly]
+        [PropertyOrder(30)]
+        [ListDrawerSettings(
+            DraggableItems = false,
+            Expanded = true,
+            ShowPaging = true,
+            NumberOfItemsPerPage = 10,
+            ShowItemCount = false,
+            HideRemoveButton = true)]
+        #endif
+        public List<GameEventListenerBase> listeners;
+
         public virtual Texture GetEditorIcon() => null;
 
         #if ODIN_INSPECTOR && UNITY_EDITOR

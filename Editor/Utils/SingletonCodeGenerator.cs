@@ -79,10 +79,7 @@ namespace Vaflov {
 
         public SingletonCodeGenerator AddSingletonHeader() {
             singletonCodeBuilder
-                .AppendLine("////////////////////////////////////////////////////////////////////")
-                .AppendLine("/////////////////// AUTOMATICALLY GENERATED FILE ///////////////////")
-                .AppendLine("////////////////////////////////////////////////////////////////////")
-                .AppendLine()
+                .AppendLine(Config.AUTO_GENERATED_HEADER)
                 .AppendLine("using UnityEngine;")
                 .AppendLine()
                 .AppendLine($"namespace {singletonNamespaceName} {{")

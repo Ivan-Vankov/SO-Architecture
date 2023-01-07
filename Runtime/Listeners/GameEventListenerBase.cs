@@ -67,10 +67,9 @@ namespace Vaflov {
                 AssignGameEvent();
                 return;
             }
-            var newListener = gameObject.AddComponent(listenerType) as GameEventListenerBase;
+            var newListener = this.ReplaceComponent(listenerType) as GameEventListenerBase;
             newListener.gameEvent = gameEvent;
             newListener.AssignGameEvent();
-            this.ReplaceComponentWith(newListener);
         }
 
         public virtual void AssignGameEvent() {

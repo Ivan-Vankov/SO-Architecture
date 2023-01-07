@@ -4,12 +4,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.TypeUtil;
+using static Vaflov.FileUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
 using System.IO;
-using UnityEditor.Callbacks;
+using System.Management.Instrumentation;
 
 namespace Vaflov {
     public class GameEventsGenerator {
@@ -63,7 +62,7 @@ namespace Vaflov {
             }
             if (gameEventType == null) {
                 EditorPrefs.SetString(GENERATED_GAME_EVENT_NAME_KEY, gameEventClassName);
-                GenerateGameEventClass(argData);
+                GenerateGameEventClass(name, argData);
             }
 
             var gameEvent = ScriptableObject.CreateInstance(gameEventType);
@@ -72,8 +71,25 @@ namespace Vaflov {
             AssetDatabase.SaveAssets();
         }
 
-        public static void GenerateGameEventClass(List<GameEventArgData> argData) {
-            // TODO
+        public static void GenerateGameEventClass(string name, List<GameEventArgData> argData) {
+            //var codeBuilder = new StringBuilder();
+            //var className = name + "GameEvent";
+            //codeBuilder
+            //    .AppendLine(Config.AUTO_GENERATED_HEADER)
+            //    .AppendLine("namespace Vaflov {")
+            //    .AppendLine($"\tpublic class {className} : GameEventBase");
+            //var code =
+            //    "namespace Vaflov {" +
+            //    $"\n\tpublic class {wrapperClassName} : {parentClassName}<{wrappedDerivedClassName}> {{ }}" +
+            //    "\n}" +
+            //    "\n";
+            //var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events"));
+            //if (!Directory.Exists(codeDirectory)) {
+            //    Directory.CreateDirectory(codeDirectory);
+            //}
+
+            //var codePath = Path.Combine(codeDirectory, $"{className}.cs");
+            //TryCreateFileAsset(code, codePath);
         }
 
         //[DidReloadScripts]
@@ -139,7 +155,7 @@ namespace Vaflov {
                             }
 
                             var eventFieldTypeName = gameEventSubType.Name;
-                            var eventFieldName = nameFilter(gameEventAsset.name, true);
+                            var eventFieldName = "_" + nameFilter(gameEventAsset.name, true);
 
                             var resourcesPathName = "Resources";
                             var resourcesIdx = assetPath.IndexOf(resourcesPathName);

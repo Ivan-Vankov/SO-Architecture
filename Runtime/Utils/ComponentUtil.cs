@@ -9,7 +9,7 @@ using static UnityEngine.Mathf;
 
 namespace Vaflov {
     public static class ComponentUtil {
-        public static void ReplaceComponentWith(this Component toReplace, Component toReplaceWith) {
+        public static Component ReplaceComponent(this Component toReplace, Type componentType) {
             #if UNITY_EDITOR
             var components = toReplace.GetComponents<Component>();
             var expanded = new HashSet<Component>();
@@ -20,6 +20,7 @@ namespace Vaflov {
             }
             #endif
             var index = toReplace.GetComponentIndexInGameObject();
+            var toReplaceWith = toReplace.gameObject.AddComponent(componentType);
             toReplaceWith.MoveComponentToIndexInGameObject(index);
             UnityEngine.Object.DestroyImmediate(toReplace);
             #if UNITY_EDITOR
@@ -31,6 +32,7 @@ namespace Vaflov {
             InternalEditorUtility.SetIsInspectorExpanded(toReplaceWith, true);
             ActiveEditorTracker.sharedTracker.ForceRebuild();
             #endif
+            return toReplaceWith;
         }
 
         public static void MoveComponentToIndexInGameObject(this Component component, int index) {

@@ -5,6 +5,7 @@ using ExtEvents;
 using UnityEngine;
 
 namespace Vaflov {
+    // TODO: Remove this
     public class GameEventListener1ArgPropertyProcessor<C, T> : OdinPropertyProcessor<C> where C : GameEventListener1Arg<T> {
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             //var responseProp = propertyInfos.Find(nameof(GameEventListener1Arg<T>.response));
