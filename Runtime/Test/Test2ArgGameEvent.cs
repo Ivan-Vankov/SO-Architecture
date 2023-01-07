@@ -9,11 +9,8 @@ namespace Vaflov {
         public string b;
     }
 
-    [CreateAssetMenu(fileName = "Test", menuName = "SOArchitecture/Test")]
-    public class Test2ArgGameEvent : GameEvent2Base<int, CustomData, Test2ArgGameEvent> {
-    //public class Test2ArgGameEvent : GameEventBase {
-        public const string arg1Name = "testArg1";
-        public const string arg2Name = "testArg2";
+    [CreateAssetMenu(fileName = "Test", menuName = "SO Architecture/Test")]
+    public class Test2ArgGameEvent : GameEvent2Base<Test2ArgGameEvent, int, CustomData> {
         public delegate void Test2ArgAction(int testArg1, CustomData testArg2);
         public event Test2ArgAction action;
 
@@ -43,12 +40,12 @@ namespace Vaflov {
             action?.Invoke(testArg1, testArg2);
         }
 
-        public override void AddListener(GameEventListener2Base<int, CustomData, Test2ArgGameEvent> listener) {
+        public override void AddListener(GameEventListener2Base<Test2ArgGameEvent, int, CustomData> listener) {
             base.AddListener(listener);
             action += listener.CallResponse;
         }
 
-        public override void RemoveListener(GameEventListener2Base<int, CustomData, Test2ArgGameEvent> listener) {
+        public override void RemoveListener(GameEventListener2Base<Test2ArgGameEvent, int, CustomData> listener) {
             base.RemoveListener(listener);
             action -= listener.CallResponse;
         }

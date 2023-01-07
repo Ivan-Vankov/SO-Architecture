@@ -2,13 +2,13 @@
 using UnityEngine;
 
 namespace Vaflov {
-    public abstract class GameEventListener2Base<V, T, U> : GameEventListenerBase where V : GameEvent2Base<V, T, U> {
+    public abstract class GameEventListener3Base<V, T, U, W> : GameEventListenerBase where V : GameEvent3Base<V, T, U, W> {
         [HideInInspector]
         public V eventRef;
-        public abstract ExtEvent<T, U> Response { get; }
+        public abstract ExtEvent<T, U, W> Response { get; }
 
-        public void CallResponse(T arg1, U arg2) {
-            Response?.Invoke(arg1, arg2);
+        public void CallResponse(T arg1, U arg2, W arg3) {
+            Response?.Invoke(arg1, arg2, arg3);
         }
 
         public void OnEnable() {
