@@ -1,8 +1,7 @@
 ﻿using ExtEvents;
-using UnityEngine;
 
 namespace Vaflov {
-    [AddComponentMenu("")]
+    [UnityEngine.AddComponentMenu("")]
     public class Test2ArgGameEventListener : GameEventListener2Base<Test2ArgGameEvent, int, CustomData> {
         [EventArguments("testArg1", "testArg2")]
         public ExtEvent<int, CustomData> response;

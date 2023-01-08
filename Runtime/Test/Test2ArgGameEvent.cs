@@ -1,17 +1,18 @@
-﻿using Sirenix.OdinInspector;
-using System;
-using UnityEngine;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Vaflov {
-    [Serializable]
+    [System.Serializable]
     public struct CustomData {
         public int a;
         public string b;
     }
 
-    [CreateAssetMenu(fileName = "Test", menuName = "SO Architecture/Test")]
+    public delegate void Test2ArgAction(int testArg1, CustomData testArg2);
+
+    [UnityEngine.CreateAssetMenu(fileName = "Test", menuName = "SO Architecture/Test")]
     public class Test2ArgGameEvent : GameEvent2Base<Test2ArgGameEvent, int, CustomData> {
-        public delegate void Test2ArgAction(int testArg1, CustomData testArg2);
         public event Test2ArgAction action;
 
         //#if ODIN_INSPECTOR
@@ -34,8 +35,10 @@ namespace Vaflov {
         //#endif
         //public string Arg2;
 
+        #if ODIN_INSPECTOR
         [Button(Expanded = true)]
         [PropertyOrder(15)]
+        #endif
         public override void Raise(int testArg1, CustomData testArg2) {
             action?.Invoke(testArg1, testArg2);
         }

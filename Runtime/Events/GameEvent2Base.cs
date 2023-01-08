@@ -1,5 +1,5 @@
 ﻿namespace Vaflov {
-    public abstract class GameEvent2Base<V, T, U> : GameEventBase where V: GameEvent2Base<V, T, U> {
+    public abstract class GameEvent2Base<V, T, U> : GameEventBase where V : GameEvent2Base<V, T, U> {
         public abstract void Raise(T arg1, U arg2);
 
         public virtual void AddListener(GameEventListener2Base<V, T, U> listener) {

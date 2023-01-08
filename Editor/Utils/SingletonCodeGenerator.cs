@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.CSharp;
+using System;
+using System.CodeDom;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,7 @@ using static Vaflov.FileUtil;
 namespace Vaflov {
     public class SingletonCodeGenerator {
         public string singletonNamespaceName = typeof(SingletonCodeGenerator).Namespace;
+        public string singletonNamespacePrefix;
         public string singletonClassModifiers = "";
         public string singletonClassName;
         public string singletonInstanceName = "Instance";
@@ -20,6 +23,8 @@ namespace Vaflov {
 
         public delegate string NameFilter(string name, bool isFirstLetterLowerCase);
         public StringBuilder singletonNameBuilder = new StringBuilder();
+
+        public static CSharpCodeProvider codeProvider = new CSharpCodeProvider();
 
         public SingletonCodeGenerator(string singletonClassName, string singletonConceptName) {
             this.singletonClassName = singletonClassName;
@@ -59,6 +64,20 @@ namespace Vaflov {
         public SingletonCodeGenerator SetSingletonDirectoryName(string directoryName) {
             this.singletonDirectoryName = directoryName;
             return this;
+        }
+
+        public SingletonCodeGenerator Clear() {
+            singletonCodeBuilder.Clear();
+            return this;
+        }
+        public string GetTruncatedTypeName(Type type) {
+            singletonNamespacePrefix = singletonNamespacePrefix != null
+                ? singletonNamespacePrefix
+                : singletonNamespaceName + ".";
+            var realTypeName = codeProvider.GetTypeOutput(new CodeTypeReference(type));
+            return realTypeName.StartsWith(singletonNamespacePrefix)
+                ? realTypeName.Substring(singletonNamespacePrefix.Length)
+                : realTypeName;
         }
 
         public string SingletonNameFilter(string name, bool isFirstLetterLowerCase) {
@@ -124,6 +143,7 @@ namespace Vaflov {
             singletonCodegenTimer.Start();
             return this;
         }
+
         public SingletonCodeGenerator EndSingletonCodegenTimerAndPrint() {
             singletonCodegenTimer.Stop();
             if (singletonCodePath != null) {

@@ -107,15 +107,7 @@ namespace Vaflov {
                 (var namespaceName, var className        ) = (codegen.singletonNamespaceName, codegen.singletonClassName  );
                 (var instanceName , var conceptName      ) = (codegen.singletonInstanceName , codegen.singletonConceptName);
                 (var codeBuilder  , NameFilter nameFilter) = (codegen.singletonCodeBuilder  , codegen.SingletonNameFilter );
-
-                var namespacePrefix = $"{namespaceName}.";
-                using var codeProvider = new CSharpCodeProvider();
-                string GetTruncatedTypeName(Type type) {
-                    var realTypeName = codeProvider.GetTypeOutput(new CodeTypeReference(type));
-                    return realTypeName.StartsWith(namespacePrefix)
-                        ? realTypeName.Substring(namespacePrefix.Length)
-                        : realTypeName;
-                }
+                Func<Type, string> GetTruncatedTypeName = codegen.GetTruncatedTypeName;
 
                 var constantsCodeBuilder = new StringBuilder();
                 var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))

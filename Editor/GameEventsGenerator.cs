@@ -8,13 +8,15 @@ using static Vaflov.FileUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
 using System.IO;
-using System.Management.Instrumentation;
 
 namespace Vaflov {
     public class GameEventsGenerator {
 
         public static readonly string GENERATED_GAME_EVENT_NAME_KEY = nameof(GENERATED_GAME_EVENT_NAME_KEY);
         public static readonly string GENERATED_GAME_EVENT_TYPE_KEY = nameof(GENERATED_GAME_EVENT_TYPE_KEY);
+
+        public static SingletonCodeGenerator codegen = new SingletonCodeGenerator(singletonClassName: "GameEvents", singletonConceptName: "GameEvent")
+            .SetSingletonFieldSuffix("Event");
 
         public static string EncodeArgData(List<GameEventArgData> argData) {
             var argDataStringBuilder = new StringBuilder();
@@ -51,7 +53,8 @@ namespace Vaflov {
                 Debug.LogError($"Trying to create game event with {argData?.Count} arguments (max {CreateNewGameEvent.MAX_ARG_COUNT})");
                 return;
             }
-            var gameEventClassName = name + "GameEvent";
+            var formattedName = codegen.SingletonNameFilter(name, false);
+            var gameEventClassName = formattedName + codegen.singletonConceptName;
             Type gameEventType = null;
             if (argData.Count == 0) {
                 gameEventType = typeof(GameEventVoid);
@@ -62,7 +65,8 @@ namespace Vaflov {
             }
             if (gameEventType == null) {
                 EditorPrefs.SetString(GENERATED_GAME_EVENT_NAME_KEY, gameEventClassName);
-                GenerateGameEventClass(name, argData);
+                GenerateGameEventClass(formattedName, argData);
+                return;
             }
 
             var gameEvent = ScriptableObject.CreateInstance(gameEventType);
@@ -71,25 +75,73 @@ namespace Vaflov {
             AssetDatabase.SaveAssets();
         }
 
-        public static void GenerateGameEventClass(string name, List<GameEventArgData> argData) {
-            //var codeBuilder = new StringBuilder();
-            //var className = name + "GameEvent";
-            //codeBuilder
-            //    .AppendLine(Config.AUTO_GENERATED_HEADER)
-            //    .AppendLine("namespace Vaflov {")
-            //    .AppendLine($"\tpublic class {className} : GameEventBase");
-            //var code =
-            //    "namespace Vaflov {" +
-            //    $"\n\tpublic class {wrapperClassName} : {parentClassName}<{wrappedDerivedClassName}> {{ }}" +
-            //    "\n}" +
-            //    "\n";
-            //var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events"));
-            //if (!Directory.Exists(codeDirectory)) {
-            //    Directory.CreateDirectory(codeDirectory);
-            //}
+        public static void GenerateGameEventClass(string name, List<GameEventArgData> args) {
+            var argsBuilder = new StringBuilder();
+            string Args(bool showTypes = false, bool showNames = false) {
+                if (!showTypes && !showNames)
+                    return "";
+                argsBuilder.Clear();
+                for (int i = 0; i < args.Count; ++i) {
+                    var arg = args[i];
+                    if (showTypes) {
+                        argsBuilder.Append(codegen.GetTruncatedTypeName(arg.argType));
+                        if (showNames) {
+                            argsBuilder.Append(" ");
+                        }
+                    }
+                    if (showNames) {
+                        argsBuilder.Append(arg.argName);
+                    }
+                    if (i < args.Count - 1) {
+                        argsBuilder.Append(", ");
+                    }
+                }
+                return argsBuilder.ToString();
+            }
 
-            //var codePath = Path.Combine(codeDirectory, $"{className}.cs");
-            //TryCreateFileAsset(code, codePath);
+            var gameEventCodeBuilder = new StringBuilder();
+            var actionName = name + "Action";
+            var className = name + codegen.singletonConceptName;
+
+            gameEventCodeBuilder
+                .AppendLine(Config.AUTO_GENERATED_HEADER)
+                .AppendLine("#if ODIN_INSPECTOR")
+                .AppendLine("using Sirenix.OdinInspector;")
+                .AppendLine("#endif")
+                .AppendLine()
+                .AppendLine($"namespace {codegen.singletonNamespaceName} {{")
+                .AppendLine($"\tpublic delegate void {actionName}({Args(true, true)});")
+                .AppendLine()
+                .AppendLine($"\tpublic class {className} : GameEvent{args.Count}Base<{className}, {Args(true)}> {{")
+                .AppendLine($"\t\tpublic event {actionName} action;")
+                .AppendLine()
+                .AppendLine("\t\t#if ODIN_INSPECTOR")
+                .AppendLine("\t\t[Button(Expanded = true)]")
+                .AppendLine("\t\t[PropertyOrder(15)]")
+                .AppendLine("\t\t#endif")
+                .AppendLine($"\t\tpublic override void Raise({Args(true, true)}) {{")
+                .AppendLine($"\t\t\taction?.Invoke({Args(false, true)});")
+                .AppendLine("\t\t}")
+                .AppendLine()
+                .AppendLine($"\t\tpublic override void AddListener(GameEventListener{args.Count}Base<{className}, {Args(true)}> listener) {{")
+                .AppendLine("\t\t\tbase.AddListener(listener);")
+                .AppendLine("\t\t\taction += listener.CallResponse;")
+                .AppendLine("\t\t}")
+                .AppendLine()
+                .AppendLine($"\t\tpublic override void RemoveListener(GameEventListener{args.Count}Base<{className}, {Args(true)}> listener) {{")
+                .AppendLine("\t\t\tbase.RemoveListener(listener);")
+                .AppendLine("\t\t\taction -= listener.CallResponse;")
+                .AppendLine("\t\t}")
+                .AppendLine("\t}")
+                .AppendLine("}");
+
+            var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events"));
+            if (!Directory.Exists(codeDirectory)) {
+                Directory.CreateDirectory(codeDirectory);
+            }
+
+            var codePath = Path.Combine(codeDirectory, $"{className}.cs");
+            TryCreateFileAsset(gameEventCodeBuilder.ToString(), codePath);
         }
 
         //[DidReloadScripts]
@@ -116,8 +168,8 @@ namespace Vaflov {
 
         //[MenuItem("Tools/SO Architecture/Generate Game Events")]
         public static void GenerateGameEvents() {
-            new SingletonCodeGenerator(singletonClassName: "GameEvents", singletonConceptName: "GameEvent")
-            .SetSingletonFieldSuffix("Event")
+            codegen
+            .Clear()
             .StartSingletonCodegenTimer()
             .AddSingletonHeader()
             .AddSingletonCustomCode(codegen => {
