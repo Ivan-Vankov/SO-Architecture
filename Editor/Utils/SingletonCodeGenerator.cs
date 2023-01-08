@@ -4,6 +4,7 @@ using System.CodeDom;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
 using static Vaflov.FileUtil;
 
@@ -131,11 +132,9 @@ namespace Vaflov {
         }
 
         public SingletonCodeGenerator GenerateSingletonAssets() {
-            var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, singletonDirectoryName));
-            TryCreateDirectoryAsset(codeDirectory);
-            var code = singletonCodeBuilder.ToString();
-            singletonCodePath = Path.Combine(codeDirectory, $"{singletonClassName}.cs");
-            TryCreateFileAsset(code, singletonCodePath);
+            TryCreateFileAsset(singletonCodeBuilder.ToString(), $"{singletonClassName}.cs",
+                ImportAssetOptions.ForceUpdate,
+                Application.dataPath, singletonDirectoryName);
             return this;
         }
 

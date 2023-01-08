@@ -138,9 +138,7 @@ namespace Vaflov {
         public T Value => value;
 
         public static readonly CSharpCodeProvider codeProvider = new CSharpCodeProvider();
-        [HideInInspector]
-        [NonSerialized]
-        public CodeTypeReference typeRef = new CodeTypeReference(typeof(T));
+        public static readonly CodeTypeReference typeRef = new CodeTypeReference(typeof(T));
 
         [ShowInInspector]
         [ReadOnly]

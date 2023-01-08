@@ -7,16 +7,43 @@ using static Vaflov.TypeUtil;
 using static Vaflov.FileUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
-using System.IO;
+using UnityEditor.Callbacks;
+using Sirenix.OdinInspector.Editor;
 
 namespace Vaflov {
     public class GameEventsGenerator {
 
         public static readonly string GENERATED_GAME_EVENT_NAME_KEY = nameof(GENERATED_GAME_EVENT_NAME_KEY);
-        public static readonly string GENERATED_GAME_EVENT_TYPE_KEY = nameof(GENERATED_GAME_EVENT_TYPE_KEY);
+        public static readonly string GENERATED_GAME_EVENT_ARG_DATA_KEY = nameof(GENERATED_GAME_EVENT_ARG_DATA_KEY);
 
         public static SingletonCodeGenerator codegen = new SingletonCodeGenerator(singletonClassName: "GameEvents", singletonConceptName: "GameEvent")
             .SetSingletonFieldSuffix("Event");
+
+        public static StringBuilder argsBuilder = new StringBuilder();
+
+        public static string FormatArgs(List<GameEventArgData> args,
+                                        bool showTypes = false,
+                                        bool showNames = false,
+                                        bool quoteNames = false,
+                                        bool nicifyNames = false) {
+            if (!showTypes && !showNames)
+                return "";
+            argsBuilder.Clear();
+            for (int i = 0; i < args.Count; ++i) {
+                var arg = args[i];
+                var argTypeName = showTypes ? codegen.GetTruncatedTypeName(arg.argType) : "";
+
+                var argName = showNames ? arg.argName : "";
+                argName = nicifyNames ? ObjectNames.NicifyVariableName(argName) : argName;
+                argName = quoteNames ? $"\"{argName}\"" : argName;
+
+                argsBuilder
+                    .Append(argTypeName)
+                    .Append(argName.Length > 0 ? " " + argName : argName)
+                    .Append(i < args.Count - 1 ? ", ": "");
+            }
+            return argsBuilder.ToString();
+        }
 
         public static string EncodeArgData(List<GameEventArgData> argData) {
             var argDataStringBuilder = new StringBuilder();
@@ -48,8 +75,12 @@ namespace Vaflov {
             return argDataDecoded;
         }
 
-        public static void GenerateGameEventAsset(string name, List<GameEventArgData> argData) {
-            if (argData?.Count > CreateNewGameEvent.MAX_ARG_COUNT) {
+        public static void GenerateGameEventAsset(string name, List<GameEventArgData> argData, bool generateClass = true) {
+            if (argData == null) {
+                Debug.LogError("Trying to create game event with no arg data");
+                return;
+            }
+            if (argData.Count > CreateNewGameEvent.MAX_ARG_COUNT) {
                 Debug.LogError($"Trying to create game event with {argData?.Count} arguments (max {CreateNewGameEvent.MAX_ARG_COUNT})");
                 return;
             }
@@ -60,12 +91,28 @@ namespace Vaflov {
                 gameEventType = typeof(GameEventVoid);
             } else {
                 gameEventType = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
-                    .Where(type => type.Name == gameEventClassName)
+                    .Where(type => {
+                        if (type.Name != gameEventClassName)
+                            return false;
+                        var genericTypeArgs = type.BaseType.GenericTypeArguments;
+                        if (genericTypeArgs.Length - 1 != argData.Count)
+                            return false;
+                        for (int i = 1; i < genericTypeArgs.Length; ++i) {
+                            if (genericTypeArgs[i] != argData[i - 1].argType)
+                                return false;
+                        }
+                        return true;
+                    })
                     .FirstOrDefault();
             }
             if (gameEventType == null) {
-                EditorPrefs.SetString(GENERATED_GAME_EVENT_NAME_KEY, gameEventClassName);
-                GenerateGameEventClass(formattedName, argData);
+                if (generateClass) {
+                    EditorPrefs.SetString(GENERATED_GAME_EVENT_NAME_KEY, name);
+                    EditorPrefs.SetString(GENERATED_GAME_EVENT_ARG_DATA_KEY, EncodeArgData(argData));
+                    GenerateGameEventClass(formattedName, argData);
+                    GenerateGameEventListenerClass(formattedName, argData);
+                    AssetDatabase.SaveAssets();
+                }
                 return;
             }
 
@@ -76,28 +123,8 @@ namespace Vaflov {
         }
 
         public static void GenerateGameEventClass(string name, List<GameEventArgData> args) {
-            var argsBuilder = new StringBuilder();
-            string Args(bool showTypes = false, bool showNames = false) {
-                if (!showTypes && !showNames)
-                    return "";
-                argsBuilder.Clear();
-                for (int i = 0; i < args.Count; ++i) {
-                    var arg = args[i];
-                    if (showTypes) {
-                        argsBuilder.Append(codegen.GetTruncatedTypeName(arg.argType));
-                        if (showNames) {
-                            argsBuilder.Append(" ");
-                        }
-                    }
-                    if (showNames) {
-                        argsBuilder.Append(arg.argName);
-                    }
-                    if (i < args.Count - 1) {
-                        argsBuilder.Append(", ");
-                    }
-                }
-                return argsBuilder.ToString();
-            }
+            string Args(bool showTypes = false, bool showNames = false) => 
+                FormatArgs(args, showTypes, showNames);
 
             var gameEventCodeBuilder = new StringBuilder();
             var actionName = name + "Action";
@@ -135,36 +162,57 @@ namespace Vaflov {
                 .AppendLine("\t}")
                 .AppendLine("}");
 
-            var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events"));
-            if (!Directory.Exists(codeDirectory)) {
-                Directory.CreateDirectory(codeDirectory);
-            }
-
-            var codePath = Path.Combine(codeDirectory, $"{className}.cs");
-            TryCreateFileAsset(gameEventCodeBuilder.ToString(), codePath);
+            TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{className}.cs",
+                ImportAssetOptions.Default,
+                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events");
         }
 
-        //[DidReloadScripts]
-        //private static void TryGenerateConstantAssetDelayed() {
-        //    if (!EditorPrefs.HasKey(GENERATED_GAME_EVENT_NAME_KEY)
-        //     || !EditorPrefs.HasKey(GENERATED_GAME_EVENT_TYPE_KEY)) {
-        //        //Debug.Log("early out");
-        //        return;
-        //    }
-        //    if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
-        //        //Debug.Log("Delayed");
-        //        UnityEditorEventUtility.DelayAction(TryGenerateConstantAssetDelayed);
-        //        return;
-        //    }
-        //    //Debug.Log("Generating asset");
-        //    var constantName = EditorPrefs.GetString(GENERATED_GAME_EVENT_NAME_KEY);
-        //    var wrappedConstantType = Type.GetType(EditorPrefs.GetString(GENERATED_GAME_EVENT_TYPE_KEY));
-        //    //Debug.Log($"{EditorPrefs.GetString(GENERATED_CONSTANT_TYPE_KEY)}, {wrappedConstantType}");
+        public static void GenerateGameEventListenerClass(string name, List<GameEventArgData> args) {
+            string Args(bool showTypes = false, bool showNames = false, bool quoteNames = false, bool nicifyNames = false) => 
+                FormatArgs(args, showTypes, showNames, quoteNames, nicifyNames);
 
-        //    EditorPrefs.DeleteKey(GENERATED_GAME_EVENT_NAME_KEY);
-        //    EditorPrefs.DeleteKey(GENERATED_GAME_EVENT_TYPE_KEY);
-        //    GenerateConstantAsset(constantName, wrappedConstantType);
-        //}
+            var gameEventCodeBuilder = new StringBuilder();
+            var gameEventClassName = name + codegen.singletonConceptName;
+            var gameEventListenerClassName = gameEventClassName + "Listener";
+
+            gameEventCodeBuilder
+                .AppendLine(Config.AUTO_GENERATED_HEADER)
+                .AppendLine("using ExtEvents;")
+                .AppendLine()
+                .AppendLine($"namespace {codegen.singletonNamespaceName} {{")
+                .AppendLine($"\t[UnityEngine.AddComponentMenu(\"\")]")
+                .AppendLine($"\tpublic class {gameEventListenerClassName} : GameEventListener{args.Count}Base<{gameEventClassName}, {Args(true)}> {{")
+                .AppendLine($"\t\t[EventArguments({Args(false, true, true, true)})]")
+                .AppendLine($"\t\tpublic ExtEvent<{Args(true)}> response;")
+                .AppendLine($"\t\tpublic override ExtEvent<{Args(true)}> Response => response;")
+                .AppendLine("\t}")
+                .AppendLine("}");
+
+            TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{gameEventListenerClassName}.cs",
+                ImportAssetOptions.Default, 
+                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Event Listeners");
+        }
+
+        [DidReloadScripts]
+        private static void TryGenerateConstantAssetDelayed() {
+            if (!EditorPrefs.HasKey(GENERATED_GAME_EVENT_NAME_KEY)
+             || !EditorPrefs.HasKey(GENERATED_GAME_EVENT_ARG_DATA_KEY)) {
+                Debug.Log("early out");
+                return;
+            }
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
+                Debug.Log("Delayed");
+                UnityEditorEventUtility.DelayAction(TryGenerateConstantAssetDelayed);
+                return;
+            }
+            Debug.Log("Generating asset");
+            var gameEventName = EditorPrefs.GetString(GENERATED_GAME_EVENT_NAME_KEY);
+            var argData = DecodeArgData(EditorPrefs.GetString(GENERATED_GAME_EVENT_ARG_DATA_KEY));
+
+            EditorPrefs.DeleteKey(GENERATED_GAME_EVENT_NAME_KEY);
+            EditorPrefs.DeleteKey(GENERATED_GAME_EVENT_ARG_DATA_KEY);
+            GenerateGameEventAsset(gameEventName, argData, false);
+        }
 
         //[MenuItem("Tools/SO Architecture/Generate Game Events")]
         public static void GenerateGameEvents() {

@@ -68,13 +68,10 @@ namespace Vaflov {
                 $"\n\tpublic class {wrapperClassName} : {parentClassName}<{wrappedDerivedClassName}> {{ }}" +
                 "\n}" +
                 "\n";
-            var codeDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, Config.PACKAGE_NAME, "Generated", "Constants"));
-            if (!Directory.Exists(codeDirectory)) {
-                Directory.CreateDirectory(codeDirectory);
-            }
 
-            var codePath = Path.Combine(codeDirectory, $"{wrapperClassName}.cs");
-            TryCreateFileAsset(code, codePath);
+            TryCreateFileAsset(code, $"{wrapperClassName}.cs",
+                ImportAssetOptions.ForceUpdate,
+                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Constants");
         }
 
         [DidReloadScripts]

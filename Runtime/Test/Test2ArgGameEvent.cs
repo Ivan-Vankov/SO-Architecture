@@ -36,6 +36,7 @@ namespace Vaflov {
         //public string Arg2;
 
         #if ODIN_INSPECTOR
+        //[ShowDrawerChain]
         [Button(Expanded = true)]
         [PropertyOrder(15)]
         #endif
