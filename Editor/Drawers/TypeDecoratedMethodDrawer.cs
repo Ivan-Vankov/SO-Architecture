@@ -36,7 +36,7 @@ namespace Vaflov {
 
         private ButtonAttribute buttonAttribute;
 
-        private DrawTypesIfAttribute drawTypesIfAttribute;
+        private DrawButtonTypesAttribute drawTypesIfAttribute;
 
         private GUIStyle style;
 
@@ -60,8 +60,6 @@ namespace Vaflov {
 
         private ValueResolver<object> buttonValueResolver;
 
-        private ValueResolver<bool> drawTypesResolver;
-
         private bool hideLabel;
 
         private string tooltip;
@@ -79,7 +77,7 @@ namespace Vaflov {
         private float previousFrameWidth;
 
         protected override bool CanDrawMethodProperty(InspectorProperty property) {
-            return property.Attributes.HasAttribute<DrawTypesIfAttribute>();
+            return property.Attributes.HasAttribute<DrawButtonTypesAttribute>();
         }
 
         //
@@ -88,7 +86,7 @@ namespace Vaflov {
         protected override void Initialize() {
             expanded = false;
             buttonAttribute = base.Property.GetAttribute<ButtonAttribute>();
-            drawTypesIfAttribute = base.Property.GetAttribute<DrawTypesIfAttribute>();
+            drawTypesIfAttribute = base.Property.GetAttribute<DrawButtonTypesAttribute>();
             hasGUIColorAttribute = base.Property.GetAttribute<GUIColorAttribute>() != null;
             drawParameters = base.Property.Children.Count > 0 && !DontDrawMethodParameters && (buttonAttribute == null || buttonAttribute.DisplayParameters);
             hasReturnValue = base.Property.Children.Count > 0 && base.Property.Children[base.Property.Children.Count - 1].Name == "$Result";
@@ -120,10 +118,6 @@ namespace Vaflov {
                 if (buttonAttribute.DrawResultIsSet) {
                     shouldDrawResult = buttonAttribute.DrawResult;
                 }
-            }
-
-            if (drawTypesIfAttribute != null) {
-                drawTypesResolver = ValueResolver.Get<bool>(base.Property, drawTypesIfAttribute.Condition);
             }
 
             if (!shouldDrawResult && hasReturnValue && base.Property.Children.Count == 1) {
@@ -203,15 +197,23 @@ namespace Vaflov {
 
         private void DrawCompactBoxButton() {
             SirenixEditorGUI.BeginBox();
-            Rect rect = SirenixEditorGUI.BeginToolbarBoxHeader().AlignRight(buttonAttribute.HasDefinedIcon ? 90 : 70).Padding(1f);
-            rect.height -= 1f;
+            var toggleWidth = 90;
+            var invokeWidth = buttonAttribute.HasDefinedIcon ? 90 : 70;
+            var padding = 3;
+            Rect rect = SirenixEditorGUI.BeginToolbarBoxHeader().AlignRight(toggleWidth + invokeWidth + padding).Padding(1f);
+            rect.height -= 2;
+
+            var toggleRect = new Rect(rect.x, rect.y, toggleWidth, rect.height);
+            var invokeRect = new Rect(rect.x + toggleWidth + padding, rect.y, invokeWidth, rect.height);
+
             GUIHelper.PushColor(btnColor);
-            GUIContent content = new GUIContent(hideLabel ? "" : "Invoke", tooltip);
+            drawTypesIfAttribute.drawTypesState = SirenixEditorGUIUtil.ToggleButton(toggleRect, "Show Types", drawTypesIfAttribute.drawTypesState);
+            var content = new GUIContent(hideLabel ? "" : "Invoke", tooltip);
             if (buttonAttribute.HasDefinedIcon) {
-                if (SirenixEditorGUI.SDFIconButton(rect, content, buttonAttribute.Icon, buttonIconAlignment)) {
+                if (SirenixEditorGUI.SDFIconButton(invokeRect, content, buttonAttribute.Icon, buttonIconAlignment, SirenixGUIStyles.MiniButton)) {
                     InvokeButton();
                 }
-            } else if (GUI.Button(rect, content)) {
+            } else if (GUI.Button(invokeRect, content, SirenixGUIStyles.MiniButton)) {
                 InvokeButton();
             }
 
@@ -290,8 +292,6 @@ namespace Vaflov {
         }
 
         private void DrawParameters(bool appendButton) {
-            drawTypesResolver.DrawError();
-            var drawTypes = drawTypesResolver.GetValue();
             if (SirenixEditorGUI.BeginFadeGroup(this, base.Property.State.Expanded || expanded)) {
                 GUILayout.Space(0f);
                 for (int i = 0; i < base.Property.Children.Count; i++) {
@@ -313,7 +313,7 @@ namespace Vaflov {
                     }
 
                     var child = base.Property.Children[i];
-                    if (drawTypes) {
+                    if (drawTypesIfAttribute.drawTypesState) {
                         SirenixEditorGUI.BeginBox();
                         var typeStr = codeProvider.GetTypeOutput(new CodeTypeReference(child.ValueEntry.TypeOfValue));
                         GUIHelper.PushGUIEnabled(enabled: false);
@@ -321,7 +321,7 @@ namespace Vaflov {
                         GUIHelper.PopGUIEnabled();
                     }
                     child.Draw();
-                    if (drawTypes) {
+                    if (drawTypesIfAttribute.drawTypesState) {
                         SirenixEditorGUI.EndBox();
                     }
 

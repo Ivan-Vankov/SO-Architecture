@@ -144,6 +144,7 @@ namespace Vaflov {
                 .AppendLine()
                 .AppendLine("\t\t#if ODIN_INSPECTOR")
                 .AppendLine("\t\t[Button(Expanded = true)]")
+                .AppendLine("\t\t[DrawButtonTypes]")
                 .AppendLine("\t\t[PropertyOrder(15)]")
                 .AppendLine("\t\t#endif")
                 .AppendLine($"\t\tpublic override void Raise({Args(true, true)}) {{")
