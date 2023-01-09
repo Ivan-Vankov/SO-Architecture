@@ -10,6 +10,7 @@ namespace Vaflov {
         public static readonly CodeTypeReference UTypeRef = new CodeTypeReference(typeof(U));
         public static readonly CodeTypeReference WTypeRef = new CodeTypeReference(typeof(W));
 
+        //[Title("hello")]
         [ShowInInspector]
         [HideLabel]
         //[LabelWidth(preferedEditorLabelWidth)]

@@ -197,15 +197,15 @@ namespace Vaflov {
         private static void TryGenerateConstantAssetDelayed() {
             if (!EditorPrefs.HasKey(GENERATED_GAME_EVENT_NAME_KEY)
              || !EditorPrefs.HasKey(GENERATED_GAME_EVENT_ARG_DATA_KEY)) {
-                Debug.Log("early out");
+                //Debug.Log("early out");
                 return;
             }
             if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
-                Debug.Log("Delayed");
+                //Debug.Log("Delayed");
                 UnityEditorEventUtility.DelayAction(TryGenerateConstantAssetDelayed);
                 return;
             }
-            Debug.Log("Generating asset");
+            //Debug.Log("Generating asset");
             var gameEventName = EditorPrefs.GetString(GENERATED_GAME_EVENT_NAME_KEY);
             var argData = DecodeArgData(EditorPrefs.GetString(GENERATED_GAME_EVENT_ARG_DATA_KEY));
 

@@ -11,7 +11,7 @@ namespace Vaflov {
     }
     #endif
 
-    [CodegenInapplicable]
+    [CodegenInapplicableAttribute]
     public class RangeConstant<T, C> : Constant<T> {
         #if ODIN_INSPECTOR
         [LabelText("Range")]

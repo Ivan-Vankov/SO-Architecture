@@ -38,6 +38,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         //[ShowDrawerChain]
         [Button(Expanded = true)]
+        [DrawTypesIf(nameof(showTypes))]
         [PropertyOrder(15)]
         #endif
         public override void Raise(int testArg1, CustomData testArg2) {
