@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 
 namespace Vaflov {
     [System.Serializable]
-    public struct CustomData {
+    public class CustomData {
         public int a;
         public string b;
     }

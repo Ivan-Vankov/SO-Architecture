@@ -36,10 +36,13 @@ namespace Vaflov {
                 var argName = showNames ? arg.argName : "";
                 argName = nicifyNames ? ObjectNames.NicifyVariableName(argName) : argName;
                 argName = quoteNames ? $"\"{argName}\"" : argName;
+                if ((showTypes || i > 0) && argName.Length > 0) {
+                    argName = " " + argName;
+                }
 
                 argsBuilder
                     .Append(argTypeName)
-                    .Append(argName.Length > 0 ? " " + argName : argName)
+                    .Append(argName)
                     .Append(i < args.Count - 1 ? ", ": "");
             }
             return argsBuilder.ToString();
