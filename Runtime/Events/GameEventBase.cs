@@ -58,7 +58,33 @@ namespace Vaflov {
             ShowItemCount = false,
             HideRemoveButton = true)]
         #endif
-        public List<GameEventListenerBase> listeners;
+
+        public List<GameEventListenerBase> listeners = new List<GameEventListenerBase>();
+        public Dictionary<GameEventListenerBase, List<int>> listenersToIdxs = new Dictionary<GameEventListenerBase, List<int>>();
+
+        public void AddListener(GameEventListenerBase listener) {
+            listeners.Add(listener);
+            if (listenersToIdxs.ContainsKey(listener)) {
+                listenersToIdxs[listener].Add(listeners.Count - 1);
+            } else {
+                listenersToIdxs[listener] = new List<int> {
+                    listeners.Count - 1
+                };
+            }
+        }
+
+        public void RemoveListener(GameEventListenerBase listener) {
+            if (!listenersToIdxs.ContainsKey(listener))
+                return;
+            var idxs = listenersToIdxs[listener];
+            for (int i = 0; i < idxs.Count; ++i) {
+                var idx = listeners.IndexOf(listener);
+                if (idx > -1) {
+                    listeners[idx] = listeners[listeners.Count - 1];
+                    listeners.RemoveAt(listeners.Count - 1);
+                }
+            }
+        }
 
         public virtual Texture GetEditorIcon() => null;
 
@@ -113,9 +139,7 @@ namespace Vaflov {
         }
         #endif
 
-        public virtual string EditorToString() {
-            return ToString();
-        }
+        public virtual string EditorToString() => null;
 
         public virtual List<ContextMenuItem> GetContextMenuItems() {
             #if ODIN_INSPECTOR && UNITY_EDITOR

@@ -26,7 +26,8 @@ namespace Vaflov {
             if (!wasOpen) {
                 window.position = GUIHelper.GetEditorWindowRect().AlignCenter(DEFAULT_EDITOR_SIZE.x, DEFAULT_EDITOR_SIZE.y);
                 window.MenuWidth = DEFAULT_EDITOR_SIZE.x / 2;
-                window.titleContent = new GUIContent("Game Events");
+                var tex = Resources.Load<Texture2D>("Game Events");
+                window.titleContent = new GUIContent("Game Events", tex);
             }
             return window;
         }

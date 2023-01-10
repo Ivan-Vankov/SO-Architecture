@@ -28,6 +28,7 @@ namespace Vaflov {
 
         public static bool TryCreateFileAsset(string fileContents, string fileName, 
                                               ImportAssetOptions importAssetOptions = ImportAssetOptions.ForceUpdate,
+                                              Texture2D icon = null,
                                               params string[] directoryArgs) {
             var fileDirectory = Path.GetFullPath(Path.Combine(directoryArgs));
             if (!Directory.Exists(fileDirectory)) {
@@ -46,6 +47,12 @@ namespace Vaflov {
                 return false; 
             }
             AssetDatabase.ImportAsset(fileAssetPath, importAssetOptions);
+            if (icon != null) {
+                var script = AssetDatabase.LoadAssetAtPath<MonoScript>(fileAssetPath);
+                if (script) {
+                    EditorGUIUtility.SetIconForObject(script, icon);
+                }
+            }
             return true;
         }
     }

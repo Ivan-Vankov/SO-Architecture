@@ -1,10 +1,8 @@
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 using ExtEvents;
 using UnityEngine;
 
 namespace Vaflov {
+    [AddComponentMenu("")]
     public class GameEventListenerVoid : GameEventListenerBase {
         [HideInInspector]
         public GameEventVoid eventRef;

@@ -1,17 +1,20 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 #endif
 
 namespace Vaflov {
     [System.Serializable]
-    public class CustomData {
+    public struct CustomData {
         public int a;
         public string b;
     }
 
     public delegate void Test2ArgAction(int testArg1, CustomData testArg2);
 
-    [UnityEngine.CreateAssetMenu(fileName = "Test", menuName = "SO Architecture/Test")]
+    //[UnityEngine.CreateAssetMenu(fileName = "Test", menuName = "SO Architecture/Test")]
     public class Test2ArgGameEvent : GameEvent2Base<Test2ArgGameEvent, int, CustomData> {
         public event Test2ArgAction action;
 
@@ -43,6 +46,16 @@ namespace Vaflov {
         #endif
         public override void Raise(int testArg1, CustomData testArg2) {
             action?.Invoke(testArg1, testArg2);
+        }
+
+        [Button(Expanded = true)]
+        public void SetIconForObject(Texture2D icon) {
+            //var type = typeof(EditorGUIUtility);
+            //var setIconForObjectMethodInfo =
+            //        type.GetMethod("SetIconForObject", BindingFlags.Static | BindingFlags.NonPublic);
+
+            //setIconForObjectMethodInfo.Invoke(null, new object[] { this, icon });
+            EditorGUIUtility.SetIconForObject(this, icon);
         }
 
         public override void AddListener(GameEventListener2Base<Test2ArgGameEvent, int, CustomData> listener) {

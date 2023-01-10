@@ -168,6 +168,7 @@ namespace Vaflov {
 
             TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{className}.cs",
                 ImportAssetOptions.Default,
+                Resources.Load<Texture2D>("Game Event"),
                 Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events");
         }
 
@@ -193,7 +194,8 @@ namespace Vaflov {
                 .AppendLine("}");
 
             TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{gameEventListenerClassName}.cs",
-                ImportAssetOptions.Default, 
+                ImportAssetOptions.Default,
+                Resources.Load<Texture2D>("Listener"),
                 Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Event Listeners");
         }
 
