@@ -229,11 +229,27 @@ namespace Vaflov {
             }
         }
 
-        public string ValidateGameEventNameUniqueness(string targetName) {
+        public string ValidateGameEventName(string targetName) {
             for (int i = 0; i < assetNames.Count; ++i) {
                 if (string.Compare(assetNames[i], targetName, StringComparison.OrdinalIgnoreCase) == 0) {
                     return "Name is not unique";
                 }
+            }
+            targetName = new string(targetName.ToCharArray()
+                .Where(c => !char.IsWhiteSpace(c))
+                .ToArray());
+            return ValidateArgName(targetName);
+        }
+
+        public string ValidateArgName(string argName) {
+            if (argName.Length == 0)
+                return "Name is empty";
+            if (argName[0] != '_' && !char.IsLetter(argName[0]))
+                return "The first character should be _ or a letter";
+            for (int i = 1; i < argName.Length; ++i) {
+                var c = argName[i];
+                if (!char.IsLetter(c) && !char.IsDigit(c) && c != '_')
+                    return "Name contains a character that is not \'_\', a letter or a digit";
             }
             return null;
         }
@@ -242,21 +258,18 @@ namespace Vaflov {
         private void OnInspectorGUI() {
             var error = false;
             void ErrorMessageBox(string errorMessage) {
+                if (string.IsNullOrEmpty(errorMessage))
+                    return;
                 SirenixEditorGUI.ErrorMessageBox(errorMessage);
                 error = true;
             }
-            var currNameError = string.IsNullOrEmpty(name)
-                ? "Name is empty"
-                : nameError;
-            if (!string.IsNullOrEmpty(currNameError)) {
-                ErrorMessageBox(currNameError);
-            }
+            ErrorMessageBox(nameError);
             GUIHelper.PushLabelWidth(labelWidth);
             var oldName = name;
             //name = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), name);
             name = SirenixEditorFields.TextField(GUIHelper.TempContent("Name"), name);
             if (name != oldName) {
-                nameError = ValidateGameEventNameUniqueness(name);
+                nameError = ValidateGameEventName(name);
             }
             GUIHelper.PopLabelWidth();
             GUIHelper.PushLabelWidth(70);
@@ -264,16 +277,11 @@ namespace Vaflov {
             GUIHelper.PopLabelWidth();
             for (int i = 0; i < argCount; ++i) {
                 var arg = argData[i];
-
                 SirenixEditorGUI.BeginBox(null);
                 GUIHelper.PushLabelWidth(labelWidth);
-                // TODO: Proper arg name validation
-                if (string.IsNullOrEmpty(arg.argName)) {
-                    ErrorMessageBox("Name is empty");
-                }
-                else if (arg.argName.Contains(' ')) {
-                    ErrorMessageBox("Name contains a whitespace");
-                }
+
+                ErrorMessageBox(ValidateArgName(arg.argName));
+
                 arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
                 GUIHelper.PopLabelWidth();
                 var targetType = arg.argType;

@@ -20,7 +20,7 @@ namespace Vaflov {
 
         public static event Action<ScriptableObject> OnConstantAssetGenerated;
 
-        public static void GenerateConstantAsset(string name, Type wrappedConstantType) {
+        public static void GenerateConstantAsset(string name, Type wrappedConstantType, bool generateClass = true) {
             var constantType = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
                 .Where(type => {
                     if (type.IsGenericType)
@@ -34,9 +34,11 @@ namespace Vaflov {
             //Debug.Log(constantType?.Name);
 
             if (constantType == null) {
-                EditorPrefs.SetString(GENERATED_CONSTANT_NAME_KEY, name);
-                EditorPrefs.SetString(GENERATED_CONSTANT_TYPE_KEY, wrappedConstantType.AssemblyQualifiedName);
-                GenerateConstantClass(wrappedConstantType);
+                if (generateClass) {
+                    EditorPrefs.SetString(GENERATED_CONSTANT_NAME_KEY, name);
+                    EditorPrefs.SetString(GENERATED_CONSTANT_TYPE_KEY, wrappedConstantType.AssemblyQualifiedName);
+                    GenerateConstantClass(wrappedConstantType);
+                }
                 return;
             }
 
@@ -94,7 +96,7 @@ namespace Vaflov {
 
             EditorPrefs.DeleteKey(GENERATED_CONSTANT_NAME_KEY);
             EditorPrefs.DeleteKey(GENERATED_CONSTANT_TYPE_KEY);
-            GenerateConstantAsset(constantName, wrappedConstantType);
+            GenerateConstantAsset(constantName, wrappedConstantType, false);
         }
 
         public static void GenerateConstants() {

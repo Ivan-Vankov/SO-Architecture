@@ -246,6 +246,18 @@ namespace Vaflov {
                     return "Name is not unique";
                 }
             }
+            targetName = new string(targetName.ToCharArray()
+                .Where(c => !char.IsWhiteSpace(c))
+                .ToArray());
+            if (targetName.Length == 0)
+                return "Name is empty";
+            if (targetName[0] != '_' && !char.IsLetter(targetName[0]))
+                return "First character should be _ or a letter";
+            for (int i = 1; i < targetName.Length; ++i) {
+                var c = targetName[i];
+                if (!char.IsLetter(c) && !char.IsDigit(c) && c != '_')
+                    return "Name contains a character that is not \'_\', a letter or a digit";
+            }
             return null;
         }
 
@@ -257,11 +269,8 @@ namespace Vaflov {
 
         [OnInspectorGUI]
         private void OnInspectorGUI() {
-            var currNameError = string.IsNullOrEmpty(name)
-                ? "Name is empty"
-                : nameError;
-            if (!string.IsNullOrEmpty(currNameError)) {
-                SirenixEditorGUI.ErrorMessageBox(currNameError);
+            if (!string.IsNullOrEmpty(nameError)) {
+                SirenixEditorGUI.ErrorMessageBox(nameError);
             }
             GUIHelper.PushLabelWidth(labelWidth);
             var oldName = name;
@@ -285,7 +294,7 @@ namespace Vaflov {
             EditorGUI.LabelField(typeLabelRect, GUIHelper.TempContent("Type"));
             OdinSelector<Type>.DrawSelectorDropdown(typeSelectorRect, typeTextContent, SelectType, typeTextStyle);
 
-            if (!string.IsNullOrEmpty(currNameError) || !string.IsNullOrEmpty(targetTypeError)) {
+            if (!string.IsNullOrEmpty(nameError) || !string.IsNullOrEmpty(targetTypeError)) {
                 using (new EditorGUI.DisabledScope(true)) {
                     GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                 }
