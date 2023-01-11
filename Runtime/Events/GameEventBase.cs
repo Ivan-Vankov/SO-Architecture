@@ -1,15 +1,24 @@
-﻿using Microsoft.CSharp;
+﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
-using System.CodeDom;
+#endif
+#endif
 using System.Collections.Generic;
 using System;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using static Vaflov.Config;
+using Sirenix.OdinInspector.Editor.Drawers;
 
 namespace Vaflov {
+    [HideLabel]
+    [Serializable]
+    public class GameEventEditMenu {
+        public bool foldoutExpanded;
+    }
+
     public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector]
         public string editorGroup;
@@ -137,7 +146,10 @@ namespace Vaflov {
                 yield return groupName;
             }
         }
-        #endif
+#endif
+
+        [PropertyOrder(40)]
+        public GameEventEditMenu editMenu;
 
         public virtual string EditorToString() => null;
 
