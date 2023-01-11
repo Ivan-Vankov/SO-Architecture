@@ -213,7 +213,7 @@ namespace Vaflov {
         public const int labelWidth = 40;
 
         public void ResetCachedTypes() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
+            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes | AssemblyTypeFlags.PluginEditorTypes).Where(x => {
                 if (x.Name == null || x.IsGenericType || x.IsNotPublic)
                     return false;
                 string text = x.Name.TrimStart(Array.Empty<char>());

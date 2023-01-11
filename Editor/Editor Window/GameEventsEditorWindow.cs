@@ -10,8 +10,6 @@ using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
-using Sirenix.OdinInspector.Editor.Drawers;
-using System.Security.AccessControl;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : OdinMenuEditorWindow {
@@ -194,7 +192,7 @@ namespace Vaflov {
         }
 
         public void ResetCachedTypes() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes).Where(x => {
+            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes | AssemblyTypeFlags.PluginEditorTypes).Where(x => {
                 if (x.Name == null)
                     return false;
                 if (x.IsGenericType)
