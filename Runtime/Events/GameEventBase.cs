@@ -13,6 +13,7 @@ using static Vaflov.Config;
 using Sirenix.OdinInspector.Editor.Drawers;
 
 namespace Vaflov {
+    [HideInPlayMode]
     [HideLabel]
     [Serializable]
     public class GameEventEditMenu {
@@ -68,6 +69,7 @@ namespace Vaflov {
             HideRemoveButton = true)]
         #endif
 
+        [HideInEditorMode]
         public List<GameEventListenerBase> listeners = new List<GameEventListenerBase>();
         public Dictionary<GameEventListenerBase, List<int>> listenersToIdxs = new Dictionary<GameEventListenerBase, List<int>>();
 

@@ -200,8 +200,9 @@ namespace Vaflov {
             var toggleWidth = 90;
             var invokeWidth = buttonAttribute.HasDefinedIcon ? 90 : 70;
             var padding = 3;
-            Rect rect = SirenixEditorGUI.BeginToolbarBoxHeader().AlignRight(toggleWidth + invokeWidth + padding).Padding(1f);
+            Rect rect = SirenixEditorGUI.BeginBoxHeader().AlignRight(toggleWidth + invokeWidth + padding).Padding(1f);
             rect.height -= 2;
+            rect.y += 1;
 
             var toggleRect = new Rect(rect.x, rect.y, toggleWidth, rect.height);
             var invokeRect = new Rect(rect.x + toggleWidth + padding, rect.y, invokeWidth, rect.height);
@@ -224,9 +225,9 @@ namespace Vaflov {
                 base.Property.State.Expanded = SirenixEditorGUI.Foldout(base.Property.State.Expanded, label);
             }
 
-            SirenixEditorGUI.EndToolbarBoxHeader();
+            SirenixEditorGUI.EndBoxHeader();
             DrawParameters(appendButton: false);
-            SirenixEditorGUI.EndToolbarBox();
+            SirenixEditorGUI.EndBox();
         }
 
         private void DrawNormalButton() {

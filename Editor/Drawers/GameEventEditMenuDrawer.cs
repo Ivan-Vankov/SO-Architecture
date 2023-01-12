@@ -8,15 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using static UnityEngine.Mathf;
+using UnityEditor.Graphs;
+using System.Reflection;
 
 namespace Vaflov {
     public class GameEventEditMenuDrawer : OdinValueDrawer<GameEventEditMenu> {
         //private InspectorProperty foldoutExpandedProp;
-
-        protected override void Initialize() {
-            //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
-            Reset();
-        }
 
         public const int MAX_ARG_COUNT = 3;
 
@@ -39,6 +36,15 @@ namespace Vaflov {
         public List<Type> types;
 
         public const int labelWidth = 40;
+
+        public ParameterInfo[] methodParams;
+
+        [HideInInspector]
+        protected override void Initialize() {
+            //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
+            Reset();
+            methodParams = Property.Parent.ValueEntry.WeakSmartValue.GetType().GetMethod("Raise")?.GetParameters();
+        }
 
         public void Reset() {
             ResetCachedTypes();
@@ -99,6 +105,22 @@ namespace Vaflov {
         protected override void DrawPropertyLayout(GUIContent label) {
             // TODO: Access the containing game event like this:
             //Debug.Log(Property.Parent.ValueEntry.WeakSmartValue.ToString());
+            //var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
+
+            //var raiseMethod = Property.Parent.ValueEntry.WeakSmartValue.GetType().GetMethod("Raise");
+            //if (raiseMethod != null) {
+            //    var parms = raiseMethod.GetParameters();
+            //    var str = "";
+            //    foreach (var parm in parms) {
+            //        str += parm.ParameterType + " " + parm.Name + ", ";
+            //    }
+            //    Debug.Log(str);
+            //}
+            //var str1 = "";
+            //foreach (var param in methodParams) {
+            //    str1 += param.ParameterType + " " + param.Name + ", ";
+            //}
+            //Debug.Log(str1);
 
             SirenixEditorGUI.BeginBox();
             SirenixEditorGUI.BeginBoxHeader();
@@ -115,6 +137,24 @@ namespace Vaflov {
                 GUIHelper.PushLabelWidth(70);
                 argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, 3);
                 GUIHelper.PopLabelWidth();
+                var sameArgs = false;
+                //var sameArgsError = "The existing game event has the same arguments";
+                Action<int, string, Type> sameArgsCheck = null;
+                if (argCount == methodParams.Length) {
+                    sameArgs = true;
+                    sameArgsCheck = (i, name, type) => {
+                        if (!sameArgs)
+                            return;
+                        var existingParam = methodParams[i];
+                        sameArgs = existingParam.Name == name && existingParam.ParameterType == type;
+                        //if (string.IsNullOrEmpty(sameArgsError))
+                        //    return;
+                        //var existingParam = methodParams[i];
+                        //if (existingParam.Name != name || existingParam.ParameterType != type) {
+                        //    sameArgsError = null;
+                        //}
+                    };
+                }
                 for (int i = 0; i < argCount; ++i) {
                     var arg = argData[i];
                     SirenixEditorGUI.BeginBox(null);
@@ -143,8 +183,13 @@ namespace Vaflov {
                         typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
                         return typeSelector;
                     }, typeTextStyle);
+
+                    sameArgsCheck?.Invoke(i, arg.argName, arg.argType);
+
                     SirenixEditorGUI.EndBox();
                 }
+
+                ErrorMessageBox(sameArgs ? "The existing game event has the same arguments" : null);
 
                 if (error) {
                     using (new EditorGUI.DisabledScope(true)) {
