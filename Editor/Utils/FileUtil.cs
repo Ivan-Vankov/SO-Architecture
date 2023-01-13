@@ -26,10 +26,10 @@ namespace Vaflov {
             AssetDatabase.ImportAsset(dirAssetPath, ImportAssetOptions.ForceUpdate);
         }
 
-        public static bool TryCreateFileAsset(string fileContents, string fileName, 
-                                              ImportAssetOptions importAssetOptions = ImportAssetOptions.ForceUpdate,
-                                              Texture2D icon = null,
-                                              params string[] directoryArgs) {
+        public static string TryCreateFileAsset(string fileContents, string fileName, 
+                                                ImportAssetOptions importAssetOptions = ImportAssetOptions.ForceUpdate,
+                                                Texture2D icon = null,
+                                                params string[] directoryArgs) {
             var fileDirectory = Path.GetFullPath(Path.Combine(directoryArgs));
             if (!Directory.Exists(fileDirectory)) {
                 Directory.CreateDirectory(fileDirectory);
@@ -44,7 +44,7 @@ namespace Vaflov {
 
             var fileAssetPath = FullPathToAssetPath(filePath);
             if (fileAssetPath == null) { 
-                return false; 
+                return null; 
             }
             AssetDatabase.ImportAsset(fileAssetPath, importAssetOptions);
             if (icon != null) {
@@ -53,7 +53,7 @@ namespace Vaflov {
                     EditorGUIUtility.SetIconForObject(script, icon);
                 }
             }
-            return true;
+            return fileAssetPath;
         }
     }
 }

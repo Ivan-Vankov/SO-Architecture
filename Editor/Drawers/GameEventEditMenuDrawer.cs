@@ -8,17 +8,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using static UnityEngine.Mathf;
-using UnityEditor.Graphs;
 using System.Reflection;
 
 namespace Vaflov {
     public class GameEventEditMenuDrawer : OdinValueDrawer<GameEventEditMenu> {
         //private InspectorProperty foldoutExpandedProp;
 
-        public const int MAX_ARG_COUNT = 3;
+        public const int MAX_ARG_COUNT = 6;
 
         [HideInInspector]
         public readonly List<GameEventArgData> argData = new List<GameEventArgData>(MAX_ARG_COUNT) {
+            new GameEventArgData(),
+            new GameEventArgData(),
+            new GameEventArgData(),
             new GameEventArgData(),
             new GameEventArgData(),
             new GameEventArgData(),
@@ -43,7 +45,7 @@ namespace Vaflov {
         protected override void Initialize() {
             //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
             Reset();
-            methodParams = Property.Parent.ValueEntry.WeakSmartValue.GetType().GetMethod("Raise")?.GetParameters();
+            methodParams = Property.ParentType.GetMethod("Raise")?.GetParameters();
         }
 
         public void Reset() {
@@ -135,7 +137,7 @@ namespace Vaflov {
                     error = true;
                 }
                 GUIHelper.PushLabelWidth(70);
-                argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, 3);
+                argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, MAX_ARG_COUNT);
                 GUIHelper.PopLabelWidth();
                 var sameArgs = false;
                 //var sameArgsError = "The existing game event has the same arguments";

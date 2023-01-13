@@ -158,10 +158,13 @@ namespace Vaflov {
     }
 
     public class CreateNewGameEvent {
-        public const int MAX_ARG_COUNT = 3;
+        public const int MAX_ARG_COUNT = 6;
 
         [HideInInspector]
         public readonly List<GameEventArgData> argData = new List<GameEventArgData>(MAX_ARG_COUNT) {
+            new GameEventArgData(),
+            new GameEventArgData(),
+            new GameEventArgData(),
             new GameEventArgData(),
             new GameEventArgData(),
             new GameEventArgData(),
@@ -273,7 +276,7 @@ namespace Vaflov {
             }
             GUIHelper.PopLabelWidth();
             GUIHelper.PushLabelWidth(70);
-            argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, 3);
+            argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, MAX_ARG_COUNT);
             GUIHelper.PopLabelWidth();
             for (int i = 0; i < argCount; ++i) {
                 var arg = argData[i];

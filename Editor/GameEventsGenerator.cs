@@ -235,50 +235,51 @@ namespace Vaflov {
                 // .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
                 // .ToList();
 
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract);
+                //var types = AppDomain.CurrentDomain.GetAssemblies()
+                //    .SelectMany(assembly => assembly.GetTypes())
+                //    .Where(type => type.IsClass && !type.IsAbstract);
 
-                var gameEventTypes = new[] {
-                    typeof(GameEventVoid),
-                    typeof(GameEvent1Arg<>),
-                    typeof(GameEvent2Arg<,>)
-                };
+                //var gameEventTypes = new[] {
+                //    typeof(GameEventVoid),
+                //    typeof(GameEvent1Arg<>),
+                //    typeof(GameEvent2Arg<,>)
+                //};
+                //var gameEventTypes = new[] {
+                //    typeof(GameEventBase)
+                //};
+
+                var gameEventTypes = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
+                     .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
+                     .ToList();
 
                 var eventsCodeBuilder = new StringBuilder();
                 foreach (var gameEventType in gameEventTypes) {
-                    var gameEventSubtypes = types
-                        .Where(type => IsInheritedFrom(type, gameEventType))
-                        .ToList();
-                    gameEventSubtypes.Add(gameEventType);
-                    foreach (var gameEventSubType in gameEventSubtypes) {
-                        var gameEventGuids = AssetDatabase.FindAssets($"t: {gameEventSubType}");
-                        foreach (var gameEventGuid in gameEventGuids) {
-                            var assetPath = AssetDatabase.GUIDToAssetPath(gameEventGuid);
-                            var gameEventAsset = AssetDatabase.LoadAssetAtPath(assetPath, gameEventSubType);
-                            if (!gameEventAsset) {
-                                continue;
-                            }
-
-                            var eventFieldTypeName = gameEventSubType.Name;
-                            var eventFieldName = "_" + nameFilter(gameEventAsset.name, true);
-
-                            var resourcesPathName = "Resources";
-                            var resourcesIdx = assetPath.IndexOf(resourcesPathName);
-                            if (resourcesIdx == -1) {
-                                Debug.LogError($"{conceptName} {eventFieldName} at path {assetPath} is not in a {resourcesPathName} folder or subfolder");
-                                continue;
-                            }
-                            var resourcesAssetPath = assetPath.Substring(resourcesIdx + resourcesPathName.Length + 1);
-                            resourcesAssetPath = resourcesAssetPath.Substring(0, resourcesAssetPath.LastIndexOf(".asset"));
-                            codeBuilder
-                                .AppendLine($"\t\t\t{eventFieldName} = {resourcesPathName}.Load<{eventFieldTypeName}>(\"{resourcesAssetPath}\");");
-
-                            eventsCodeBuilder
-                                .AppendLine($"\t\tpublic {eventFieldTypeName} {eventFieldName};")
-                                .AppendLine($"\t\tpublic static {eventFieldTypeName} {nameFilter(gameEventAsset.name, false)} => {instanceName}.{eventFieldName};")
-                                .AppendLine();
+                    var gameEventGuids = AssetDatabase.FindAssets($"t: {gameEventType}");
+                    foreach (var gameEventGuid in gameEventGuids) {
+                        var assetPath = AssetDatabase.GUIDToAssetPath(gameEventGuid);
+                        var gameEventAsset = AssetDatabase.LoadAssetAtPath(assetPath, gameEventType);
+                        if (!gameEventAsset) {
+                            continue;
                         }
+
+                        var eventFieldTypeName = gameEventType.Name;
+                        var eventFieldName = "_" + nameFilter(gameEventAsset.name, true);
+
+                        var resourcesPathName = "Resources";
+                        var resourcesIdx = assetPath.IndexOf(resourcesPathName);
+                        if (resourcesIdx == -1) {
+                            Debug.LogError($"{conceptName} {eventFieldName} at path {assetPath} is not in a {resourcesPathName} folder or subfolder");
+                            continue;
+                        }
+                        var resourcesAssetPath = assetPath.Substring(resourcesIdx + resourcesPathName.Length + 1);
+                        resourcesAssetPath = resourcesAssetPath.Substring(0, resourcesAssetPath.LastIndexOf(".asset"));
+                        codeBuilder
+                            .AppendLine($"\t\t\t{eventFieldName} = {resourcesPathName}.Load<{eventFieldTypeName}>(\"{resourcesAssetPath}\");");
+
+                        eventsCodeBuilder
+                            .AppendLine($"\t\tpublic {eventFieldTypeName} {eventFieldName};")
+                            .AppendLine($"\t\tpublic static {eventFieldTypeName} {nameFilter(gameEventAsset.name, false)} => {instanceName}.{eventFieldName};")
+                            .AppendLine();
                     }
                 }
 

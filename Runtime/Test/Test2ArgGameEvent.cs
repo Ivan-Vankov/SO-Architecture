@@ -48,7 +48,7 @@ namespace Vaflov {
             action?.Invoke(testArg1, testArg2);
         }
 
-        [Button(Expanded = true)]
+        //[Button(Expanded = true)]
         public void SetIconForObject(Texture2D icon) {
             //var type = typeof(EditorGUIUtility);
             //var setIconForObjectMethodInfo =

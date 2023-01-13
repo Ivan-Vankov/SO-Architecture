@@ -132,7 +132,7 @@ namespace Vaflov {
         }
 
         public SingletonCodeGenerator GenerateSingletonAssets() {
-            TryCreateFileAsset(singletonCodeBuilder.ToString(), $"{singletonClassName}.cs",
+            singletonCodePath = TryCreateFileAsset(singletonCodeBuilder.ToString(), $"{singletonClassName}.cs",
                 ImportAssetOptions.ForceUpdate,
                 null,
                 Application.dataPath, singletonDirectoryName);

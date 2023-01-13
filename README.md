@@ -16,10 +16,29 @@ Edit > Project Settings > Player > Other Settings > Api Compatibility Level
 ```
 ## Installation
 1. Add `https://github.com/Ivan-Vankov/SO-Architecture.git` in:
+
 ```
 Window > Package Manager > + > Add package from git URL...
 ```
+
 2. Alternatively you can add the following line as a dependency in **Packages/manifest.json**:
-```
-"com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git",
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "org.nuget.system",
+        "com.solidalloy",
+        "com.openupm"
+      ]
+    }
+  ],
+  "dependencies": {
+    "com.solidalloy.extevents": "https://github.com/Ivan-Vankov/ExtEvents.git",
+    "com.vaflov.so-architecture": "https://github.com/Ivan-Vankov/SO-Architecture.git",
+  }
+}
 ```
