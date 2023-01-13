@@ -10,14 +10,48 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using static Vaflov.Config;
-using Sirenix.OdinInspector.Editor.Drawers;
 
 namespace Vaflov {
     [HideInPlayMode]
     [HideLabel]
     [Serializable]
-    public class GameEventEditMenu {
-        public bool foldoutExpanded;
+    public class GameEventEditMenu { }
+
+    [Serializable]
+    public class ObjSet<T> where T: UnityEngine.Object {
+        [HideInInspector]
+        public string name = "Objects";
+
+        //[ReadOnly]
+        [LabelText("$" + nameof(name))]
+        [ListDrawerSettings(
+            DraggableItems = false,
+            Expanded = true,
+            ShowPaging = true,
+            NumberOfItemsPerPage = 10,
+            ShowItemCount = false
+            //HideRemoveButton = true
+            )]
+        public List<T> objects = new List<T>();
+        public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+
+        public void Add(T listener) {
+            if (!objToIdxs.ContainsKey(listener)) {
+                objects.Add(listener);
+                objToIdxs[listener] = objects.Count - 1;
+            }
+        }
+
+        public void Remove(T obj) {
+            if (!objToIdxs.ContainsKey(obj))
+                return;
+            var idx = objToIdxs[obj];
+            objects[idx] = objects[objects.Count - 1];
+            objects.RemoveAt(objects.Count - 1);
+            if (idx < objects.Count) {
+                objToIdxs[objects[idx]] = idx;
+            }
+        }
     }
 
     public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
@@ -27,7 +61,7 @@ namespace Vaflov {
         [ShowInInspector]
         [LabelText("Group")]
         [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
-        [BoxGroup("Editor Props")]
+        [FoldoutGroup("Editor Props", Expanded = true)]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(0)]
         [DelayedProperty]
@@ -39,7 +73,7 @@ namespace Vaflov {
         public int sortKey;
 #if ODIN_INSPECTOR
         [ShowInInspector]
-        [BoxGroup("Editor Props")]
+        [FoldoutGroup("Editor Props", Expanded = true)]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(5)]
         [DelayedProperty]
@@ -47,60 +81,46 @@ namespace Vaflov {
 #endif
         public int SortKey { get => sortKey; set => sortKey = value; }
 
-        #if ODIN_INSPECTOR
+#if ODIN_INSPECTOR
         [LabelText("Comment")]
         [TextArea(1, 5)]
-        [BoxGroup("Editor Props")]
+        [FoldoutGroup("Editor Props", Expanded = true)]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]
-        #endif
+#endif
         public string comment;
         public string EditorComment { get => comment; set => comment = value; }
 
-        #if ODIN_INSPECTOR
-        [ReadOnly]
+        [HideLabel]
+        [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
-        [ListDrawerSettings(
-            DraggableItems = false,
-            Expanded = true,
-            ShowPaging = true,
-            NumberOfItemsPerPage = 10,
-            ShowItemCount = false,
-            HideRemoveButton = true)]
-        #endif
+        public ObjSet<Component> componentListeners = new ObjSet<Component>() { name = "Component Listeners" };
 
-        [HideInEditorMode]
-        public List<GameEventListenerBase> listeners = new List<GameEventListenerBase>();
-        public Dictionary<GameEventListenerBase, List<int>> listenersToIdxs = new Dictionary<GameEventListenerBase, List<int>>();
+        [HideLabel]
+        [FoldoutGroup("Listeners", true)]
+        [PropertyOrder(31)]
+        public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
 
-        public void AddListener(GameEventListenerBase listener) {
-            listeners.Add(listener);
-            if (listenersToIdxs.ContainsKey(listener)) {
-                listenersToIdxs[listener].Add(listeners.Count - 1);
-            } else {
-                listenersToIdxs[listener] = new List<int> {
-                    listeners.Count - 1
-                };
-            }
+        public void AddListener(Component listener) {
+            componentListeners.Add(listener);
         }
 
-        public void RemoveListener(GameEventListenerBase listener) {
-            if (!listenersToIdxs.ContainsKey(listener))
-                return;
-            var idxs = listenersToIdxs[listener];
-            for (int i = 0; i < idxs.Count; ++i) {
-                var idx = listeners.IndexOf(listener);
-                if (idx > -1) {
-                    listeners[idx] = listeners[listeners.Count - 1];
-                    listeners.RemoveAt(listeners.Count - 1);
-                }
-            }
+        public void RemoveListener(Component listener) {
+            componentListeners.Remove(listener);
+        }
+
+        public void AddListener(ScriptableObject listener) {
+            SOListeners.Add(listener);
+        }
+
+        public void RemoveListener(ScriptableObject listener) {
+            SOListeners.Remove(listener);
         }
 
         public virtual Texture GetEditorIcon() => null;
 
-        #if ODIN_INSPECTOR && UNITY_EDITOR
-        [BoxGroup("Editor Props")]
+#if ODIN_INSPECTOR && UNITY_EDITOR
+        [FoldoutGroup("Editor Props", Expanded = true)]
         [OnInspectorGUI]
         public void ShowName() {
             // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg

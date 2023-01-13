@@ -40,7 +40,8 @@ namespace Vaflov {
 
         #if ODIN_INSPECTOR
         //[ShowDrawerChain]
-        [Button(Expanded = true)]
+        //[Button(Expanded = true)]
+        [Button]
         [DrawButtonTypes]
         [PropertyOrder(15)]
         #endif

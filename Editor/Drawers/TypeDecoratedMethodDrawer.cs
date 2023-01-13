@@ -133,6 +133,7 @@ namespace Vaflov {
                     toggleBtnStyle = EditorStyles.miniButtonRight;
                 }
             }
+            Property.State.Expanded = true;
         }
 
         //
@@ -222,7 +223,7 @@ namespace Vaflov {
             if (expanded) {
                 EditorGUILayout.LabelField(label);
             } else {
-                base.Property.State.Expanded = SirenixEditorGUI.Foldout(base.Property.State.Expanded, label);
+                Property.State.Expanded = SirenixEditorGUI.Foldout(drawTypesIfAttribute.drawTypesState || Property.State.Expanded, label);
             }
 
             SirenixEditorGUI.EndBoxHeader();

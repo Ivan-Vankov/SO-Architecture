@@ -6,8 +6,10 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Vaflov {
+    public interface IGameEventListener {}
+
     [DefaultExecutionOrder(-2000)]
-    public abstract class GameEventListenerBase : MonoBehaviour {
+    public abstract class GameEventListenerBase : MonoBehaviour, IGameEventListener {
         #if UNITY_EDITOR && ODIN_INSPECTOR
 
         //[HorizontalGroup("Event Ref", MaxWidth = 15)]
