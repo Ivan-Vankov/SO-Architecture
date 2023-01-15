@@ -23,7 +23,7 @@ namespace Vaflov {
         [HideInInspector]
         public string name = "Objects";
 
-        [ReadOnly]
+        //[ReadOnly]
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
             DraggableItems = false,
