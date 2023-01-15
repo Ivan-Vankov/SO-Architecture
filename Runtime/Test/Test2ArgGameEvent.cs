@@ -1,6 +1,7 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 #endif
@@ -46,6 +47,14 @@ namespace Vaflov {
         [PropertyOrder(15)]
         #endif
         public override void Raise(int testArg1, CustomData testArg2) {
+            //var listeners = componentListeners.objects;
+            //for (int i = 0; i < componentListeners.Count; ++i) {
+            //    // TODO: Use Unsafe.As here, it is 1000x faster https://www.tabsoverspaces.com/233888-what-is-the-cost-of-casting-in-net-csharp
+            //    //var lis = Unsafe.As<GameEventListener2Base<Test2ArgGameEvent, int, CustomData>>(listeners[i]);
+            //    var typedListener = listeners[i] as GameEventListener<Test2ArgGameEvent, int, CustomData>;
+            //    typedListener.CallResponse(testArg1, testArg2);
+            //}
+            // TODO: Do the same for so listeners
             action?.Invoke(testArg1, testArg2);
         }
 
@@ -59,24 +68,24 @@ namespace Vaflov {
             EditorGUIUtility.SetIconForObject(this, icon);
         }
 
-        public override void AddListener(GameEventListener2Base<Test2ArgGameEvent, int, CustomData> listener) {
+        public override void AddListener(GameEventListener<Test2ArgGameEvent, int, CustomData> listener) {
             base.AddListener(listener);
             action += listener.CallResponse;
         }
 
-        public override void RemoveListener(GameEventListener2Base<Test2ArgGameEvent, int, CustomData> listener) {
+        public override void RemoveListener(GameEventListener<Test2ArgGameEvent, int, CustomData> listener) {
             base.RemoveListener(listener);
             action -= listener.CallResponse;
         }
 
-        //public static Test2ArgGameEvent operator +(Test2ArgGameEvent self, Test2ArgAction action) {
-        //    self.action += action;
-        //    return self;
-        //}
+        public static Test2ArgGameEvent operator +(Test2ArgGameEvent self, Test2ArgAction action) {
+            self.action += action;
+            return self;
+        }
 
-        //public static Test2ArgGameEvent operator -(Test2ArgGameEvent self, Test2ArgAction action) {
-        //    self.action += action;
-        //    return self;
-        //}
+        public static Test2ArgGameEvent operator -(Test2ArgGameEvent self, Test2ArgAction action) {
+            self.action += action;
+            return self;
+        }
     }
 }

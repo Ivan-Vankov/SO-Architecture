@@ -126,9 +126,9 @@ namespace Vaflov {
 
             SirenixEditorGUI.BeginBox();
             SirenixEditorGUI.BeginBoxHeader();
-            base.Property.State.Expanded = SirenixEditorGUI.Foldout(base.Property.State.Expanded, "Edit");
+            Property.State.Expanded = SirenixEditorGUI.Foldout(Property.State.Expanded, "Edit Arguments");
             SirenixEditorGUI.EndBoxHeader();
-            if (SirenixEditorGUI.BeginFadeGroup(this, base.Property.State.Expanded)) {
+            if (SirenixEditorGUI.BeginFadeGroup(this, Property.State.Expanded)) {
                 var error = false;
                 void ErrorMessageBox(string errorMessage) {
                     if (string.IsNullOrEmpty(errorMessage))

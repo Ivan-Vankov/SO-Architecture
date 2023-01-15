@@ -2,7 +2,6 @@ using ExtEvents;
 using UnityEngine;
 
 namespace Vaflov {
-    [AddComponentMenu("")]
     public class GameEventListenerVoid : GameEventListenerBase {
         [HideInInspector]
         public GameEventVoid eventRef;
@@ -12,22 +11,20 @@ namespace Vaflov {
             response?.Invoke();
         }
 
-        public void OnEnable() {
+        public override void OnInit() {
             if (eventRef) {
-                eventRef.action += CallResponse;
+                eventRef.AddListener(this);
             }
         }
 
-        public void OnDisable() {
+        public override void OnDone() {
             if (eventRef) {
-                eventRef.action -= CallResponse;
+                eventRef.RemoveListener(this);
             }
         }
 
-        #if UNITY_EDITOR && ODIN_INSPECTOR
-        public override void AssignGameEvent() {
+        public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (GameEventVoid)gameEvent;
         }
-        #endif
     }
 }

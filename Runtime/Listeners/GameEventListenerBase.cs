@@ -1,82 +1,169 @@
-﻿using Sirenix.OdinInspector;
-using System;
-using System.Linq;
-using System.Reflection;
-using UnityEditor;
+﻿using ExtEvents;
 using UnityEngine;
 
 namespace Vaflov {
-    public interface IGameEventListener {}
+    public abstract class GameEventListenerBase : ScriptableObject {
+        [HideInInspector]
+        public UnityEngine.Object parent;
 
-    [DefaultExecutionOrder(-2000)]
-    public abstract class GameEventListenerBase : MonoBehaviour, IGameEventListener {
-        #if UNITY_EDITOR && ODIN_INSPECTOR
+        public abstract void OnInit();
+        public abstract void OnDone();
+        public abstract void AssignGameEvent(GameEventBase gameEvent);
+    }
 
-        //[HorizontalGroup("Event Ref", MaxWidth = 15)]
-        //[ValueDropdown(nameof(valueList), DropdownWidth = 100)]
-        //[HideLabel]
-        //public bool useValue = true;
+    public abstract class GameEventListener<V, T> : GameEventListenerBase where V : GameEvent1Base<V, T> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T> Response { get; }
 
-        [HorizontalGroup("Event Ref")]
-        [AssetsOnly]
-        [OnValueChanged(nameof(AdaptGameEventListenerClassToGameEvent))]
-        [Required]
-        [LabelText("Event Ref")]
-        public GameEventBase gameEvent;
-
-        //private ValueDropdownList<bool> valueList = new ValueDropdownList<bool>() {
-        //    { "Value", true },
-        //    { "Reference", false },
-        //};
-
-        public void AdaptGameEventListenerClassToGameEvent() {
-            Type listenerType;
-            if (gameEvent == null) {
-                AssignGameEvent();
-                return;
-            }
-            var gameEventType = gameEvent.GetType();
-            if (gameEventType == typeof(GameEventVoid)) {
-                listenerType = typeof(GameEventListenerVoid);
-            } else {
-                var gameEventGenericArgs = gameEventType.BaseType.GenericTypeArguments;
-                listenerType = TypeCache.GetTypesDerivedFrom<GameEventListenerBase>()
-                    .Where(type => {
-                        var eventRefField = type.GetField("eventRef", BindingFlags.Public | BindingFlags.Instance);
-                        if (eventRefField?.FieldType == gameEventType) {
-                            return true;
-                        }
-                        if (type.IsGenericType || !type.BaseType.IsGenericType) {
-                            return false;
-                        }
-                        var listenerGenericArgs = type.BaseType.GenericTypeArguments;
-                        if (listenerGenericArgs.Length != gameEventGenericArgs.Length) {
-                            return false;
-                        }
-                        for (int i = 0; i < listenerGenericArgs.Length; ++i) {
-                            if (listenerGenericArgs[i] != gameEventGenericArgs[i]) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    })
-                    .FirstOrDefault();
-            }
-            if (listenerType == null) {
-                return;
-            }
-            if (listenerType == GetType()) {
-                AssignGameEvent();
-                return;
-            }
-            var newListener = this.ReplaceComponent(listenerType) as GameEventListenerBase;
-            newListener.gameEvent = gameEvent;
-            newListener.AssignGameEvent();
+        public void CallResponse(T arg1) {
+            Response?.Invoke(arg1);
         }
 
-        public virtual void AssignGameEvent() {
-            Debug.Assert(true, "Override this!");
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
         }
-        #endif
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
+    }
+
+    public abstract class GameEventListener<V, T1, T2> : GameEventListenerBase where V : GameEvent2Base<V, T1, T2> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T1, T2> Response { get; }
+
+        public void CallResponse(T1 arg1, T2 arg2) {
+            Response?.Invoke(arg1, arg2);
+        }
+
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
+        }
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
+    }
+
+    public abstract class GameEventListener<V, T1, T2, T3> : GameEventListenerBase where V : GameEvent3Base<V, T1, T2, T3> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T1, T2, T3> Response { get; }
+
+        public void CallResponse(T1 arg1, T2 arg2, T3 arg3) {
+            Response?.Invoke(arg1, arg2, arg3);
+        }
+
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
+        }
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
+    }
+
+    public abstract class GameEventListener<V, T1, T2, T3, T4> : GameEventListenerBase where V : GameEvent4Base<V, T1, T2, T3, T4> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T1, T2, T3, T4> Response { get; }
+
+        public void CallResponse(T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
+            Response?.Invoke(arg1, arg2, arg3, arg4);
+        }
+
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
+        }
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
+    }
+
+    public abstract class GameEventListener<V, T1, T2, T3, T4, T5> : GameEventListenerBase where V : GameEvent5Base<V, T1, T2, T3, T4, T5> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T1, T2, T3, T4, T5> Response { get; }
+
+        public void CallResponse(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) {
+            Response?.Invoke(arg1, arg2, arg3, arg4, arg5);
+        }
+
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
+        }
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
+    }
+
+    public abstract class GameEventListener<V, T1, T2, T3, T4, T5, T6> : GameEventListenerBase where V : GameEvent6Base<V, T1, T2, T3, T4, T5, T6> {
+        [HideInInspector]
+        public V eventRef;
+        public abstract ExtEvent<T1, T2, T3, T4, T5, T6> Response { get; }
+
+        public void CallResponse(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6) {
+            Response?.Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+
+        public override void OnInit() {
+            if (eventRef) {
+                eventRef.AddListener(this);
+            }
+        }
+
+        public override void OnDone() {
+            if (eventRef) {
+                eventRef.RemoveListener(this);
+            }
+        }
+
+        public override void AssignGameEvent(GameEventBase gameEvent) {
+            eventRef = (V)gameEvent;
+        }
     }
 }

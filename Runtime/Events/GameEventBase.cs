@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using static Vaflov.Config;
+using System.Runtime.CompilerServices;
 
 namespace Vaflov {
     [HideInPlayMode]
@@ -22,14 +23,14 @@ namespace Vaflov {
         [HideInInspector]
         public string name = "Objects";
 
-        //[ReadOnly]
+        [ReadOnly]
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
             DraggableItems = false,
-            Expanded = true,
+            //Expanded = true,
             ShowPaging = true,
-            NumberOfItemsPerPage = 10,
-            ShowItemCount = false
+            NumberOfItemsPerPage = 10
+            //ShowItemCount = false
             //HideRemoveButton = true
             )]
         public List<T> objects = new List<T>();
@@ -52,6 +53,8 @@ namespace Vaflov {
                 objToIdxs[objects[idx]] = idx;
             }
         }
+
+        public int Count => objects.Count;
     }
 
     public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
@@ -101,20 +104,20 @@ namespace Vaflov {
         [PropertyOrder(31)]
         public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
 
-        public void AddListener(Component listener) {
-            componentListeners.Add(listener);
+        public void AddListener(GameEventListenerBase listener) {
+            if (listener.parent is MonoBehaviour) {
+                componentListeners.Add(Unsafe.As<MonoBehaviour>(listener.parent));
+            } else {
+                SOListeners.Add(Unsafe.As<ScriptableObject>(listener.parent));
+            }
         }
 
-        public void RemoveListener(Component listener) {
-            componentListeners.Remove(listener);
-        }
-
-        public void AddListener(ScriptableObject listener) {
-            SOListeners.Add(listener);
-        }
-
-        public void RemoveListener(ScriptableObject listener) {
-            SOListeners.Remove(listener);
+        public void RemoveListener(GameEventListenerBase listener) {
+            if (listener.parent is MonoBehaviour) {
+                componentListeners.Remove(Unsafe.As<MonoBehaviour>(listener.parent));
+            } else {
+                SOListeners.Remove(Unsafe.As<ScriptableObject>(listener.parent));
+            }
         }
 
         public virtual Texture GetEditorIcon() => null;
