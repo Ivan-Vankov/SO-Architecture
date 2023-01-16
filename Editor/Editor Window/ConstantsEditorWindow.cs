@@ -12,22 +12,16 @@ using Sirenix.OdinInspector;
 using static Vaflov.ContextMenuItemShortcutHandler;
 
 namespace Vaflov {
-    public class ConstantsEditorWindow : OdinMenuEditorWindow {
+    public class ConstantsEditorWindow : EditorObjectMenuEditorWindow {
         public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
+
+        public override Type EditorObjBaseType => typeof(Constant<>);
 
         public CreateNewConstant newConstantCreator;
 
         [MenuItem("Tools/SO Architecture/Constants Editor")]
         public static ConstantsEditorWindow Open() {
-            var wasOpen = HasOpenInstances<ConstantsEditorWindow>();
-            var window = GetWindow<ConstantsEditorWindow>();
-            if (!wasOpen) {
-                window.position = GUIHelper.GetEditorWindowRect().AlignCenter(DEFAULT_EDITOR_SIZE.x, DEFAULT_EDITOR_SIZE.y);
-                window.MenuWidth = DEFAULT_EDITOR_SIZE.x / 2;
-                var tex = Resources.Load<Texture2D>("pi");
-                window.titleContent = new GUIContent("Constants", tex);
-            }
-            return window;
+            return Open<ConstantsEditorWindow>("Constants", DEFAULT_EDITOR_SIZE, "pi");
         }
 
         protected override void OnEnable() {
@@ -53,89 +47,9 @@ namespace Vaflov {
             TrySelectMenuItemWithObject(newConstantCreator);
         }
 
-        public void RebuildEditorGroups() {
-            var oldSelectedObj = MenuTree.Selection?.FirstOrDefault()?.Value;
-            ForceMenuTreeRebuild();
-            TrySelectMenuItemWithObject(oldSelectedObj);
-        }
-
         protected override OdinMenuTree BuildMenuTree() {
+            var tree = base.BuildMenuTree();
             newConstantCreator.ResetCachedTypes();
-            var tree = new OdinMenuTree(true);
-            tree.Selection.SupportsMultiSelect = false;
-            tree.Config.DrawSearchToolbar = true;
-            tree.Config.AutoFocusSearchBar = false;
-            var menuStyle = new OdinMenuStyle() {
-                Borders = false,
-                Height = 18,
-                IconSize = 15f,
-                TrianglePadding = 1.50f,
-                AlignTriangleLeft = true,
-            };
-            tree.Config.DefaultMenuStyle = menuStyle;
-            tree.DefaultMenuStyle = menuStyle;
-
-            var types = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
-            //    .SelectMany(assembly => assembly.GetTypes())
-            //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
-            //    .ToList();
-
-            var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
-            foreach (var type in types) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
-                foreach (var assetGuid in assetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
-                    var groupName = (asset as IEditorObject).EditorGroup;
-                    groupName = groupName == null || groupName == "" ? "Default" : groupName;
-
-                    if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
-                        groupResult = new HashSet<UnityEngine.Object>();
-                        groups[groupName] = groupResult;
-                    }
-                    groupResult.Add(asset);
-                }
-            }
-
-            foreach ((var groupName, var group) in groups) {
-                var groupList = group.ToList();
-                groupList.Sort((UnityEngine.Object obj1, UnityEngine.Object obj2) => {
-                    var sortKey1 = (obj1 as ISortKeyObject).SortKey;
-                    var sortKey2 = (obj2 as ISortKeyObject).SortKey;
-                    if (sortKey1 != sortKey2) {
-                        return sortKey1.CompareTo(sortKey2);
-                    } else {
-                        return obj1.name.CompareTo(obj2.name);
-                    }
-                });
-                var groupResult = new HashSet<OdinMenuItem>();
-                foreach (var constant in groupList) {
-                    var menuItem = new EditorObjectOdinMenuItem(tree, constant.name, constant);
-                    menuItem.IconGetter = (constant as IEditorObject).GetEditorIcon;
-                    groupResult.Add(menuItem);
-                    tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
-                }
-                var groupMenuItem = tree.GetMenuItem(groupName);
-                if (groupMenuItem != null) {
-                    groupMenuItem.OnDrawItem += x => {
-                        var itemCountLabel = $" {x.ChildMenuItems.Count}";
-                        var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
-                        var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
-                        var valueRect = new Rect(x.LabelRect.x + nameLabelSize.x, x.LabelRect.y, x.LabelRect.width - nameLabelSize.x, x.LabelRect.height);
-                        var valueContent = GUIHelper.TempContent(itemCountLabel);
-
-                        GUIHelper.PushColor(Color.green);
-                        GUI.Label(valueRect, valueContent, labelStyle);
-                        GUIHelper.PopColor();
-                    };
-                }
-            }
-
-            tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
-
             var constantCreatorMenuItem = new EmptyOdinMenuItem(tree, "Add a new constant", newConstantCreator);
             //tree.Selection.SelectionChanged += _ => {
             //    tree.Config.AutoFocusSearchBar = !constantCreatorMenuItem.IsSelected;
@@ -146,46 +60,18 @@ namespace Vaflov {
             return tree;
         }
 
-        public List<ContextMenuItem> GetToolbarItems() {
+        public override List<ContextMenuItem> GetToolbarItems() {
             var items = new List<ContextMenuItem>();
             items.Add(new ContextMenuItem("Add a new constant", () => {
                 OpenConstantCreationMenu();
                 // EditorIconsOverview.OpenEditorIconsOverview();
             }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
-            var selected = MenuTree?.Selection?.FirstOrDefault();
-            if (selected != null && selected.Value is IEditorObject editorObject) {
-                items.AddRange(editorObject.GetContextMenuItems());
-            }
+            items.AddRange(base.GetToolbarItems());
             items.Add(new ContextMenuItem("Regenerate constants", () => {
                 ConstantsGenerator.GenerateConstants();
                 //ForceMenuTreeRebuild();
             }, KeyCode.S, EventModifiers.Control, SdfIconType.ArrowRepeat));
             return items;
-        }
-
-        protected override void OnBeginDrawEditors() {
-            if (MenuTree == null)
-                return;
-            var toolbarHeight = MenuTree.Config.SearchToolbarHeight;
-            SirenixEditorGUI.BeginHorizontalToolbar(toolbarHeight);
-            if (MenuTree.Selection != null) {
-                var selectedNames = MenuTree.Selection?.Select(selected => selected.Name);
-                var selectionLabel = string.Join(", ", selectedNames);
-                if (selectionLabel?.Length > 40) {
-                    selectionLabel = selectionLabel.Substring(0, 40) + "...";
-                }
-                GUILayout.Label(selectionLabel);
-            }
-
-            var toolbarItems = GetToolbarItems();
-            foreach (var contextMenuItem in toolbarItems) {
-                if (SirenixEditorGUIUtil.ToolbarSDFIconButton(contextMenuItem.icon, toolbarHeight, tooltip: contextMenuItem.tooltip)) {
-                    contextMenuItem.action?.Invoke();
-                }
-            }
-            SirenixEditorGUI.EndHorizontalToolbar();
-
-            HandleContextMenuItemShortcuts(toolbarItems);
         }
     }
 

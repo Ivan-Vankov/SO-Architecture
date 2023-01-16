@@ -1,5 +1,4 @@
 ﻿#if ODIN_INSPECTOR
-using Microsoft.CSharp;
 using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
@@ -87,45 +86,145 @@ namespace Vaflov {
                 return $"{name} ({shortcutFormated})";
             }
         }
+
+        public static List<ContextMenuItem> GetDefaultContextMenuItems(ScriptableObject so, Action<ScriptableObject> onSODuplicated) {
+            #if ODIN_INSPECTOR && UNITY_EDITOR
+            return new List<ContextMenuItem> {
+                new ContextMenuItem("Duplicate", () => {
+                    var copy = UnityEngine.Object.Instantiate(so);
+                    var path = AssetDatabase.GetAssetPath(so);
+                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+                    copy.name = newPath[(newPath.LastIndexOf('/') + 1) .. newPath.LastIndexOf('.')];
+
+                    AssetDatabase.CreateAsset(copy, newPath);
+                    AssetDatabase.SaveAssets();
+
+                    onSODuplicated?.Invoke(copy);
+                }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
+                new ContextMenuItem("Delete", () => {
+                    EditorUtil.TryDeleteAsset(so);
+                }, KeyCode.Delete, icon: SdfIconType.Trash),
+            };
+            #else
+            return null
+        #endif
+        }
     }
 
-    public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
-        [HideInInspector]
-        public string editorGroup;
-        #if ODIN_INSPECTOR
-        [ShowInInspector]
+    [Serializable]
+    public class EditorObject {
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         [LabelText("Group")]
-        [ValueDropdown(nameof(GetDropdownItems), AppendNextDrawer = true)]
-        [BoxGroup("Editor Props")]
+        [ValueDropdown(nameof(GetEditorObjGroups), AppendNextDrawer = true)]
+        [FoldoutGroup("Editor Props", true)]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(0)]
         [DelayedProperty]
-        [OnValueChanged(nameof(OnEditorPropChanged))]
+        [OnValueChanged(nameof(EditorPropChanged))]
         #endif
-        public string EditorGroup { get => editorGroup; set => editorGroup = value; }
+        public string editorGroup;
 
-        [HideInInspector]
-        public int sortKey;
         #if ODIN_INSPECTOR
-        [ShowInInspector]
-        [BoxGroup("Editor Props")]
+        [FoldoutGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(5)]
         [DelayedProperty]
-        [OnValueChanged(nameof(OnEditorPropChanged))]
+        [OnValueChanged(nameof(EditorPropChanged))]
         #endif
-        public int SortKey { get => sortKey; set => sortKey = value; }
-
+        public int sortKey;
 
         #if ODIN_INSPECTOR
         [LabelText("Comment")]
         [TextArea(1, 5)]
-        [BoxGroup("Editor Props")]
+        [FoldoutGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(10)]
         #endif
-        public string comment;
-        public string EditorComment { get => comment; set => comment = value; }
+        public string editorComment;
+
+        [HideInInspector] 
+        public ScriptableObject editorObjParent;
+        [HideInInspector] 
+        public Type editorObjParentBaseType;
+        [HideInInspector] 
+        public Action onEditorPropChanged;
+
+        public void Init(ScriptableObject editorObjParent, Type editorObjParentBaseType, Action onEditorPropChanged) {
+            this.editorObjParent = editorObjParent;
+            this.editorObjParentBaseType = editorObjParentBaseType;
+            //Debug.Assert(editorObjParentBaseType.IsAssignableFrom(editorObjParent.GetType()));
+            this.onEditorPropChanged = onEditorPropChanged;
+        }
+
+        #if ODIN_INSPECTOR && UNITY_EDITOR
+        [FoldoutGroup("Editor Props")]
+        [OnInspectorGUI]
+        public void ShowName() {
+            // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg
+            // Or at liest it should become multi-editing aware
+            // It should use the same logic as the "new constant" name
+            if (editorObjParent == null)
+                return;
+            var oldName = editorObjParent.name;
+            GUIHelper.PushLabelWidth(70);
+            var newName = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
+            GUIHelper.PopLabelWidth();
+            if (oldName != newName) {
+                var assetPath = AssetDatabase.GetAssetPath(editorObjParent);
+                AssetDatabase.RenameAsset(assetPath, newName);
+                EditorPropChanged();
+            }
+        }
+
+        public void EditorPropChanged() {
+            onEditorPropChanged?.Invoke();
+        }
+
+        public IEnumerable<string> GetEditorObjGroups() {
+            if (editorObjParentBaseType == null)
+                Array.Empty<string>();
+            var editorObjTypes = TypeCache.GetTypesDerivedFrom(editorObjParentBaseType)
+                .Where(type => !type.IsGenericType)
+                .ToList();
+
+            var seenGroups = new HashSet<string>();
+            foreach (var editorObjType in editorObjTypes) {
+                var editorObjAssetGuids = AssetDatabase.FindAssets($"t: {editorObjType}");
+                foreach (var editorObjAssetGuid in editorObjAssetGuids) {
+                    var assetPath = AssetDatabase.GUIDToAssetPath(editorObjAssetGuid);
+                    var editorObjAsset = AssetDatabase.LoadAssetAtPath(assetPath, editorObjType);
+
+                    var groupName = (editorObjAsset as IEditorObject).EditorGroup;
+                    if (groupName == null) {
+                        continue;
+                    }
+                    if (!seenGroups.Contains(groupName)) {
+                        seenGroups.Add(groupName);
+                    }
+                }
+            }
+            var groupsList = new List<string>(seenGroups);
+            groupsList.Sort();
+            return groupsList;
+        }
+        #endif
+    }
+
+    public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
+        [HideInInspector] public EditorObject editorObj = null;
+        [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
+        public EditorObject EditorObject {
+            get {
+                editorObj ??= new EditorObject();
+                editorObj.Init(this, typeof(Constant<>), ConstantEditorEvents.OnConstantEditorPropChanged);
+                return editorObj;
+            }
+            set => Debug.Assert(true, "Editing editor object internals");
+        }
+
+        public string EditorGroup { get => EditorObject.editorGroup; set => EditorObject.editorGroup = value; }
+        public int SortKey { get => EditorObject.sortKey; set => EditorObject.sortKey = value; }
+        public string EditorComment { get => EditorObject.editorComment; set => EditorObject.editorComment = value; }
 
         public virtual Texture GetEditorIcon() => null;
 
@@ -137,65 +236,15 @@ namespace Vaflov {
         private T value = default;
         public T Value => value;
 
-        public static readonly CSharpCodeProvider codeProvider = new CSharpCodeProvider();
         public static readonly CodeTypeReference typeRef = new CodeTypeReference(typeof(T));
 
+        #if ODIN_INSPECTOR
         [ShowInInspector]
         [ReadOnly]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(11)]
-        public string Type => codeProvider.GetTypeOutput(typeRef);
-
-        #if ODIN_INSPECTOR && UNITY_EDITOR
-        [BoxGroup("Editor Props")]
-        [OnInspectorGUI]
-        public void ShowName() {
-            // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg
-            // Or at liest it should become multi-editing aware
-            // It should use the same logic as the "new constant" name
-            var oldName = name;
-            GUIHelper.PushLabelWidth(70);
-            var newName = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
-            GUIHelper.PopLabelWidth();
-            if (oldName != newName) {
-                var assetPath = AssetDatabase.GetAssetPath(this);
-                AssetDatabase.RenameAsset(assetPath, newName);
-                OnEditorPropChanged();
-            }
-        }
-
-        public void OnEditorPropChanged() {
-            ConstantEditorEvents.OnConstantEditorPropChanged?.Invoke();
-        }
-
-        public IEnumerable<string> GetDropdownItems() {
-            var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
-                .Where(type => !type.IsGenericType)
-                .ToList();
-
-            var seenGroups = new HashSet<string>();
-            foreach (var constantType in constantTypes) {
-                var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
-                foreach (var constantAssetGuid in constantAssetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
-                    var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-
-                    var groupName = (constantAsset as IEditorObject).EditorGroup;
-                    if (groupName == null) {
-                        continue;
-                    }
-                    if (!seenGroups.Contains(groupName)) {
-                        seenGroups.Add(groupName);
-                    }
-                }
-            }
-            var groupsList = new List<string>(seenGroups);
-            groupsList.Sort();
-            foreach (var groupName in groupsList) {
-                yield return groupName;
-            }
-        }
         #endif
+        public string Type => codeProvider.GetTypeOutput(typeRef);
 
         public virtual string EditorToString() {
             if (Value == null) {
@@ -211,26 +260,7 @@ namespace Vaflov {
         }
 
         public virtual List<ContextMenuItem> GetContextMenuItems() {
-            #if ODIN_INSPECTOR && UNITY_EDITOR
-            return new List<ContextMenuItem> {
-                new ContextMenuItem("Duplicate", () => {
-                    var copy = Instantiate(this);
-                    var path = AssetDatabase.GetAssetPath(this);
-                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
-                    copy.name = newPath[(newPath.LastIndexOf('/') + 1) .. newPath.LastIndexOf('.')];
-
-                    AssetDatabase.CreateAsset(copy, newPath);
-                    AssetDatabase.SaveAssets();
-
-                    ConstantEditorEvents.OnConstantDuplicated?.Invoke(copy);
-                }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
-                new ContextMenuItem("Delete", () => {
-                    EditorUtil.TryDeleteAsset(this);
-                }, KeyCode.Delete, icon: SdfIconType.Trash),
-            };
-            #else
-            return null
-            #endif
+            return ContextMenuItem.GetDefaultContextMenuItems(this, ConstantEditorEvents.OnConstantDuplicated);
         }
     }
 }
