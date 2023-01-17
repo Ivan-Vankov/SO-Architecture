@@ -43,13 +43,24 @@ namespace Vaflov {
         #endif
         public string shortcutFormated;
         public string tooltip;
+        public bool showInToolbar = true;
 
+        public OdinContextMenuItem(string name, Action action,
+                       KeyCode shortcut = KeyCode.None,
+                       EventModifiers modifiers = EventModifiers.None) {
+            this.name = name;
+            this.action = action;
+            this.shortcut = shortcut;
+            this.modifiers = modifiers;
+            this.shortcutFormated = FormatShortcut();
+            this.tooltip = FormatTooltip();
+        }
+
+#if ODIN_INSPECTOR && UNITY_EDITOR
         public OdinContextMenuItem(string name, Action action,
                                KeyCode shortcut = KeyCode.None,
                                EventModifiers modifiers = EventModifiers.None,
-                               #if ODIN_INSPECTOR && UNITY_EDITOR
                                SdfIconType icon = SdfIconType.None
-                               #endif
                                ) {
             this.name = name;
             this.action = action;
@@ -59,6 +70,7 @@ namespace Vaflov {
             this.shortcutFormated = FormatShortcut();
             this.tooltip = FormatTooltip();
         }
+#endif
 
         public string FormatShortcut() {
             if (shortcut == KeyCode.None)
@@ -90,6 +102,11 @@ namespace Vaflov {
         public static List<OdinContextMenuItem> GetDefaultContextMenuItems(ScriptableObject so, Action<ScriptableObject> onSODuplicated) {
             #if ODIN_INSPECTOR && UNITY_EDITOR
             return new List<OdinContextMenuItem> {
+                new OdinContextMenuItem("Rename", () => {
+                    EditorObject.FocusEditorObjName();
+                }, icon: SdfIconType.Pen) {
+                    showInToolbar = false,
+                },
                 new OdinContextMenuItem("Duplicate", () => {
                     var copy = UnityEngine.Object.Instantiate(so);
                     var path = AssetDatabase.GetAssetPath(so);
@@ -101,9 +118,6 @@ namespace Vaflov {
 
                     onSODuplicated?.Invoke(copy);
                 }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
-                new OdinContextMenuItem("Rename", () => {
-                    EditorObject.FocusEditorObjName();
-                }, icon: SdfIconType.Pen),
                 new OdinContextMenuItem("Delete", () => {
                     EditorUtil.TryDeleteAsset(so);
                 }, KeyCode.Delete, icon: SdfIconType.Trash),

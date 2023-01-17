@@ -115,7 +115,7 @@ namespace Vaflov {
             var items = new List<OdinContextMenuItem>();
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected != null && selected.Value is IEditorObject editorObject) {
-                items.AddRange(editorObject.GetContextMenuItems());
+                items.AddRange(editorObject.GetContextMenuItems().Where(cmi => cmi.showInToolbar));
             }
             return items;
         }
