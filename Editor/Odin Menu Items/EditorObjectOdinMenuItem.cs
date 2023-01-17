@@ -9,11 +9,11 @@ using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 
 namespace Vaflov {
-    public class ContextMenuItemSelector : GenericSelector<ContextMenuItem> {
+    public class ContextMenuItemSelector : GenericSelector<OdinContextMenuItem> {
         [HideInInspector] public int offset;
         [HideInInspector] public int height;
 
-        public ContextMenuItemSelector(IEnumerable<ContextMenuItem> collection, int offset = 5, int height = 20)
+        public ContextMenuItemSelector(IEnumerable<OdinContextMenuItem> collection, int offset = 5, int height = 20)
             : base(null, false, x => x.name, collection) {
             this.offset = offset;
             this.height = height;
@@ -22,7 +22,7 @@ namespace Vaflov {
 
         public void Init() {
             SelectionTree.EnumerateTree(x => {
-                if (x.Value is not ContextMenuItem contextMenuItem
+                if (x.Value is not OdinContextMenuItem contextMenuItem
                 || contextMenuItem.shortcut == KeyCode.None) {
                     return;
                 }
@@ -41,9 +41,9 @@ namespace Vaflov {
 
         public OdinEditorWindow ShowInPopup(int width) {
             var window = base.ShowInPopup(width);
-            List<ContextMenuItem> contextMenuItems = new List<ContextMenuItem>();
+            List<OdinContextMenuItem> contextMenuItems = new List<OdinContextMenuItem>();
             SelectionTree.EnumerateTree(x => {
-                if (x.Value is ContextMenuItem contextMenuItem && contextMenuItem.shortcut != KeyCode.None) {
+                if (x.Value is OdinContextMenuItem contextMenuItem && contextMenuItem.shortcut != KeyCode.None) {
                     contextMenuItems.Add(contextMenuItem);
                 }
             }); 

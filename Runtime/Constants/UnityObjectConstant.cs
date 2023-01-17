@@ -42,9 +42,9 @@ namespace Vaflov {
         }
 
         #if ODIN_INSPECTOR && UNITY_EDITOR
-        public override List<ContextMenuItem> GetContextMenuItems() {
+        public override List<OdinContextMenuItem> GetContextMenuItems() {
             var items = base.GetContextMenuItems();
-            items.Add(new ContextMenuItem("Select in project", () => {
+            items.Add(new OdinContextMenuItem("Select in project", () => {
                 if (Value == null) { return; }
                 Selection.activeObject = Value;
                 EditorGUIUtility.PingObject(Selection.activeObject);

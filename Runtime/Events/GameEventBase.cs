@@ -114,8 +114,8 @@ namespace Vaflov {
 
         public virtual string EditorToString() => null;
 
-        public virtual List<ContextMenuItem> GetContextMenuItems() {
-            return ContextMenuItem.GetDefaultContextMenuItems(this, GameEventEditorEvents.OnGameEventDuplicated);
+        public virtual List<OdinContextMenuItem> GetContextMenuItems() {
+            return OdinContextMenuItem.GetDefaultContextMenuItems(this, GameEventEditorEvents.OnGameEventDuplicated);
         }
     }
 }

@@ -30,10 +30,10 @@ namespace Vaflov {
         public string EditorComment { get; set; }
         public Texture GetEditorIcon();
         public string EditorToString();
-        public List<ContextMenuItem> GetContextMenuItems();
+        public List<OdinContextMenuItem> GetContextMenuItems();
     }
 
-    public class ContextMenuItem {
+    public class OdinContextMenuItem {
         public string name;
         public Action action;
         public KeyCode shortcut;
@@ -44,7 +44,7 @@ namespace Vaflov {
         public string shortcutFormated;
         public string tooltip;
 
-        public ContextMenuItem(string name, Action action,
+        public OdinContextMenuItem(string name, Action action,
                                KeyCode shortcut = KeyCode.None,
                                EventModifiers modifiers = EventModifiers.None,
                                #if ODIN_INSPECTOR && UNITY_EDITOR
@@ -87,10 +87,10 @@ namespace Vaflov {
             }
         }
 
-        public static List<ContextMenuItem> GetDefaultContextMenuItems(ScriptableObject so, Action<ScriptableObject> onSODuplicated) {
+        public static List<OdinContextMenuItem> GetDefaultContextMenuItems(ScriptableObject so, Action<ScriptableObject> onSODuplicated) {
             #if ODIN_INSPECTOR && UNITY_EDITOR
-            return new List<ContextMenuItem> {
-                new ContextMenuItem("Duplicate", () => {
+            return new List<OdinContextMenuItem> {
+                new OdinContextMenuItem("Duplicate", () => {
                     var copy = UnityEngine.Object.Instantiate(so);
                     var path = AssetDatabase.GetAssetPath(so);
                     var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
@@ -101,7 +101,7 @@ namespace Vaflov {
 
                     onSODuplicated?.Invoke(copy);
                 }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
-                new ContextMenuItem("Delete", () => {
+                new OdinContextMenuItem("Delete", () => {
                     EditorUtil.TryDeleteAsset(so);
                 }, KeyCode.Delete, icon: SdfIconType.Trash),
             };
@@ -186,6 +186,8 @@ namespace Vaflov {
             var editorObjTypes = TypeCache.GetTypesDerivedFrom(editorObjParentBaseType)
                 .Where(type => !type.IsGenericType)
                 .ToList();
+            if (!editorObjParentBaseType.IsGenericType)
+                editorObjTypes.Add(editorObjParentBaseType);
 
             var seenGroups = new HashSet<string>();
             foreach (var editorObjType in editorObjTypes) {
@@ -259,8 +261,8 @@ namespace Vaflov {
             return str;
         }
 
-        public virtual List<ContextMenuItem> GetContextMenuItems() {
-            return ContextMenuItem.GetDefaultContextMenuItems(this, ConstantEditorEvents.OnConstantDuplicated);
+        public virtual List<OdinContextMenuItem> GetContextMenuItems() {
+            return OdinContextMenuItem.GetDefaultContextMenuItems(this, ConstantEditorEvents.OnConstantDuplicated);
         }
     }
 }

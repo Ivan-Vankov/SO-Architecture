@@ -111,8 +111,8 @@ namespace Vaflov {
             return tree;
         }
 
-        public virtual List<ContextMenuItem> GetToolbarItems() {
-            var items = new List<ContextMenuItem>();
+        public virtual List<OdinContextMenuItem> GetToolbarItems() {
+            var items = new List<OdinContextMenuItem>();
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected != null && selected.Value is IEditorObject editorObject) {
                 items.AddRange(editorObject.GetContextMenuItems());

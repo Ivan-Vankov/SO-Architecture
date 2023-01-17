@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Vaflov {
     public static class ContextMenuItemShortcutHandler {
-        public static void HandleContextMenuItemShortcuts(IEnumerable<ContextMenuItem> contextMenuItems,
+        public static void HandleContextMenuItemShortcuts(IEnumerable<OdinContextMenuItem> contextMenuItems,
                                                           Action onShortcutPressed = null) {
             if (contextMenuItems == null)
                 return;

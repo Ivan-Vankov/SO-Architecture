@@ -90,8 +90,8 @@ namespace Vaflov {
             return null;
         }
 
-        public List<ContextMenuItem> GetContextMenuItems() {
-            return ContextMenuItem.GetDefaultContextMenuItems(this, GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
+        public List<OdinContextMenuItem> GetContextMenuItems() {
+            return OdinContextMenuItem.GetDefaultContextMenuItems(this, GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
         }
     }
 }

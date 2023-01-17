@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,6 +28,21 @@ namespace Vaflov {
             base.OnDisable();
             GameEventListenerSOEditorEvents.OnGameEventListenerSOPropChanged -= RebuildEditorGroups;
             GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated -= TrySelectMenuItemWithObject;
+        }
+
+        public override List<OdinContextMenuItem> GetToolbarItems() {
+            var items = new List<OdinContextMenuItem>();
+            items.Add(new OdinContextMenuItem("Add a new game event listener", () => {
+                var listenerAsset = CreateInstance<GameEventListenerSO>();
+                var path = $"Assets/Resources/Listeners/Game Event Listener.asset";
+                path = AssetDatabase.GenerateUniqueAssetPath(path);
+                AssetDatabase.CreateAsset(listenerAsset, path);
+                AssetDatabase.SaveAssets();
+                ForceMenuTreeRebuild();
+                TrySelectMenuItemWithObject(listenerAsset);
+            }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
+            items.AddRange(base.GetToolbarItems());
+            return items;
         }
     }
 }

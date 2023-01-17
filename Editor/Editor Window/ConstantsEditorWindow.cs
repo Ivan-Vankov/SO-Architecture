@@ -60,14 +60,14 @@ namespace Vaflov {
             return tree;
         }
 
-        public override List<ContextMenuItem> GetToolbarItems() {
-            var items = new List<ContextMenuItem>();
-            items.Add(new ContextMenuItem("Add a new constant", () => {
+        public override List<OdinContextMenuItem> GetToolbarItems() {
+            var items = new List<OdinContextMenuItem>();
+            items.Add(new OdinContextMenuItem("Add a new constant", () => {
                 OpenConstantCreationMenu();
                 // EditorIconsOverview.OpenEditorIconsOverview();
             }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
             items.AddRange(base.GetToolbarItems());
-            items.Add(new ContextMenuItem("Regenerate constants", () => {
+            items.Add(new OdinContextMenuItem("Regenerate constants", () => {
                 ConstantsGenerator.GenerateConstants();
                 //ForceMenuTreeRebuild();
             }, KeyCode.S, EventModifiers.Control, SdfIconType.ArrowRepeat));
