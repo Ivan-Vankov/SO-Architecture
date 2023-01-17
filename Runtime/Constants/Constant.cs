@@ -103,7 +103,6 @@ namespace Vaflov {
                 }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
                 new OdinContextMenuItem("Rename", () => {
                     EditorObject.FocusEditorObjName();
-                    //EditorGUI.FocusTextInControl("EditorObjName");
                 }, icon: SdfIconType.Pen),
                 new OdinContextMenuItem("Delete", () => {
                     EditorUtil.TryDeleteAsset(so);

@@ -12,6 +12,8 @@ namespace Vaflov {
                 return;
             var _event = Event.current;
             foreach (var contextMenuItem in contextMenuItems) {
+                if (contextMenuItem.shortcut == KeyCode.None)
+                    continue;
                 if (_event.modifiers.HasFlag(contextMenuItem.modifiers)
                 &&  _event.OnKeyDown(contextMenuItem.shortcut)) {
                     contextMenuItem.action?.Invoke();
