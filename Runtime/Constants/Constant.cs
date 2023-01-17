@@ -101,6 +101,10 @@ namespace Vaflov {
 
                     onSODuplicated?.Invoke(copy);
                 }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
+                new OdinContextMenuItem("Rename", () => {
+                    EditorObject.FocusEditorObjName();
+                    //EditorGUI.FocusTextInControl("EditorObjName");
+                }, icon: SdfIconType.Pen),
                 new OdinContextMenuItem("Delete", () => {
                     EditorUtil.TryDeleteAsset(so);
                 }, KeyCode.Delete, icon: SdfIconType.Trash),
@@ -149,11 +153,17 @@ namespace Vaflov {
         [HideInInspector] 
         public Action onEditorPropChanged;
 
+        public static int focusEditorObjName = 0;
+
         public void Init(ScriptableObject editorObjParent, Type editorObjParentBaseType, Action onEditorPropChanged) {
             this.editorObjParent = editorObjParent;
             this.editorObjParentBaseType = editorObjParentBaseType;
             //Debug.Assert(editorObjParentBaseType.IsAssignableFrom(editorObjParent.GetType()));
             this.onEditorPropChanged = onEditorPropChanged;
+        }
+
+        public static void FocusEditorObjName() {
+            focusEditorObjName = 4;
         }
 
         #if ODIN_INSPECTOR && UNITY_EDITOR
@@ -167,7 +177,16 @@ namespace Vaflov {
                 return;
             var oldName = editorObjParent.name;
             GUIHelper.PushLabelWidth(70);
-            var newName = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
+            GUI.SetNextControlName("EditorObjName");
+            var newName = EditorGUILayout.DelayedTextField(GUIHelper.TempContent("Name"), oldName);
+            if (focusEditorObjName > 0) {
+                if (GUI.GetNameOfFocusedControl() == "EditorObjName") {
+                    focusEditorObjName = 0;
+                } else {
+                    EditorGUI.FocusTextInControl("EditorObjName");
+                    --focusEditorObjName;
+                }
+            }
             GUIHelper.PopLabelWidth();
             if (oldName != newName) {
                 var assetPath = AssetDatabase.GetAssetPath(editorObjParent);

@@ -1,12 +1,13 @@
-﻿#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
 #endif
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
+using static Vaflov.Config;
 
 namespace Vaflov {
     public static class GameEventListenerSOEditorEvents {
@@ -43,6 +44,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [AssetsOnly]
         [ShowInInspector]
+        [LabelWidth(preferedEditorLabelWidth)]
         [Required]
         #endif
         public GameEventBase EventRef {
@@ -71,17 +73,17 @@ namespace Vaflov {
         public GameEventListenerBase listener;
 
         private void OnEnable() {
-            Debug.Log("Enable");
+            //Debug.Log("Enable");
             if (listener) {
-                Debug.Log("Init");
+                //Debug.Log("Init");
                 listener.OnInit();
             }
         }
 
         private void OnDisable() {
-            Debug.Log("Disable");
+            //Debug.Log("Disable");
             if (listener) {
-                Debug.Log("Done");
+                //Debug.Log("Done");
                 listener.OnDone();
             }
         }
