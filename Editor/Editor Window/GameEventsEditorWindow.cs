@@ -10,6 +10,7 @@ using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
+using static Vaflov.StringUtil;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : EditorObjectMenuEditorWindow {
@@ -157,9 +158,7 @@ namespace Vaflov {
                     return "Name is not unique";
                 }
             }
-            targetName = new string(targetName.ToCharArray()
-                .Where(c => !char.IsWhiteSpace(c))
-                .ToArray());
+            targetName = targetName.RemoveWhitespaces();
             return ValidateArgName(targetName);
         }
 

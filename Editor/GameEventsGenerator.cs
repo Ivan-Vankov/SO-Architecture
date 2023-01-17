@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using static Vaflov.TypeUtil;
 using static Vaflov.FileUtil;
+using static Vaflov.StringUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
@@ -154,13 +155,21 @@ namespace Vaflov {
                 .AppendLine($"\t\t\taction?.Invoke({Args(false, true)});")
                 .AppendLine("\t\t}")
                 .AppendLine()
-                .AppendLine($"\t\tpublic override void AddListener(GameEventListener{args.Count}Base<{className}, {Args(true)}> listener) {{")
+                .AppendLine("\t\tpublic override string EditorToString() {")
+                .AppendLine($"\t\t\treturn \"({Args(false, true)})\";")
+                .AppendLine("\t\t}")
+                .AppendLine()
+                .AppendLine($"\t\tpublic override void AddListener(GameEventListener<{className}, {Args(true)}> listener) {{")
+                .AppendLine("\t\t\t#if UNITY_EDITOR")
                 .AppendLine("\t\t\tbase.AddListener(listener);")
+                .AppendLine("\t\t\t#endif")
                 .AppendLine("\t\t\taction += listener.CallResponse;")
                 .AppendLine("\t\t}")
                 .AppendLine()
-                .AppendLine($"\t\tpublic override void RemoveListener(GameEventListener{args.Count}Base<{className}, {Args(true)}> listener) {{")
+                .AppendLine($"\t\tpublic override void RemoveListener(GameEventListener<{className}, {Args(true)}> listener) {{")
+                .AppendLine("\t\t\t#if UNITY_EDITOR")
                 .AppendLine("\t\t\tbase.RemoveListener(listener);")
+                .AppendLine("\t\t\t#endif")
                 .AppendLine("\t\t\taction -= listener.CallResponse;")
                 .AppendLine("\t\t}")
                 .AppendLine("\t}")
@@ -185,8 +194,7 @@ namespace Vaflov {
                 .AppendLine("using ExtEvents;")
                 .AppendLine()
                 .AppendLine($"namespace {codegen.singletonNamespaceName} {{")
-                .AppendLine($"\t[UnityEngine.AddComponentMenu(\"\")]")
-                .AppendLine($"\tpublic class {gameEventListenerClassName} : GameEventListener{args.Count}Base<{gameEventClassName}, {Args(true)}> {{")
+                .AppendLine($"\tpublic class {gameEventListenerClassName} : GameEventListener<{gameEventClassName}, {Args(true)}> {{")
                 .AppendLine($"\t\t[EventArguments({Args(false, true, true, true)})]")
                 .AppendLine($"\t\tpublic ExtEvent<{Args(true)}> response;")
                 .AppendLine($"\t\tpublic override ExtEvent<{Args(true)}> Response => response;")
@@ -293,6 +301,27 @@ namespace Vaflov {
             .EndSingletonCodegenTimerAndPrint();
         }
     }
+
+    public class GameEventClassRemover : AssetPostprocessor {
+        public const string gameEventPrefix = "Assets/Resources/Game Events/";
+
+        public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+            for (int i = 0; i < deletedAssets?.Length; ++i) {
+                var deletedAsset = deletedAssets[i];
+                if (!deletedAsset.StartsWith(gameEventPrefix) || !deletedAsset.EndsWith(".asset"))
+                    continue;
+
+                var assetName = deletedAsset[gameEventPrefix.Length..^6]
+                    .RemoveWhitespaces();
+
+                AssetDatabase.DeleteAsset($"Assets/SO Architecture/Generated/Game Event Listeners/{assetName}GameEventListener.cs");
+                AssetDatabase.DeleteAsset($"Assets/SO Architecture/Generated/Game Events/{assetName}GameEvent.cs");
+            }
+        }
+    }
+
+    //public class GameEventsUpdater : AssetPostprocessor {
+    //}
 
     //public class GameEventsUpdater : AssetPostprocessor {
     //    public static bool CheckUpdateGameEvents(string[] modifiedAssetPaths) {

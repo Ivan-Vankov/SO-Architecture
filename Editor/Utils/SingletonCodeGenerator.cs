@@ -7,6 +7,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.FileUtil;
+using static Vaflov.StringUtil;
 
 namespace Vaflov {
     public class SingletonCodeGenerator {
@@ -84,17 +85,16 @@ namespace Vaflov {
         public string SingletonNameFilter(string name, bool isFirstLetterLowerCase) {
             singletonNameBuilder.Clear();
             singletonNameBuilder
-                .Append(new string(name
-                .Where(c => !char.IsWhiteSpace(c))
-                .ToArray()));
+                .Append(name.RemoveWhitespaces());
             singletonNameBuilder[0] = isFirstLetterLowerCase
                 ? char.ToLower(singletonNameBuilder[0])
                 : char.ToUpper(singletonNameBuilder[0]);
-            name = singletonNameBuilder.ToString();
-            var suffix = singletonFieldSuffix ?? singletonConceptName ?? "";
-            return name.EndsWith(suffix)
-                ? name.Substring(0, name.Length - suffix.Length)
-                : name;
+            return singletonNameBuilder.ToString();
+            //name = singletonNameBuilder.ToString();
+            //var suffix = singletonFieldSuffix ?? singletonConceptName ?? "";
+            //return name.EndsWith(suffix)
+            //    ? name.Substring(0, name.Length - suffix.Length)
+            //    : name;
         }
 
         public SingletonCodeGenerator AddSingletonHeader() {

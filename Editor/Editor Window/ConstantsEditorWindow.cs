@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
-using static Vaflov.ContextMenuItemShortcutHandler;
+using static Vaflov.StringUtil;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : EditorObjectMenuEditorWindow {
@@ -132,9 +132,7 @@ namespace Vaflov {
                     return "Name is not unique";
                 }
             }
-            targetName = new string(targetName.ToCharArray()
-                .Where(c => !char.IsWhiteSpace(c))
-                .ToArray());
+            targetName = targetName.RemoveWhitespaces();
             if (targetName.Length == 0)
                 return "Name is empty";
             if (targetName[0] != '_' && !char.IsLetter(targetName[0]))

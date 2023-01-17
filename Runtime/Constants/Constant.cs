@@ -46,8 +46,8 @@ namespace Vaflov {
         public bool showInToolbar = true;
 
         public OdinContextMenuItem(string name, Action action,
-                       KeyCode shortcut = KeyCode.None,
-                       EventModifiers modifiers = EventModifiers.None) {
+                                   KeyCode shortcut = KeyCode.None,
+                                   EventModifiers modifiers = EventModifiers.None) {
             this.name = name;
             this.action = action;
             this.shortcut = shortcut;
@@ -56,7 +56,7 @@ namespace Vaflov {
             this.tooltip = FormatTooltip();
         }
 
-#if ODIN_INSPECTOR && UNITY_EDITOR
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         public OdinContextMenuItem(string name, Action action,
                                KeyCode shortcut = KeyCode.None,
                                EventModifiers modifiers = EventModifiers.None,
@@ -70,7 +70,7 @@ namespace Vaflov {
             this.shortcutFormated = FormatShortcut();
             this.tooltip = FormatTooltip();
         }
-#endif
+        #endif
 
         public string FormatShortcut() {
             if (shortcut == KeyCode.None)
@@ -97,34 +97,6 @@ namespace Vaflov {
             } else {
                 return $"{name} ({shortcutFormated})";
             }
-        }
-
-        public static List<OdinContextMenuItem> GetDefaultContextMenuItems(ScriptableObject so, Action<ScriptableObject> onSODuplicated) {
-            #if ODIN_INSPECTOR && UNITY_EDITOR
-            return new List<OdinContextMenuItem> {
-                new OdinContextMenuItem("Rename", () => {
-                    EditorObject.FocusEditorObjName();
-                }, icon: SdfIconType.Pen) {
-                    showInToolbar = false,
-                },
-                new OdinContextMenuItem("Duplicate", () => {
-                    var copy = UnityEngine.Object.Instantiate(so);
-                    var path = AssetDatabase.GetAssetPath(so);
-                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
-                    copy.name = newPath[(newPath.LastIndexOf('/') + 1) .. newPath.LastIndexOf('.')];
-
-                    AssetDatabase.CreateAsset(copy, newPath);
-                    AssetDatabase.SaveAssets();
-
-                    onSODuplicated?.Invoke(copy);
-                }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
-                new OdinContextMenuItem("Delete", () => {
-                    EditorUtil.TryDeleteAsset(so);
-                }, KeyCode.Delete, icon: SdfIconType.Trash),
-            };
-            #else
-            return null
-        #endif
         }
     }
 
@@ -242,6 +214,34 @@ namespace Vaflov {
             return groupsList;
         }
         #endif
+
+        public List<OdinContextMenuItem> GetDefaultContextMenuItems(Action<ScriptableObject> onSODuplicated) {
+            #if ODIN_INSPECTOR && UNITY_EDITOR
+            return new List<OdinContextMenuItem> {
+                new OdinContextMenuItem("Rename", () => {
+                    FocusEditorObjName();
+                }, icon: SdfIconType.Pen) {
+                    showInToolbar = false,
+                },
+                new OdinContextMenuItem("Duplicate", () => {
+                    var copy = UnityEngine.Object.Instantiate(editorObjParent);
+                    var path = AssetDatabase.GetAssetPath(editorObjParent);
+                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+                    copy.name = newPath[(newPath.LastIndexOf('/') + 1) .. newPath.LastIndexOf('.')];
+
+                    AssetDatabase.CreateAsset(copy, newPath);
+                    AssetDatabase.SaveAssets();
+
+                    onSODuplicated?.Invoke(copy);
+                }, KeyCode.D, EventModifiers.Control, SdfIconType.Stickies),
+                new OdinContextMenuItem("Delete", () => {
+                    EditorUtil.TryDeleteAsset(editorObjParent);
+                }, KeyCode.Delete, icon: SdfIconType.Trash),
+            };
+            #else
+            return null
+            #endif
+        }
     }
 
     public class Constant<T> : ScriptableObject, ISortKeyObject, IEditorObject {
@@ -294,7 +294,7 @@ namespace Vaflov {
         }
 
         public virtual List<OdinContextMenuItem> GetContextMenuItems() {
-            return OdinContextMenuItem.GetDefaultContextMenuItems(this, ConstantEditorEvents.OnConstantDuplicated);
+            return editorObj?.GetDefaultContextMenuItems(ConstantEditorEvents.OnConstantDuplicated);
         }
     }
 }

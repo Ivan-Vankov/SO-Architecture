@@ -39,30 +39,40 @@ namespace Vaflov {
             //HideRemoveButton = true
             )]
         public List<T> objects = new List<T>();
-        public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+        //public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
 
         public void Add(T listener) {
-            if (!objToIdxs.ContainsKey(listener)) {
+            if (!objects.Contains(listener))
                 objects.Add(listener);
-                objToIdxs[listener] = objects.Count - 1;
-            }
+            //if (!objToIdxs.ContainsKey(listener)) {
+            //    objects.Add(listener);
+            //    objToIdxs[listener] = objects.Count - 1;
+            //}
         }
 
         public void Remove(T obj) {
-            if (!objToIdxs.ContainsKey(obj))
-                return;
-            var idx = objToIdxs[obj];
-            objects[idx] = objects[objects.Count - 1];
-            objects.RemoveAt(objects.Count - 1);
-            if (idx < objects.Count) {
-                objToIdxs[objects[idx]] = idx;
-            }
+            objects.Remove(obj);
+            //if (!objToIdxs.Remove(obj, out int idx))
+            //    return;
+            //var lastObj = objects[objects.Count - 1];
+            //objects[idx] = lastObj;
+            //objects.RemoveAt(objects.Count - 1);
+            //if (idx < objects.Count) {
+            //    objToIdxs[lastObj] = idx;
+            //}
         }
 
         public int Count => objects.Count;
     }
 
     public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
+        [Button]
+        public void test() {
+            if (Selection.activeObject) {
+                Debug.Log(AssetDatabase.GetAssetPath(Selection.activeObject));
+            }
+        }
+
         [HideInInspector] public EditorObject editorObj = null;
         [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
         public EditorObject EditorObject {
@@ -100,10 +110,12 @@ namespace Vaflov {
         }
 
         public void RemoveListener(GameEventListenerBase listener) {
-            if (listener.parent is MonoBehaviour) {
-                componentListeners.Remove(Unsafe.As<MonoBehaviour>(listener.parent));
+            if (listener.parent is MonoBehaviour monoBehaviour) {
+                componentListeners.Remove(monoBehaviour);
+            } else if (listener.parent is ScriptableObject scriptableObject) {
+                SOListeners.Remove(scriptableObject);
             } else {
-                SOListeners.Remove(Unsafe.As<ScriptableObject>(listener.parent));
+                Debug.Assert(false, "Unknown game event listener object");
             }
         }
 
@@ -115,7 +127,7 @@ namespace Vaflov {
         public virtual string EditorToString() => null;
 
         public virtual List<OdinContextMenuItem> GetContextMenuItems() {
-            return OdinContextMenuItem.GetDefaultContextMenuItems(this, GameEventEditorEvents.OnGameEventDuplicated);
+            return editorObj?.GetDefaultContextMenuItems(GameEventEditorEvents.OnGameEventDuplicated);
         }
     }
 }

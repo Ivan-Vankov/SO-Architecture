@@ -58,6 +58,10 @@ namespace Vaflov {
             action?.Invoke(testArg1, testArg2);
         }
 
+        public override string EditorToString() {
+            return "(testArg1, testArg2)";
+        }
+
         //[Button(Expanded = true)]
         public void SetIconForObject(Texture2D icon) {
             //var type = typeof(EditorGUIUtility);

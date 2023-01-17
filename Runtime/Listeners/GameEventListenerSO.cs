@@ -93,7 +93,7 @@ namespace Vaflov {
         }
 
         public List<OdinContextMenuItem> GetContextMenuItems() {
-            return OdinContextMenuItem.GetDefaultContextMenuItems(this, GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
+            return editorObj?.GetDefaultContextMenuItems(GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
         }
     }
 }
