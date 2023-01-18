@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 
 namespace Vaflov {
-    public static class StringUtil {
+    public static partial class StringUtil {
         public static string RemoveWhitespaces(this string self) {
             return new string(self.ToCharArray()
                 .Where(c => !char.IsWhiteSpace(c))

@@ -185,13 +185,9 @@ namespace Vaflov {
         }
 
         public IEnumerable<string> GetEditorObjGroups() {
-            if (editorObjParentBaseType == null)
+            var editorObjTypes = TypeUtil.GetFlatTypesDerivedFrom(editorObjParentBaseType);
+            if (editorObjTypes == null)
                 Array.Empty<string>();
-            var editorObjTypes = TypeCache.GetTypesDerivedFrom(editorObjParentBaseType)
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            if (!editorObjParentBaseType.IsGenericType)
-                editorObjTypes.Add(editorObjParentBaseType);
 
             var seenGroups = new HashSet<string>();
             foreach (var editorObjType in editorObjTypes) {

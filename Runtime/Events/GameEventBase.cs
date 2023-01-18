@@ -66,13 +66,6 @@ namespace Vaflov {
     }
 
     public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
-        [Button]
-        public void test() {
-            if (Selection.activeObject) {
-                Debug.Log(AssetDatabase.GetAssetPath(Selection.activeObject));
-            }
-        }
-
         [HideInInspector] public EditorObject editorObj = null;
         [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
         public EditorObject EditorObject {

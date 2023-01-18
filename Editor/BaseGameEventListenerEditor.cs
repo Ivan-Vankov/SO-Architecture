@@ -9,7 +9,7 @@ using Microsoft.CSharp;
 using System.CodeDom;
 using System.Text;
 using static UnityEngine.Mathf;
-using static Vaflov.TypeUtil;
+using static Vaflov.EditorTypeUtil;
 using System.IO;
 
 namespace Vaflov {

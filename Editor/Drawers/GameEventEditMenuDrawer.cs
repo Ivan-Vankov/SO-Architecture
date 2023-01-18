@@ -54,27 +54,8 @@ namespace Vaflov {
         }
 
         public void ResetCachedTypes() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes | AssemblyTypeFlags.PluginEditorTypes).Where(x => {
-                if (x.Name == null)
-                    return false;
-                if (x.IsGenericType)
-                    return false;
-                string text = x.Name.TrimStart(Array.Empty<char>());
-                return text.Length != 0 && char.IsLetter(text[0]);
-            }).ToList();
-
-            assetNames = new List<string>();
-            var eventTypes = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            foreach (var type in eventTypes) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
-                foreach (var assetGuid in assetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
-                    assetNames.Add(asset.name);
-                }
-            }
+            types = EditorTypeUtil.GatherPublicTypes();
+            assetNames = AssetUtil.GetAssetPathsForType(typeof(GameEventBase));
         }
 
         public void ResetArgData() {
@@ -89,19 +70,6 @@ namespace Vaflov {
                     arg.argType = types.FirstOrDefault();
                 };
             }
-        }
-
-        public string ValidateArgName(string argName) {
-            if (argName.Length == 0)
-                return "Name is empty";
-            if (argName[0] != '_' && !char.IsLetter(argName[0]))
-                return "The first character should be _ or a letter";
-            for (int i = 1; i < argName.Length; ++i) {
-                var c = argName[i];
-                if (!char.IsLetter(c) && !char.IsDigit(c) && c != '_')
-                    return "Name contains a character that is not \'_\', a letter or a digit";
-            }
-            return null;
         }
 
         protected override void DrawPropertyLayout(GUIContent label) {
@@ -162,7 +130,7 @@ namespace Vaflov {
                     SirenixEditorGUI.BeginBox(null);
                     GUIHelper.PushLabelWidth(labelWidth);
 
-                    ErrorMessageBox(ValidateArgName(arg.argName));
+                    ErrorMessageBox(EditorStringUtil.ValidateArgName(arg.argName));
 
                     arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
                     GUIHelper.PopLabelWidth();

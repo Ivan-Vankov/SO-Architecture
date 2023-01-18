@@ -3,9 +3,9 @@ using System.Text;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static Vaflov.TypeUtil;
+using static Vaflov.EditorTypeUtil;
 using static Vaflov.FileUtil;
-using static Vaflov.StringUtil;
+using static Vaflov.EditorStringUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
@@ -84,8 +84,8 @@ namespace Vaflov {
                 Debug.LogError("Trying to create game event with no arg data");
                 return;
             }
-            if (argData.Count > CreateNewGameEvent.MAX_ARG_COUNT) {
-                Debug.LogError($"Trying to create game event with {argData?.Count} arguments (max {CreateNewGameEvent.MAX_ARG_COUNT})");
+            if (argData.Count > GameEventCreationData.MAX_ARG_COUNT) {
+                Debug.LogError($"Trying to create game event with {argData?.Count} arguments (max {GameEventCreationData.MAX_ARG_COUNT})");
                 return;
             }
             var formattedName = codegen.SingletonNameFilter(name, false);
@@ -256,9 +256,7 @@ namespace Vaflov {
                 //    typeof(GameEventBase)
                 //};
 
-                var gameEventTypes = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
-                     .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
-                     .ToList();
+                var gameEventTypes = TypeUtil.GetFlatTypesDerivedFrom(typeof(GameEventBase));
 
                 var eventsCodeBuilder = new StringBuilder();
                 foreach (var gameEventType in gameEventTypes) {

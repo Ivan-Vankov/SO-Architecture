@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Microsoft.CSharp;
 using System.CodeDom;
-using static Vaflov.TypeUtil;
+using static Vaflov.EditorTypeUtil;
 using static Vaflov.FileUtil;
 using static Vaflov.SingletonCodeGenerator;
 using Sirenix.OdinInspector.Editor;
@@ -110,12 +110,7 @@ namespace Vaflov {
                 Func<Type, string> GetTruncatedTypeName = codegen.GetTruncatedTypeName;
 
                 var constantsCodeBuilder = new StringBuilder();
-                var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
-                    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
-                    //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
-                    //    .SelectMany(assembly => assembly.GetTypes())
-                    //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
-                    .ToList();
+                var constantTypes = TypeUtil.GetFlatTypesDerivedFrom(typeof(Constant<>));
                 foreach (var constantType in constantTypes) {
                     var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
                     foreach (var constantAssetGuid in constantAssetGuids) {

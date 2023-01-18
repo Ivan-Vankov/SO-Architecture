@@ -46,11 +46,7 @@ namespace Vaflov {
             tree.Config.DefaultMenuStyle = menuStyle;
             tree.DefaultMenuStyle = menuStyle;
 
-            var types = TypeCache.GetTypesDerivedFrom(EditorObjBaseType)
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            if (!EditorObjBaseType.IsGenericType)
-                types.Add(EditorObjBaseType);
+            var types = TypeUtil.GetFlatTypesDerivedFrom(EditorObjBaseType);
             //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
             //    .SelectMany(assembly => assembly.GetTypes())
             //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))

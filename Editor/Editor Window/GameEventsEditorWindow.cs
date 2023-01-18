@@ -10,7 +10,7 @@ using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
-using static Vaflov.StringUtil;
+using static Vaflov.EditorStringUtil;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : EditorObjectMenuEditorWindow {
@@ -43,7 +43,7 @@ namespace Vaflov {
         public void OpenGameEventCreationMenu() {
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected == null || selected.Value is not CreateNewGameEvent) {
-                createNewGameEvent.name = CreateNewGameEvent.DEFAULT_GAME_EVENT_NAME;
+                createNewGameEvent.ResetName();
             }
             TrySelectMenuItemWithObject(createNewGameEvent);
         }
@@ -77,7 +77,7 @@ namespace Vaflov {
         public VaflovTypeSelector typeSelector;
     }
 
-    public class CreateNewGameEvent {
+    public class GameEventCreationData {
         public const int MAX_ARG_COUNT = 6;
 
         [HideInInspector]
@@ -102,43 +102,10 @@ namespace Vaflov {
         public string nameError;
 
         [HideInInspector]
-        public List<string> assetNames;
-
-        [HideInInspector]
         public List<Type> types;
 
-        public const int labelWidth = 40;
-
         public void Reset() {
-            ResetCachedTypes();
-            ResetArgData();
-        }
-
-        public void ResetCachedTypes() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes | AssemblyTypeFlags.PluginEditorTypes).Where(x => {
-                if (x.Name == null)
-                    return false;
-                if (x.IsGenericType)
-                    return false;
-                string text = x.Name.TrimStart(Array.Empty<char>());
-                return text.Length != 0 && char.IsLetter(text[0]);
-            }).ToList();
-
-            assetNames = new List<string>();
-            var eventTypes = TypeCache.GetTypesDerivedFrom(typeof(GameEventBase))
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            foreach (var type in eventTypes) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
-                foreach (var assetGuid in assetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
-                    assetNames.Add(asset.name);
-                }
-            }
-        }
-
-        public void ResetArgData() {
+            types = EditorTypeUtil.GatherPublicTypes();
             for (int i = 0; i < argData.Count; i++) {
                 var arg = argData[i];
                 arg.argName = $"Arg{i}";
@@ -151,28 +118,23 @@ namespace Vaflov {
                 };
             }
         }
+    }
 
-        public string ValidateGameEventName(string targetName) {
-            for (int i = 0; i < assetNames.Count; ++i) {
-                if (string.Compare(assetNames[i], targetName, StringComparison.OrdinalIgnoreCase) == 0) {
-                    return "Name is not unique";
-                }
-            }
-            targetName = targetName.RemoveWhitespaces();
-            return ValidateArgName(targetName);
+    public class CreateNewGameEvent {
+        public GameEventCreationData creationData = new GameEventCreationData();
+
+        [HideInInspector]
+        public List<string> assetNames;
+
+        public const int labelWidth = 40;
+
+        public void ResetName() {
+            creationData.name = GameEventCreationData.DEFAULT_GAME_EVENT_NAME;
         }
 
-        public string ValidateArgName(string argName) {
-            if (argName.Length == 0)
-                return "Name is empty";
-            if (argName[0] != '_' && !char.IsLetter(argName[0]))
-                return "The first character should be _ or a letter";
-            for (int i = 1; i < argName.Length; ++i) {
-                var c = argName[i];
-                if (!char.IsLetter(c) && !char.IsDigit(c) && c != '_')
-                    return "Name contains a character that is not \'_\', a letter or a digit";
-            }
-            return null;
+        public void Reset() {
+            creationData.Reset();
+            assetNames = AssetUtil.GetAssetPathsForType(typeof(GameEventBase));
         }
 
         [OnInspectorGUI]
@@ -184,20 +146,20 @@ namespace Vaflov {
                 SirenixEditorGUI.ErrorMessageBox(errorMessage);
                 error = true;
             }
-            ErrorMessageBox(nameError);
+            ErrorMessageBox(creationData.nameError);
             GUIHelper.PushLabelWidth(labelWidth);
-            var oldName = name;
+            var oldName = creationData.name;
             //name = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), name);
-            name = SirenixEditorFields.TextField(GUIHelper.TempContent("Name"), name);
-            if (name != oldName) {
-                nameError = ValidateGameEventName(name);
+            creationData.name = SirenixEditorFields.TextField(GUIHelper.TempContent("Name"), creationData.name);
+            if (creationData.name != oldName) {
+                creationData.nameError = EditorStringUtil.ValidateAssetName(creationData.name, assetNames);
             }
             GUIHelper.PopLabelWidth();
             GUIHelper.PushLabelWidth(70);
-            argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, MAX_ARG_COUNT);
+            creationData.argCount = EditorGUILayout.IntSlider("Arg Count", creationData.argCount, 0, GameEventCreationData.MAX_ARG_COUNT);
             GUIHelper.PopLabelWidth();
-            for (int i = 0; i < argCount; ++i) {
-                var arg = argData[i];
+            for (int i = 0; i < creationData.argCount; ++i) {
+                var arg = creationData.argData[i];
                 SirenixEditorGUI.BeginBox(null);
                 GUIHelper.PushLabelWidth(labelWidth);
 
@@ -232,11 +194,11 @@ namespace Vaflov {
                     GUILayout.Button(new GUIContent("Create Asset", "Fix all errors first"));
                 }
             } else if (GUILayout.Button("Create Asset")) {
-                var passedArgData = new List<GameEventArgData>(argCount);
-                for (int i = 0; i < argCount; ++i) {
-                    passedArgData.Add(argData[i]);
+                var passedArgData = new List<GameEventArgData>(creationData.argCount);
+                for (int i = 0; i < creationData.argCount; ++i) {
+                    passedArgData.Add(creationData.argData[i]);
                 }
-                GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
+                GameEventsGenerator.GenerateGameEventAsset(creationData.name, passedArgData);
             }
         }
     }

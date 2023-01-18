@@ -7,7 +7,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.FileUtil;
-using static Vaflov.StringUtil;
+using static Vaflov.EditorStringUtil;
 
 namespace Vaflov {
     public class SingletonCodeGenerator {

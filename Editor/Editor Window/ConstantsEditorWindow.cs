@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using static UnityEngine.Mathf;
 using System;
 using Sirenix.OdinInspector;
-using static Vaflov.StringUtil;
+using static Vaflov.EditorStringUtil;
 
 namespace Vaflov {
     public class ConstantsEditorWindow : EditorObjectMenuEditorWindow {
@@ -99,50 +99,14 @@ namespace Vaflov {
         public const int labelWidth = 40;
 
         public void ResetCachedTypes() {
-            types = AssemblyUtilities.GetTypes(AssemblyTypeFlags.GameTypes | AssemblyTypeFlags.PluginEditorTypes).Where(x => {
-                if (x.Name == null || x.IsGenericType || x.IsNotPublic)
-                    return false;
-                string text = x.Name.TrimStart(Array.Empty<char>());
-                return text.Length != 0 && char.IsLetter(text[0]);
-            }).ToList();
+            types = EditorTypeUtil.GatherPublicTypes();
             typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
                 //FlattenTree = true,
             };
             typeSelector.SelectionChanged += types => {
                 targetType = types.FirstOrDefault();
             };
-
-            constantNames = new List<string>();
-            var constantTypes = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
-                .Where(type => !type.IsGenericType)
-                .ToList();
-            foreach (var constantType in constantTypes) {
-                var constantAssetGuids = AssetDatabase.FindAssets($"t: {constantType}");
-                foreach (var constantAssetGuid in constantAssetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(constantAssetGuid);
-                    var constantAsset = AssetDatabase.LoadAssetAtPath(assetPath, constantType);
-                    constantNames.Add(constantAsset.name);
-                }
-            }
-        }
-
-        public string ValidateConstantNameUniqueness(string targetName) {
-            for (int i = 0; i < constantNames.Count; ++i) {
-                if (string.Compare(constantNames[i], targetName, StringComparison.OrdinalIgnoreCase) == 0) {
-                    return "Name is not unique";
-                }
-            }
-            targetName = targetName.RemoveWhitespaces();
-            if (targetName.Length == 0)
-                return "Name is empty";
-            if (targetName[0] != '_' && !char.IsLetter(targetName[0]))
-                return "First character should be _ or a letter";
-            for (int i = 1; i < targetName.Length; ++i) {
-                var c = targetName[i];
-                if (!char.IsLetter(c) && !char.IsDigit(c) && c != '_')
-                    return "Name contains a character that is not \'_\', a letter or a digit";
-            }
-            return null;
+            constantNames = AssetUtil.GetAssetPathsForType(typeof(Constant<>));
         }
 
         private OdinSelector<Type> SelectType(Rect arg) {
@@ -161,7 +125,7 @@ namespace Vaflov {
             //name = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), name);
             name = SirenixEditorFields.TextField(GUIHelper.TempContent("Name"), name);
             if (name != oldName) {
-                nameError = ValidateConstantNameUniqueness(name);
+                nameError = ValidateAssetName(name, constantNames);
             }
             GUIHelper.PopLabelWidth();
 

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using UnityEditor;
 
 namespace Vaflov {
-    public static class TypeUtil {
+    public static partial class TypeUtil {
         public static bool IsInheritedFrom(Type type, Type targetType) {
             var baseType = type.BaseType;
             if (baseType == null) {
@@ -46,6 +49,21 @@ namespace Vaflov {
 
                 type = baseType;
             }
+        }
+
+        public static List<Type> GetFlatTypesDerivedFrom(Type baseType) {
+#if UNITY_EDITOR
+            if (baseType == null)
+                return null;
+            var types = TypeCache.GetTypesDerivedFrom(baseType)
+                .Where(type => !type.IsGenericType && !type.IsAbstract)
+                .ToList();
+            if (!baseType.IsGenericType)
+                types.Add(baseType);
+            return types;
+#else
+            return null;
+#endif
         }
     }
 }
