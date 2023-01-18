@@ -82,6 +82,14 @@ namespace Vaflov {
             action -= listener.CallResponse;
         }
 
+        public void Subscribe(Test2ArgAction action) {
+            this.action += action;
+        }
+
+        public void Unsubscribe(Test2ArgAction action) {
+            this.action -= action;
+        }
+
         public static Test2ArgGameEvent operator +(Test2ArgGameEvent self, Test2ArgAction action) {
             self.action += action;
             return self;

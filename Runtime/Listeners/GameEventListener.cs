@@ -1,12 +1,11 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
-using System.Linq;
-using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
+using static Vaflov.Config;
 
 namespace Vaflov {
     [DefaultExecutionOrder(-2000)]
@@ -15,34 +14,45 @@ namespace Vaflov {
         [AssetsOnly]
         [OnValueChanged(nameof(RefreshListener))]
         [Required]
-        public GameEventBase eventRef;
         #endif
+        public GameEventBase eventRef;
+
+        [HideInInspector]
+        public GameEventListenerBase listener;
 
         #if ODIN_INSPECTOR
         [PropertyOrder(10)]
         [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
-        public GameEventListenerBase listener;
         #endif
-
-        public void RefreshListener() {
-            listener = GetListenerInstance();
-            if (listener) {
-                listener.parent = this;
-                listener.AssignGameEvent(eventRef);
+        public GameEventListenerBase Listener {
+            get {
+                if (listener)
+                    listener.parent = this;
+                return listener;
+            }
+            set {
+                listener = value;
+                if (listener)
+                    listener.parent = this;
             }
         }
 
-        public GameEventListenerBase GetListenerInstance() {
-            return GameEventListenerUtil.GetListenerInstance(eventRef);
+        public void RefreshListener() {
+            Listener = GameEventListenerUtil.GetListenerInstance(eventRef);
+            if (Listener) {
+                Listener.AssignGameEvent(eventRef);
+            }
         }
 
         private void OnEnable() {
+            var listener = Listener;
             if (listener) {
                 listener.OnInit();
             }
         }
 
         private void OnDisable() {
+            var listener = Listener;
             if (listener) {
                 listener.OnDone();
             }

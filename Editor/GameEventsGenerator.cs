@@ -300,6 +300,7 @@ namespace Vaflov {
         }
     }
 
+    // TODO: Change this to an AssetModificationProcessor like the one in https://forum.unity.com/threads/ondestroy-and-ondisable-are-not-called-when-deleting-a-scriptableobject-file.1129220/
     public class GameEventClassRemover : AssetPostprocessor {
         public const string gameEventPrefix = "Assets/Resources/Game Events/";
 

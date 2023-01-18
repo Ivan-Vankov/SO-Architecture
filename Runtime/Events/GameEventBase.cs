@@ -24,7 +24,7 @@ namespace Vaflov {
     public class GameEventEditMenu { }
 
     [Serializable]
-    public class ObjSet<T> where T: UnityEngine.Object {
+    public class ObjSet<T> : ISerializationCallbackReceiver where T : UnityEngine.Object {
         [HideInInspector]
         public string name = "Objects";
 
@@ -39,27 +39,38 @@ namespace Vaflov {
             //HideRemoveButton = true
             )]
         public List<T> objects = new List<T>();
-        //public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+        public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+
+        // Lists can be serialized natively by unity => no custom serialization needed
+        public void OnBeforeSerialize() { }
+
+        // Fill dictionary with list contents
+        public void OnAfterDeserialize() {
+            objToIdxs.Clear();
+            for (int i = 0; i < objects.Count; ++i) {
+                objToIdxs.Add(objects[i], i);
+            }
+        }
 
         public void Add(T listener) {
-            if (!objects.Contains(listener))
-                objects.Add(listener);
-            //if (!objToIdxs.ContainsKey(listener)) {
+            //if (!objects.Contains(listener))
             //    objects.Add(listener);
-            //    objToIdxs[listener] = objects.Count - 1;
-            //}
+            if (!objToIdxs.ContainsKey(listener)) {
+                objects.Add(listener);
+                objToIdxs[listener] = objects.Count - 1;
+            }
         }
 
         public void Remove(T obj) {
-            objects.Remove(obj);
-            //if (!objToIdxs.Remove(obj, out int idx))
-            //    return;
-            //var lastObj = objects[objects.Count - 1];
-            //objects[idx] = lastObj;
-            //objects.RemoveAt(objects.Count - 1);
-            //if (idx < objects.Count) {
-            //    objToIdxs[lastObj] = idx;
-            //}
+            //objects.Remove(obj);
+            if (!objToIdxs.Remove(obj, out int idx))
+                return;
+            var lastObj = objects[objects.Count - 1];
+            objects[idx] = lastObj;
+            objects.RemoveAt(objects.Count - 1);
+            if (idx < objects.Count) {
+                objToIdxs[lastObj] = idx;
+            }
         }
 
         public int Count => objects.Count;

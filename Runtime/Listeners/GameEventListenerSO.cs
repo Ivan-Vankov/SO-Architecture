@@ -72,7 +72,7 @@ namespace Vaflov {
         #endif
         public GameEventListenerBase listener;
 
-        private void OnEnable() {
+        public void OnEnable() {
             //Debug.Log("Enable");
             if (listener) {
                 //Debug.Log("Init");
@@ -80,7 +80,7 @@ namespace Vaflov {
             }
         }
 
-        private void OnDisable() {
+        public void OnDisable() {
             //Debug.Log("Disable");
             if (listener) {
                 //Debug.Log("Done");
@@ -96,4 +96,17 @@ namespace Vaflov {
             return editorObj?.GetDefaultContextMenuItems(GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
         }
     }
+
+    #if UNITY_EDITOR
+    public class DescriptorDeleteDetector : AssetModificationProcessor {
+        static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) {
+            var listenerSO = AssetDatabase.LoadAssetAtPath<GameEventListenerSO>(path);
+            if (listenerSO) {
+                // Unity doesn't call destroy on scriptable objects that are deleted for some reason ;(
+                listenerSO.OnDisable();
+            }
+            return AssetDeleteResult.DidNotDelete;
+        }
+    }
+    #endif
 }

@@ -12,30 +12,7 @@ using System.Reflection;
 
 namespace Vaflov {
     public class GameEventEditMenuDrawer : OdinValueDrawer<GameEventEditMenu> {
-        //private InspectorProperty foldoutExpandedProp;
-
-        public const int MAX_ARG_COUNT = 6;
-
-        [HideInInspector]
-        public readonly List<GameEventArgData> argData = new List<GameEventArgData>(MAX_ARG_COUNT) {
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-        };
-
-        [HideInInspector]
-        public int argCount;
-
-        public const string DEFAULT_GAME_EVENT_NAME = "New Game Event";
-
-        [HideInInspector]
-        public List<string> assetNames;
-
-        [HideInInspector]
-        public List<Type> types;
+        public GameEventCreationData creationData = new GameEventCreationData();
 
         public const int labelWidth = 40;
 
@@ -44,54 +21,11 @@ namespace Vaflov {
         [HideInInspector]
         protected override void Initialize() {
             //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
-            Reset();
+            creationData.Reset();
             methodParams = Property.ParentType.GetMethod("Raise")?.GetParameters();
         }
 
-        public void Reset() {
-            ResetCachedTypes();
-            ResetArgData();
-        }
-
-        public void ResetCachedTypes() {
-            types = EditorTypeUtil.GatherPublicTypes();
-            assetNames = AssetUtil.GetAssetPathsForType(typeof(GameEventBase));
-        }
-
-        public void ResetArgData() {
-            for (int i = 0; i < argData.Count; i++) {
-                var arg = argData[i];
-                arg.argName = $"Arg{i}";
-                arg.argType = typeof(int);
-                arg.typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
-                    //FlattenTree = true,
-                };
-                arg.typeSelector.SelectionChanged += types => {
-                    arg.argType = types.FirstOrDefault();
-                };
-            }
-        }
-
         protected override void DrawPropertyLayout(GUIContent label) {
-            // TODO: Access the containing game event like this:
-            //Debug.Log(Property.Parent.ValueEntry.WeakSmartValue.ToString());
-            //var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
-
-            //var raiseMethod = Property.Parent.ValueEntry.WeakSmartValue.GetType().GetMethod("Raise");
-            //if (raiseMethod != null) {
-            //    var parms = raiseMethod.GetParameters();
-            //    var str = "";
-            //    foreach (var parm in parms) {
-            //        str += parm.ParameterType + " " + parm.Name + ", ";
-            //    }
-            //    Debug.Log(str);
-            //}
-            //var str1 = "";
-            //foreach (var param in methodParams) {
-            //    str1 += param.ParameterType + " " + param.Name + ", ";
-            //}
-            //Debug.Log(str1);
-
             SirenixEditorGUI.BeginBox();
             SirenixEditorGUI.BeginBoxHeader();
             Property.State.Expanded = SirenixEditorGUI.Foldout(Property.State.Expanded, "Edit Arguments");
@@ -105,28 +39,21 @@ namespace Vaflov {
                     error = true;
                 }
                 GUIHelper.PushLabelWidth(70);
-                argCount = EditorGUILayout.IntSlider("Arg Count", argCount, 0, MAX_ARG_COUNT);
+                creationData.argCount = EditorGUILayout.IntSlider("Arg Count", creationData.argCount, 0, GameEventCreationData.MAX_ARG_COUNT);
                 GUIHelper.PopLabelWidth();
                 var sameArgs = false;
-                //var sameArgsError = "The existing game event has the same arguments";
                 Action<int, string, Type> sameArgsCheck = null;
-                if (argCount == methodParams.Length) {
+                if (creationData.argCount == methodParams.Length) {
                     sameArgs = true;
                     sameArgsCheck = (i, name, type) => {
                         if (!sameArgs)
                             return;
                         var existingParam = methodParams[i];
                         sameArgs = existingParam.Name == name && existingParam.ParameterType == type;
-                        //if (string.IsNullOrEmpty(sameArgsError))
-                        //    return;
-                        //var existingParam = methodParams[i];
-                        //if (existingParam.Name != name || existingParam.ParameterType != type) {
-                        //    sameArgsError = null;
-                        //}
                     };
                 }
-                for (int i = 0; i < argCount; ++i) {
-                    var arg = argData[i];
+                for (int i = 0; i < creationData.argCount; ++i) {
+                    var arg = creationData.argData[i];
                     SirenixEditorGUI.BeginBox(null);
                     GUIHelper.PushLabelWidth(labelWidth);
 
@@ -166,11 +93,15 @@ namespace Vaflov {
                         GUILayout.Button(new GUIContent("Edit Game Event Args", "Fix all errors first"));
                     }
                 } else if (GUILayout.Button("Edit Game Event Args")) {
-                    var passedArgData = new List<GameEventArgData>(argCount);
-                    for (int i = 0; i < argCount; ++i) {
-                        passedArgData.Add(argData[i]);
+                    var passedArgData = new List<GameEventArgData>(creationData.argCount);
+                    for (int i = 0; i < creationData.argCount; ++i) {
+                        passedArgData.Add(creationData.argData[i]);
                     }
-                    //GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
+                    var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
+                    var name = gameEvent.name;
+                    AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(gameEvent));
+                    AssetDatabase.SaveAssets();
+                    GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
                 }
             }
 
