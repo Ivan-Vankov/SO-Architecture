@@ -10,34 +10,12 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    public static class GameEventListenerSOEditorEvents {
-        public static Action OnGameEventListenerSOPropChanged;
-        public static Action<ScriptableObject> OnGameEventListenerSODuplicated;
-    }
-
     [CreateAssetMenu(
         fileName = "Game Event Listener",
         menuName = "SO Architecture/Game Event Listener",
         order = 30)]
     [DefaultExecutionOrder(-2000)]
-    public class GameEventListenerSO : ScriptableObject, ISortKeyObject, IEditorObject {
-        [HideInInspector] public EditorObject editorObj = null;
-        [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
-        public EditorObject EditorObject {
-            get {
-                editorObj ??= new EditorObject();
-                editorObj.Init(this, typeof(GameEventListenerSO), GameEventListenerSOEditorEvents.OnGameEventListenerSOPropChanged);
-                return editorObj;
-            }
-            set => Debug.Assert(true, "Editing editor object internals");
-        }
-
-        public string EditorGroup { get => EditorObject.editorGroup; set => EditorObject.editorGroup = value; }
-        public int SortKey { get => EditorObject.sortKey; set => EditorObject.sortKey = value; }
-        public string EditorComment { get => EditorObject.editorComment; set => EditorObject.editorComment = value; }
-
-        public Texture GetEditorIcon() => null;
-
+    public class GameEventListenerSO : EditorScriptableObject<GameEventListenerSO> {
         [HideInInspector]
         public GameEventBase eventRef;
 
@@ -86,14 +64,6 @@ namespace Vaflov {
                 //Debug.Log("Done");
                 listener.OnDone();
             }
-        }
-
-        public string EditorToString() {
-            return null;
-        }
-
-        public List<OdinContextMenuItem> GetContextMenuItems() {
-            return editorObj?.GetDefaultContextMenuItems(GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated);
         }
     }
 

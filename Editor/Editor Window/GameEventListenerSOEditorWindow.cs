@@ -22,14 +22,6 @@ namespace Vaflov {
         protected override void OnEnable() {
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
-            GameEventListenerSOEditorEvents.OnGameEventListenerSOPropChanged += RebuildEditorGroups;
-            GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated += TrySelectMenuItemWithObject;
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            GameEventListenerSOEditorEvents.OnGameEventListenerSOPropChanged -= RebuildEditorGroups;
-            GameEventListenerSOEditorEvents.OnGameEventListenerSODuplicated -= TrySelectMenuItemWithObject;
         }
 
         public override List<OdinContextMenuItem> GetToolbarItems() {

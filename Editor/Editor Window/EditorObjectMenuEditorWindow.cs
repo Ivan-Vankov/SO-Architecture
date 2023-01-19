@@ -8,12 +8,15 @@ using UnityEditor;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 using System;
+using System.Reflection;
+using UnityEditor.VersionControl;
+using UnityEditorInternal.VersionControl;
 
 namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
         public abstract Type EditorObjBaseType { get; } 
 
-        public static T Open<T>(string title, Vector2Int size, string icon) where T : EditorObjectMenuEditorWindow {
+        public static T Open<T>(string title, Vector2Int size, string icon = null) where T : EditorObjectMenuEditorWindow {
             var wasOpen = HasOpenInstances<T>();
             var window = GetWindow<T>();
             if (!wasOpen) {
@@ -25,10 +28,30 @@ namespace Vaflov {
             return window;
         }
 
+        public void RebuildEditorGroupsOnPropChanged(ScriptableObject editorObject) {
+            if (TypeUtil.IsInheritedFrom(editorObject.GetType(), EditorObjBaseType)) {
+                RebuildEditorGroups();
+            }
+        }
+
         public void RebuildEditorGroups() {
             var oldSelectedObj = MenuTree.Selection?.FirstOrDefault()?.Value;
             ForceMenuTreeRebuild();
             TrySelectMenuItemWithObject(oldSelectedObj);
+        }
+
+        protected override void OnEnable() {
+            base.OnEnable();
+            EditorObject.OnEditorPropChanged += RebuildEditorGroupsOnPropChanged;
+            //ConstantEditorEvents.OnConstantDuplicated += TrySelectMenuItemWithObject;
+            //ConstantsGenerator.OnConstantAssetGenerated += TrySelectMenuItemWithObject;
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            EditorObject.OnEditorPropChanged -= RebuildEditorGroupsOnPropChanged;
+           // ConstantEditorEvents.OnConstantDuplicated -= TrySelectMenuItemWithObject;
+           // ConstantsGenerator.OnConstantAssetGenerated -= TrySelectMenuItemWithObject;
         }
 
         protected override OdinMenuTree BuildMenuTree() {
@@ -139,6 +162,60 @@ namespace Vaflov {
             SirenixEditorGUI.EndHorizontalToolbar();
 
             HandleContextMenuItemShortcuts(toolbarItems);
+        }
+    }
+
+    class EditorObjectMenuImportHook : AssetPostprocessor {
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload) {
+            var activeEditorObjMenus = EditorObjectMenuHook.GetActiveEditorObjectMenus();
+            if (activeEditorObjMenus?.Count == 0)
+                return;
+            for (int i = 0; i < importedAssets.Length; ++i) {
+                EditorObjectMenuHook.TrySelectMenuItemFromPath(importedAssets[i], activeEditorObjMenus);
+            }
+        }
+    }
+
+    public class EditorObjectMenuHook : AssetModificationProcessor {
+        public static List<Type> editorObjectMenuTypes = null;
+        public static List<Type> EditorObjectMenuTypes {
+            get {
+                if (editorObjectMenuTypes == null) {
+                    editorObjectMenuTypes = TypeCache.GetTypesDerivedFrom<EditorObjectMenuEditorWindow>().ToList();
+                }
+                return editorObjectMenuTypes;
+            }
+        }
+
+        public static List<EditorObjectMenuEditorWindow> GetActiveEditorObjectMenus() {
+            List<EditorObjectMenuEditorWindow> activeEditorObjMenus = null;
+            foreach (var editorMenuType in EditorObjectMenuTypes) {
+                var openMenus = Resources.FindObjectsOfTypeAll(editorMenuType);
+                if (openMenus?.Length > 0) {
+                    activeEditorObjMenus ??= new List<EditorObjectMenuEditorWindow>();
+                    activeEditorObjMenus.Add((EditorObjectMenuEditorWindow)openMenus[0]);
+                }
+            }
+            return activeEditorObjMenus;
+        }
+
+        public static void TrySelectMenuItemFromPath(string path, List<EditorObjectMenuEditorWindow> activeEditorObjMenus) {
+            if (activeEditorObjMenus?.Count == 0)
+                return;
+            var type = AssetDatabase.GetMainAssetTypeAtPath(path);
+            if (type == null)
+                return;
+            foreach (var editorObjMenu in activeEditorObjMenus) {
+                if (!TypeUtil.IsInheritedFrom(type, editorObjMenu.EditorObjBaseType)) {
+                    //Debug.Log("Selecting " + path);
+                    editorObjMenu.TrySelectMenuItemWithObject(AssetDatabase.LoadAssetAtPath<ScriptableObject>(path));
+                }
+            }
+        }
+
+        public static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) {
+            TrySelectMenuItemFromPath(path, GetActiveEditorObjectMenus());
+            return AssetDeleteResult.DidNotDelete;
         }
     }
 }

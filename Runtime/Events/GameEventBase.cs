@@ -6,18 +6,11 @@ using Sirenix.Utilities.Editor;
 #endif
 using System.Collections.Generic;
 using System;
-using UnityEditor;
 using UnityEngine;
 using System.Linq;
-using static Vaflov.Config;
 using System.Runtime.CompilerServices;
 
 namespace Vaflov {
-    public static class GameEventEditorEvents {
-        public static Action OnGameEventEditorPropChanged;
-        public static Action<ScriptableObject> OnGameEventDuplicated;
-    }
-
     [HideInPlayMode]
     [HideLabel]
     [Serializable]
@@ -76,25 +69,7 @@ namespace Vaflov {
         public int Count => objects.Count;
     }
 
-    public class GameEventBase : ScriptableObject, ISortKeyObject, IEditorObject {
-        [HideInInspector] public EditorObject editorObj = null;
-        [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
-        public EditorObject EditorObject {
-            get {
-                //if (editorObj == null || editorObj.editorObjParent == null) {
-                //    editorObj = new EditorObject(this, typeof(GameEventBase), GameEventEditorEvents.OnGameEventEditorPropChanged);
-                //}
-                editorObj ??= new EditorObject();
-                editorObj.Init(this, typeof(Constant<>), ConstantEditorEvents.OnConstantEditorPropChanged);
-                return editorObj;
-            }
-            set => Debug.Assert(true, "Editing editor object internals");
-        }
-
-        public string EditorGroup { get => EditorObject.editorGroup; set => EditorObject.editorGroup = value; }
-        public int SortKey { get => EditorObject.sortKey; set => EditorObject.sortKey = value; }
-        public string EditorComment { get => EditorObject.editorComment; set => EditorObject.editorComment = value; }
-
+    public class GameEventBase : EditorScriptableObject<GameEventBase> {
         [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
@@ -123,15 +98,7 @@ namespace Vaflov {
             }
         }
 
-        public virtual Texture GetEditorIcon() => null;
-
         [PropertyOrder(40)]
         public GameEventEditMenu editMenu;
-
-        public virtual string EditorToString() => null;
-
-        public virtual List<OdinContextMenuItem> GetContextMenuItems() {
-            return editorObj?.GetDefaultContextMenuItems(GameEventEditorEvents.OnGameEventDuplicated);
-        }
     }
 }

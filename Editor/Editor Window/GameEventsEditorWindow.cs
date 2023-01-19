@@ -28,16 +28,6 @@ namespace Vaflov {
         protected override void OnEnable() {
             createNewGameEvent = new CreateNewGameEvent();
             base.OnEnable();
-            GameEventEditorEvents.OnGameEventEditorPropChanged += RebuildEditorGroups;
-            GameEventEditorEvents.OnGameEventDuplicated += TrySelectMenuItemWithObject;
-            //ConstantsGenerator.OnConstantAssetGenerated += TrySelectMenuItemWithObject;
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            GameEventEditorEvents.OnGameEventEditorPropChanged -= RebuildEditorGroups;
-            GameEventEditorEvents.OnGameEventDuplicated -= TrySelectMenuItemWithObject;
-            //ConstantsGenerator.OnConstantAssetGenerated -= TrySelectMenuItemWithObject;
         }
 
         public void OpenGameEventCreationMenu() {

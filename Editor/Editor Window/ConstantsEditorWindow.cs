@@ -27,16 +27,6 @@ namespace Vaflov {
         protected override void OnEnable() {
             newConstantCreator = new CreateNewConstant();
             base.OnEnable();
-            ConstantEditorEvents.OnConstantEditorPropChanged += RebuildEditorGroups;
-            ConstantEditorEvents.OnConstantDuplicated += TrySelectMenuItemWithObject;
-            ConstantsGenerator.OnConstantAssetGenerated += TrySelectMenuItemWithObject;
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            ConstantEditorEvents.OnConstantEditorPropChanged -= RebuildEditorGroups;
-            ConstantEditorEvents.OnConstantDuplicated -= TrySelectMenuItemWithObject;
-            ConstantsGenerator.OnConstantAssetGenerated -= TrySelectMenuItemWithObject;
         }
 
         public void OpenConstantCreationMenu() {

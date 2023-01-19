@@ -5,10 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vaflov {
-    public class RuntimeSet<T> : MonoBehaviour, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
-        public event Action<T> OnItemAdded;
-        public event Action<T> OnItemRemoved;
-
+    public class RuntimeSet<T> : EditorScriptableObject<RuntimeSet<T>>, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
         [ReadOnly]
         [ListDrawerSettings(
             DraggableItems = false,
@@ -18,8 +15,14 @@ namespace Vaflov {
             //ShowItemCount = false
             //HideRemoveButton = true
             )]
+        [PropertyOrder(20)]
         public List<T> objects = new List<T>();
         public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+
+        public event Action<T> OnItemAdded;
+        public event Action<T> OnItemRemoved;
+
+        public override string EditorToString() => $"{{{typeof(T).Name}}}";
 
         public int Count => objects.Count;
 
