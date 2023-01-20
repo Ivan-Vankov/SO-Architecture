@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Vaflov {
-    public class VaflovTypeSelector : OdinSelector<Type> {
+    public class FormattedTypeSelector : OdinSelector<Type> {
         public static readonly HashSet<Type> builtinTypes = new HashSet<Type>() {
             typeof(bool),
             typeof(byte),
@@ -47,13 +47,13 @@ namespace Vaflov {
 
         public override string Title => null;
 
-        public VaflovTypeSelector(AssemblyTypeFlags assemblyFlags, bool supportsMultiSelect) {
+        public FormattedTypeSelector(AssemblyTypeFlags assemblyFlags, bool supportsMultiSelect) {
             types = null;
             this.supportsMultiSelect = supportsMultiSelect;
             assemblyTypeFlags = assemblyFlags;
         }
 
-        public VaflovTypeSelector(IEnumerable<Type> types, bool supportsMultiSelect) {
+        public FormattedTypeSelector(IEnumerable<Type> types, bool supportsMultiSelect) {
             this.types = (types != null) ? OrderTypes(types) : types;
             this.supportsMultiSelect = supportsMultiSelect;
         }

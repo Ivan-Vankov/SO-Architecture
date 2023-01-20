@@ -8,20 +8,11 @@ using UnityEngine;
 
 namespace Vaflov {
     public class GameEventListenerSOEditorWindow : EditorObjectMenuEditorWindow {
-        public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
-
         public override Type EditorObjBaseType => typeof(GameEventListenerSO);
-
-        public CreateNewConstant newConstantCreator;
 
         [MenuItem("Tools/SO Architecture/Game Event Listeners Editor")]
         public static GameEventListenerSOEditorWindow Open() {
-            return Open<GameEventListenerSOEditorWindow>("Listeners", DEFAULT_EDITOR_SIZE, "Listener Small");
-        }
-
-        protected override void OnEnable() {
-            newConstantCreator = new CreateNewConstant();
-            base.OnEnable();
+            return Open<GameEventListenerSOEditorWindow>("Listeners", "Listener Small");
         }
 
         public override List<OdinContextMenuItem> GetToolbarItems() {

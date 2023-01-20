@@ -70,10 +70,7 @@ namespace Vaflov {
             foreach (var argDataSlice in argDataSlices) {
                 var argDataPieces = argDataSlice.Split('|');
                 if (argDataPieces.Length >= 2) {
-                    argDataDecoded.Add(new GameEventArgData() {
-                        argName = argDataPieces[0],
-                        argType = Type.GetType(argDataPieces[1]),
-                    });
+                    argDataDecoded.Add(new GameEventArgData(argDataPieces[0], Type.GetType(argDataPieces[1])));
                 }
             }
             return argDataDecoded;

@@ -61,27 +61,12 @@ namespace Vaflov {
 
                     arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
                     GUIHelper.PopLabelWidth();
-                    var targetType = arg.argType;
+                    var targetType = arg.typeDropdownFieldDrawer.TypeField();
                     var targetTypeError = targetType == null ? "Type is empty" : null;
                     if (!string.IsNullOrEmpty(targetTypeError)) {
                         ErrorMessageBox(targetTypeError);
                     }
-                    var typeText = targetType == null ? "Select Type" : targetType.GetNiceFullName();
-                    var typeTextContent = new GUIContent(typeText);
-                    var typeTextStyle = EditorStyles.layerMaskField;
-                    var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight, typeTextStyle);
-                    var typeLabelRect = rect.SetSize(labelWidth, rect.height);
-                    var typeSelectorRect = new Rect(rect.x + labelWidth + 2, rect.y, Max(rect.width - labelWidth - 2, 0), rect.height);
-                    EditorGUI.LabelField(typeLabelRect, GUIHelper.TempContent("Type"));
-
-                    var typeSelector = arg.typeSelector;
-                    OdinSelector<Type>.DrawSelectorDropdown(typeSelectorRect, typeTextContent, _ => {
-                        typeSelector.SetSelection(targetType);
-                        typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
-                        return typeSelector;
-                    }, typeTextStyle);
-
-                    sameArgsCheck?.Invoke(i, arg.argName, arg.argType);
+                    sameArgsCheck?.Invoke(i, arg.argName, targetType);
 
                     SirenixEditorGUI.EndBox();
                 }
@@ -95,7 +80,7 @@ namespace Vaflov {
                 } else if (GUILayout.Button("Edit Game Event Args")) {
                     var passedArgData = new List<GameEventArgData>(creationData.argCount);
                     for (int i = 0; i < creationData.argCount; ++i) {
-                        passedArgData.Add(creationData.argData[i]);
+                        passedArgData.Add(new GameEventArgData(creationData.argData[i]));
                     }
                     var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
                     var name = gameEvent.name;

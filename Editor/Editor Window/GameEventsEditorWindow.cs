@@ -9,49 +9,21 @@ using System.Linq;
 using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
-using static Vaflov.ContextMenuItemShortcutHandler;
 using static Vaflov.EditorStringUtil;
 
 namespace Vaflov {
     public class GameEventsEditorWindow : EditorObjectMenuEditorWindow {
-        public static readonly Vector2Int DEFAULT_EDITOR_SIZE = new Vector2Int(600, 400);
-
         public override Type EditorObjBaseType => typeof(GameEventBase);
-
-        public CreateNewGameEvent createNewGameEvent;
 
         [MenuItem("Tools/SO Architecture/Game Events Editor")]
         public static GameEventsEditorWindow Open() {
-            return Open<GameEventsEditorWindow>("Game Events", DEFAULT_EDITOR_SIZE, "Game Events");
+            return Open<GameEventsEditorWindow>("Game Events", "Game Events");
         }
 
-        protected override void OnEnable() {
-            createNewGameEvent = new CreateNewGameEvent();
-            base.OnEnable();
-        }
-
-        public void OpenGameEventCreationMenu() {
-            var selected = MenuTree?.Selection?.FirstOrDefault();
-            if (selected == null || selected.Value is not CreateNewGameEvent) {
-                createNewGameEvent.ResetName();
-            }
-            TrySelectMenuItemWithObject(createNewGameEvent);
-        }
-
-        protected override OdinMenuTree BuildMenuTree() {
-            var tree = base.BuildMenuTree();
-            createNewGameEvent.Reset();
-            var constantCreatorMenuItem = new EmptyOdinMenuItem(tree, "Add a new game event", createNewGameEvent);
-            tree.AddMenuItemAtPath("", constantCreatorMenuItem);
-            return tree;
-        }
+        public override IEditorObjectCreator CreateEditorObjectCreator() => new CreateNewGameEvent();
 
         public override List<OdinContextMenuItem> GetToolbarItems() {
             var items = new List<OdinContextMenuItem>();
-            items.Add(new OdinContextMenuItem("Add a new game event", () => {
-                OpenGameEventCreationMenu();
-                // EditorIconsOverview.OpenEditorIconsOverview();
-            }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
             items.AddRange(base.GetToolbarItems());
             items.Add(new OdinContextMenuItem("Regenerate game events", () => {
                 GameEventsGenerator.GenerateGameEvents();
@@ -64,20 +36,34 @@ namespace Vaflov {
     public class GameEventArgData {
         public string argName;
         public Type argType;
-        public VaflovTypeSelector typeSelector;
+
+        public GameEventArgData(string argName, Type argType) {
+            this.argName = argName;
+            this.argType = argType;
+        }
+
+        public GameEventArgData(GameEventArgDrawData drawData) {
+            argName = drawData.argName;
+            argType = drawData.typeDropdownFieldDrawer.targetType;
+        }
+    }
+
+    public class GameEventArgDrawData {
+        public string argName;
+        public TypeDropdownFieldDrawer typeDropdownFieldDrawer;
     }
 
     public class GameEventCreationData {
         public const int MAX_ARG_COUNT = 6;
 
         [HideInInspector]
-        public readonly List<GameEventArgData> argData = new List<GameEventArgData>(MAX_ARG_COUNT) {
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
-            new GameEventArgData(),
+        public readonly List<GameEventArgDrawData> argData = new List<GameEventArgDrawData>(MAX_ARG_COUNT) {
+            new GameEventArgDrawData(),
+            new GameEventArgDrawData(),
+            new GameEventArgDrawData(),
+            new GameEventArgDrawData(),
+            new GameEventArgDrawData(),
+            new GameEventArgDrawData(),
         };
 
         [HideInInspector]
@@ -99,24 +85,20 @@ namespace Vaflov {
             for (int i = 0; i < argData.Count; i++) {
                 var arg = argData[i];
                 arg.argName = $"Arg{i}";
-                arg.argType = typeof(int);
-                arg.typeSelector = new VaflovTypeSelector(types, supportsMultiSelect: false) {
-                    //FlattenTree = true,
-                };
-                arg.typeSelector.SelectionChanged += types => {
-                    arg.argType = types.FirstOrDefault();
-                };
+                arg.typeDropdownFieldDrawer = new TypeDropdownFieldDrawer(types);
             }
         }
     }
 
-    public class CreateNewGameEvent {
+    public class CreateNewGameEvent : IEditorObjectCreator {
         public GameEventCreationData creationData = new GameEventCreationData();
 
         [HideInInspector]
         public List<string> assetNames;
 
         public const int labelWidth = 40;
+
+        public string Description => "Add a new game event";
 
         public void ResetName() {
             creationData.name = GameEventCreationData.DEFAULT_GAME_EVENT_NAME;
@@ -156,26 +138,13 @@ namespace Vaflov {
                 ErrorMessageBox(ValidateArgName(arg.argName));
 
                 arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
-                GUIHelper.PopLabelWidth();
-                var targetType = arg.argType;
+                var targetType = arg.typeDropdownFieldDrawer.TypeField();
                 var targetTypeError = targetType == null ? "Type is empty" : null;
                 if (!string.IsNullOrEmpty(targetTypeError)) {
                     ErrorMessageBox(targetTypeError);
                 }
-                var typeText = targetType == null ? "Select Type" : targetType.GetNiceFullName();
-                var typeTextContent = new GUIContent(typeText);
-                var typeTextStyle = EditorStyles.layerMaskField;
-                var rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight, typeTextStyle);
-                var typeLabelRect = rect.SetSize(labelWidth, rect.height);
-                var typeSelectorRect = new Rect(rect.x + labelWidth + 2, rect.y, Max(rect.width - labelWidth - 2, 0), rect.height);
-                EditorGUI.LabelField(typeLabelRect, GUIHelper.TempContent("Type"));
 
-                var typeSelector = arg.typeSelector;
-                OdinSelector<Type>.DrawSelectorDropdown(typeSelectorRect, typeTextContent, _ => {
-                    typeSelector.SetSelection(targetType);
-                    typeSelector.ShowInPopup(new Rect(-300f, 0f, 300f, 0f));
-                    return typeSelector;
-                }, typeTextStyle);
+                GUIHelper.PopLabelWidth();
                 SirenixEditorGUI.EndBox();
             }
 
@@ -186,7 +155,7 @@ namespace Vaflov {
             } else if (GUILayout.Button("Create Asset")) {
                 var passedArgData = new List<GameEventArgData>(creationData.argCount);
                 for (int i = 0; i < creationData.argCount; ++i) {
-                    passedArgData.Add(creationData.argData[i]);
+                    passedArgData.Add(new GameEventArgData(creationData.argData[i]));
                 }
                 GameEventsGenerator.GenerateGameEventAsset(creationData.name, passedArgData);
             }
