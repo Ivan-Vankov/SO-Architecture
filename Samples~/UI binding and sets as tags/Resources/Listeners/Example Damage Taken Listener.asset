@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eba9b3f56df40f34faac6d55ee0b1ee6, type: 3}
+  m_Name: Example Damage Taken Listener
+  m_EditorClassIdentifier: 
+  editorObj:
+    editorGroup: 
+    sortKey: 0
+    editorComment: 
+    editorObjParent: {fileID: 11400000}
+  eventRef: {fileID: 11400000, guid: 41cdab96ca5ed2f42bec62a4be9da0cb, type: 2}
+  listener: {fileID: 4759475860848375520}
+--- !u!114 &4759475860848375520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d1b465ea967f714bb7be31f2342ad88, type: 3}
+  m_Name: Listener
+  m_EditorClassIdentifier: 
+  parent: {fileID: 11400000}
+  eventRef: {fileID: 11400000, guid: 41cdab96ca5ed2f42bec62a4be9da0cb, type: 2}
+  response:
+    _persistentListeners:
+    - _persistentArguments:
+      - _index: 0
+        _isSerialized: 0
+        _targetType:
+          GuidAssignmentFailed: 0
+          GUID: b0067f253b886c8498cd4bddaabf2171
+          _typeNameAndAssembly: Vaflov.ExampleDamageable, Assembly-CSharp
+          _suppressLogs: 1
+        _fromType:
+          GuidAssignmentFailed: 0
+          GUID: b0067f253b886c8498cd4bddaabf2171
+          _typeNameAndAssembly: Vaflov.ExampleDamageable, Assembly-CSharp
+          _suppressLogs: 0
+        _serializationData:
+          DataFormat: 2
+          ReferencedUnityObjects: []
+          SerializationNodes: []
+          Bytes: 
+        _canBeDynamic: 1
+        _serializedArg: 
+      - _index: 1
+        _isSerialized: 0
+        _targetType:
+          GuidAssignmentFailed: 0
+          GUID: 
+          _typeNameAndAssembly: System.Single, mscorlib
+          _suppressLogs: 1
+        _fromType:
+          GuidAssignmentFailed: 0
+          GUID: 
+          _typeNameAndAssembly: System.Single, mscorlib
+          _suppressLogs: 0
+        _serializationData:
+          DataFormat: 2
+          ReferencedUnityObjects: []
+          SerializationNodes:
+          - Name: 
+            Entry: 4
+            Data: 0
+          Bytes: 
+        _canBeDynamic: 1
+        _serializedArg: 
+      _target: {fileID: 0}
+      _isStatic: 1
+      CallState: 2
+      _staticType:
+        GuidAssignmentFailed: 0
+        GUID: dc0f5523207d7624e86aa1c171b0e5cc
+        _typeNameAndAssembly: Vaflov.ExampleHealthBarUpdater, Assembly-CSharp
+        _suppressLogs: 0
+      _methodName: UpdateHealthBars
+    Expanded: 1

@@ -1,82 +1,91 @@
 ﻿using Sirenix.OdinInspector;
 using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Vaflov.Config;
 
 namespace Vaflov {
     public class RuntimeSet<T> : EditorScriptableObject<RuntimeSet<T>>, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
         [ReadOnly]
         [ListDrawerSettings(
             DraggableItems = false,
-            //Expanded = true,
+            Expanded = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 20
             //ShowItemCount = false
             //HideRemoveButton = true
             )]
         [PropertyOrder(20)]
-        public List<T> objects = new List<T>();
-        public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
+        public List<T> items = new List<T>();
+        public Dictionary<T, int> itemToIdx = new Dictionary<T, int>();
 
         public event Action<T> OnItemAdded;
         public event Action<T> OnItemRemoved;
 
-        public override string EditorToString() => $"{{{typeof(T).Name}}}";
+        public static readonly CodeTypeReference typeRef = new CodeTypeReference(typeof(T));
 
-        public int Count => objects.Count;
+        #if ODIN_INSPECTOR
+        [ShowInInspector]
+        [ReadOnly]
+        [LabelWidth(preferedEditorLabelWidth)]
+        [PropertyOrder(11)]
+        #endif
+        public string Type => codeProvider.GetTypeOutput(typeRef);
+
+        public override string EditorToString() => $"{{ {typeof(T).Name} }}";
+
+        public int Count => items.Count;
 
         // Lists can be serialized natively by unity => no custom serialization needed
         public void OnBeforeSerialize() { }
 
         // Fill dictionary with list contents
         public void OnAfterDeserialize() {
-            objToIdxs.Clear();
-            for (int i = 0; i < objects.Count; ++i) {
-                objToIdxs.Add(objects[i], i);
+            itemToIdx.Clear();
+            for (int i = 0; i < items.Count; ++i) {
+                itemToIdx.Add(items[i], i);
             }
         }
 
         public void Add(T item) {
-            //if (!objects.Contains(item))
-            //    objects.Add(item);
-            if (!objToIdxs.ContainsKey(item)) {
-                objects.Add(item);
-                objToIdxs[item] = objects.Count - 1;
+            if (!itemToIdx.ContainsKey(item)) {
+                items.Add(item);
+                itemToIdx[item] = items.Count - 1;
                 OnItemAdded?.Invoke(item);
             }
         }
 
         public bool Remove(T item) {
-            // objects.Remove(obj);
-            if (!objToIdxs.Remove(item, out int idx))
+            if (!itemToIdx.Remove(item, out int idx))
                 return false;
-            var lastObj = objects[objects.Count - 1];
-            objects[idx] = lastObj;
-            objects.RemoveAt(objects.Count - 1);
-            if (idx < objects.Count) {
-                objToIdxs[lastObj] = idx;
+            var lastObj = items[items.Count - 1];
+            items[idx] = lastObj;
+            items.RemoveAt(items.Count - 1);
+            if (idx < items.Count) {
+                itemToIdx[lastObj] = idx;
             }
             OnItemRemoved?.Invoke(item);
             return true;
         }
 
         public void Clear() {
-            objects.Clear();
-            objToIdxs.Clear();
+            items.Clear();
+            itemToIdx.Clear();
         }
 
         public bool Contains(T item) {
-            return objToIdxs.ContainsKey(item);
+            return itemToIdx.ContainsKey(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex) {
-            objects.CopyTo(array, arrayIndex);
+            items.CopyTo(array, arrayIndex);
         }
 
         public bool IsReadOnly => true;
 
-        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => items.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
     }
 }

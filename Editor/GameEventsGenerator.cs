@@ -144,7 +144,7 @@ namespace Vaflov {
                 .AppendLine($"\t\tpublic event {actionName} action;")
                 .AppendLine()
                 .AppendLine("\t\t#if ODIN_INSPECTOR")
-                .AppendLine("\t\t[Button(Expanded = true)]")
+                .AppendLine("\t\t[Button]")
                 .AppendLine("\t\t[DrawButtonTypes]")
                 .AppendLine("\t\t[PropertyOrder(15)]")
                 .AppendLine("\t\t#endif")
@@ -235,25 +235,7 @@ namespace Vaflov {
                 (var namespaceName, var className        ) = (codegen.singletonNamespaceName, codegen.singletonClassName  );
                 (var instanceName , var conceptName      ) = (codegen.singletonInstanceName , codegen.singletonConceptName);
                 (var codeBuilder  , NameFilter nameFilter) = (codegen.singletonCodeBuilder  , codegen.SingletonNameFilter );
-
-                // TODO: Optimize this with var types = TypeCache.GetTypesDerivedFrom(typeof(Constant<>))
-                // .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract)
-                // .ToList();
-
-                //var types = AppDomain.CurrentDomain.GetAssemblies()
-                //    .SelectMany(assembly => assembly.GetTypes())
-                //    .Where(type => type.IsClass && !type.IsAbstract);
-
-                //var gameEventTypes = new[] {
-                //    typeof(GameEventVoid),
-                //    typeof(GameEvent1Arg<>),
-                //    typeof(GameEvent2Arg<,>)
-                //};
-                //var gameEventTypes = new[] {
-                //    typeof(GameEventBase)
-                //};
-
-                var gameEventTypes = TypeUtil.GetFlatTypesDerivedFrom(typeof(GameEventBase));
+                var gameEventTypes = TypeUtil.GetFlatTypesDerivedFrom(typeof(GameEventBase), false);
 
                 var eventsCodeBuilder = new StringBuilder();
                 foreach (var gameEventType in gameEventTypes) {

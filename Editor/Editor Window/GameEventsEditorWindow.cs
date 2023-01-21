@@ -15,12 +15,13 @@ namespace Vaflov {
     public class GameEventsEditorWindow : EditorObjectMenuEditorWindow {
         public override Type EditorObjBaseType => typeof(GameEventBase);
 
-        [MenuItem("Tools/SO Architecture/Game Events Editor")]
-        public static GameEventsEditorWindow Open() {
-            return Open<GameEventsEditorWindow>("Game Events", "Game Events");
-        }
-
         public override IEditorObjectCreator CreateEditorObjectCreator() => new CreateNewGameEvent();
+
+        [MenuItem("Tools/" + Config.PACKAGE_NAME + "/Game Events Editor", priority = 20)]
+        public static GameEventsEditorWindow Open() => Open<GameEventsEditorWindow>("Game Events", "Game Events");
+
+        [MenuItem("Assets/Create/" + Config.PACKAGE_NAME + "/Game Event", priority = 20)]
+        public static void CreateEvent() => Open().TryOpenEditorObjectCreationMenu();
 
         public override List<OdinContextMenuItem> GetToolbarItems() {
             var items = new List<OdinContextMenuItem>();
@@ -51,6 +52,11 @@ namespace Vaflov {
     public class GameEventArgDrawData {
         public string argName;
         public TypeDropdownFieldDrawer typeDropdownFieldDrawer;
+
+        public void SetNameAndType(string argName, Type type) {
+            this.argName = argName;
+            typeDropdownFieldDrawer.targetType = type;
+        }
     }
 
     public class GameEventCreationData {

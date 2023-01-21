@@ -48,9 +48,10 @@ namespace Vaflov {
             }
             AssetDatabase.ImportAsset(fileAssetPath, importAssetOptions);
             if (icon != null) {
-                var script = AssetDatabase.LoadAssetAtPath<MonoScript>(fileAssetPath);
-                if (script) {
-                    EditorGUIUtility.SetIconForObject(script, icon);
+                if (AssetDatabase.GetMainAssetTypeAtPath(fileAssetPath) == typeof(MonoScript)) {
+                    var monoImporter = AssetImporter.GetAtPath(fileAssetPath) as MonoImporter;
+                    monoImporter.SetIcon(icon);
+                    monoImporter.SaveAndReimport();
                 }
             }
             return fileAssetPath;

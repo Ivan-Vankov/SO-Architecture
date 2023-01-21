@@ -201,7 +201,7 @@ namespace Vaflov {
             var toggleWidth = 90;
             var invokeWidth = buttonAttribute.HasDefinedIcon ? 90 : 70;
             var padding = 3;
-            Rect rect = SirenixEditorGUI.BeginBoxHeader().AlignRight(toggleWidth + invokeWidth + padding).Padding(1f);
+            Rect rect = SirenixEditorGUI.BeginBoxHeader().AlignRight(toggleWidth + invokeWidth + padding + 4).Padding(1f);
             rect.height -= 2;
             rect.y += 1;
 

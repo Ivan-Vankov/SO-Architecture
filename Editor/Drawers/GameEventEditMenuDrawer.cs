@@ -23,6 +23,11 @@ namespace Vaflov {
             //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
             creationData.Reset();
             methodParams = Property.ParentType.GetMethod("Raise")?.GetParameters();
+            creationData.argCount = methodParams.Length;
+            for (int i = 0; i < methodParams.Length; ++i) {
+                var methodParam = methodParams[i];
+                creationData.argData[i].SetNameAndType(methodParam.Name, methodParam.ParameterType);
+            }
         }
 
         protected override void DrawPropertyLayout(GUIContent label) {
@@ -60,7 +65,6 @@ namespace Vaflov {
                     ErrorMessageBox(EditorStringUtil.ValidateArgName(arg.argName));
 
                     arg.argName = SirenixEditorFields.TextField(GUIHelper.TempContent($"Arg {i}"), arg.argName);
-                    GUIHelper.PopLabelWidth();
                     var targetType = arg.typeDropdownFieldDrawer.TypeField();
                     var targetTypeError = targetType == null ? "Type is empty" : null;
                     if (!string.IsNullOrEmpty(targetTypeError)) {
@@ -68,6 +72,7 @@ namespace Vaflov {
                     }
                     sameArgsCheck?.Invoke(i, arg.argName, targetType);
 
+                    GUIHelper.PopLabelWidth();
                     SirenixEditorGUI.EndBox();
                 }
 

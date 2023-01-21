@@ -9,7 +9,7 @@ using static Vaflov.SingletonCodeGenerator;
 
 namespace Vaflov {
     public class EnumsGenerator {
-        [MenuItem("Tools/SO Architecture/Generate Enums")]
+        //[MenuItem("Tools/SO Architecture/Generate Enums")]
         public static void GenerateEnums() {
             AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())

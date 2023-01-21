@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10eec0cd6b16a2d448cda488dfd07382, type: 3}
+  m_Name: Example Damage Resistance Resolver
+  m_EditorClassIdentifier: 
+  resistanceSets:
+  - objects: {fileID: 11400000, guid: 69a6225c0aae25e4b96721e53dc7cfc5, type: 2}
+    resistance: 20
+  - objects: {fileID: 11400000, guid: b456f48e3b0ddd44f89add37a8f069b3, type: 2}
+    resistance: 50

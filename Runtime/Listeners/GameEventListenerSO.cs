@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
 #if UNITY_EDITOR
@@ -10,10 +8,7 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    [CreateAssetMenu(
-        fileName = "Game Event Listener",
-        menuName = "SO Architecture/Game Event Listener",
-        order = 30)]
+    // TODO: Research if DefaultExecutionOrder affects scriptable objects, I think it doesn't
     [DefaultExecutionOrder(-2000)]
     public class GameEventListenerSO : EditorScriptableObject<GameEventListenerSO> {
         [HideInInspector]
