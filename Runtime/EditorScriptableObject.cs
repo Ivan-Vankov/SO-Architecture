@@ -152,7 +152,7 @@ namespace Vaflov {
                 }, KeyCode.Delete, icon: SdfIconType.Trash),
             };
             #else
-            return null
+            return null;
             #endif
         }
     }
