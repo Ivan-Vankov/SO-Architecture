@@ -110,7 +110,7 @@ namespace Vaflov {
             creationData.name = GameEventCreationData.DEFAULT_GAME_EVENT_NAME;
         }
 
-        public void Reset() {
+        public void Reset(Type defaultType = null) {
             creationData.Reset();
             assetNames = AssetUtil.GetAssetPathsForType(typeof(GameEventBase));
         }

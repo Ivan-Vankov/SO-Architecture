@@ -7,7 +7,12 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    public class RuntimeSet<T> : EditorScriptableObject<RuntimeSet<T>>, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
+    public abstract class RuntimeSetBase : EditorScriptableObject<RuntimeSetBase> {
+        public abstract void Add(UnityEngine.Object obj);
+        public abstract bool Remove(UnityEngine.Object item);
+    }
+
+    public class RuntimeSet<T> : RuntimeSetBase, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
         [ReadOnly]
         [ListDrawerSettings(
             DraggableItems = false,
@@ -49,6 +54,7 @@ namespace Vaflov {
             }
         }
 
+        public override void Add(UnityEngine.Object item) => Add(item as T);
         public void Add(T item) {
             if (!itemToIdx.ContainsKey(item)) {
                 items.Add(item);
@@ -57,6 +63,7 @@ namespace Vaflov {
             }
         }
 
+        public override bool Remove(UnityEngine.Object item) => Remove(item as T);
         public bool Remove(T item) {
             if (!itemToIdx.Remove(item, out int idx))
                 return false;

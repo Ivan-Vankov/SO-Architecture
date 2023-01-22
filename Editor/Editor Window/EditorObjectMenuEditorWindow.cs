@@ -14,6 +14,7 @@ namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
         public IEditorObjectCreator editorObjectCreator;
         public abstract Type EditorObjBaseType { get; }
+        public Type forcedDefaultType;
 
         public static T Open<T>(string title, string icon = null) where T : EditorObjectMenuEditorWindow {
             return Open<T>(title, icon, new Vector2Int(600, 400));
@@ -56,18 +57,22 @@ namespace Vaflov {
             EditorObject.OnEditorPropChanged -= RebuildEditorGroupsOnPropChanged;
         }
 
-        public void TryOpenEditorObjectCreationMenu() {
+        public void TryOpenEditorObjectCreationMenu(Type defaultType = null) {
             if (editorObjectCreator == null)
                 return;
             var selected = MenuTree?.Selection?.FirstOrDefault();
+            forcedDefaultType = defaultType;
             if (selected == null || selected.Value is not IEditorObjectCreator) {
-                editorObjectCreator.ResetName();
+                editorObjectCreator.Reset(forcedDefaultType);
             }
             TrySelectMenuItemWithObject(editorObjectCreator);
         }
 
         protected override OdinMenuTree BuildMenuTree() {
-            editorObjectCreator?.Reset();
+            editorObjectCreator?.Reset(forcedDefaultType);
+            if (forcedDefaultType != null) {
+                forcedDefaultType = null;
+            }
 
             var tree = new OdinMenuTree(true);
             tree.Selection.SupportsMultiSelect = false;
@@ -197,8 +202,7 @@ namespace Vaflov {
 
     public interface IEditorObjectCreator {
         string Description { get; }
-        void ResetName();
-        void Reset();
+        void Reset(Type defaultType = null);
     }
 
     public class DefaultEditorObjectCreator : IEditorObjectCreator {
@@ -223,7 +227,7 @@ namespace Vaflov {
             this.defaultName = defaultName;
             this.description = description;
             this.generatorFunc = generatorFunc;
-            ResetName();
+            this.name = defaultName;
         }
 
         public DefaultEditorObjectCreator SetTypeFilter(Func<Type, bool> typeFilter, Type defaultType) {
@@ -234,16 +238,12 @@ namespace Vaflov {
 
         public string Description => description;
 
-        public void ResetName() {
-            name = defaultName;
-        }
-
-        public void Reset() {
+        public void Reset(Type defaultType = null) {
             var types = EditorTypeUtil.GatherPublicTypes();
             if (typeFilter != null) {
                 types = types.Where(typeFilter).ToList();
             }
-            typeDropdownFieldDrawer = new TypeDropdownFieldDrawer(types, defaultType);
+            typeDropdownFieldDrawer = new TypeDropdownFieldDrawer(types, defaultType ?? this.defaultType);
             assetNames = AssetUtil.GetAssetPathsForType(baseType);
         }
 
