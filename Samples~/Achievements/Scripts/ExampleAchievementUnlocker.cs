@@ -6,7 +6,7 @@ namespace Vaflov {
     [CreateAssetMenu(
         fileName = "Example Achievement Unlocker",
         menuName = "SO Architecture/Example/Example Achievement Unlocker")]
-    public class ExampleAchievementUnlocker : ScriptableObject {
+    public class ExampleAchievementUnlocker : ScriptableObject, IResetOnExitPlayMode {
         public static ExampleAchievementUnlocker Instance;
 
         public AchievementUnlockedGameEvent achievementUnlockedGameEvent;
@@ -27,14 +27,6 @@ namespace Vaflov {
 
         private void OnEnable() {
             Instance = this;
-            #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged += ResetProgress;
-            #endif
-        }
-
-        private void ResetProgress(PlayModeStateChange playModeStateChange) {
-            clicks = 0;
-            unlockedAchievements.Clear();
         }
     }
 }
