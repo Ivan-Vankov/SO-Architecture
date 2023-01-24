@@ -17,6 +17,11 @@
       "displayName": "UI binding and sets as tags",
       "description": "The sample shows how to use events and event listeners for binding a healthbar to the health of the player and enemies. It also shows how to use runtime sets as tags - as in each object can have an arbitrary number of tags instead of just 1 like the built-in unity tag system.",
       "path": "Samples~/UI binding and sets as tags"
+    },
+    {
+      "displayName": "Achievements",
+      "description": "The sample shows how to set up a data-driven achievements system with game event listeners.",
+      "path": "Samples~/Achievements"
     }
   ],
   "type": "tool"

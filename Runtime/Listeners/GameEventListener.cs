@@ -1,11 +1,7 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
-using static Vaflov.Config;
 
 namespace Vaflov {
     [DefaultExecutionOrder(-2000)]
@@ -17,7 +13,10 @@ namespace Vaflov {
         #endif
         public GameEventBase eventRef;
 
-        [HideInInspector]
+        #if ODIN_INSPECTOR
+        [PropertyOrder(10)]
+        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        #endif
         public GameEventListenerBase listener;
 
         #if ODIN_INSPECTOR

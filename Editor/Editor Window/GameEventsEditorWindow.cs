@@ -166,6 +166,10 @@ namespace Vaflov {
                 GameEventsGenerator.GenerateGameEventAsset(creationData.name, passedArgData);
             }
         }
+
+        public void OpenEditorObjectCreator(OdinMenuEditorWindow editorWindow) {
+            editorWindow.TrySelectMenuItemWithObject(this);
+        }
     }
 }
 #endif

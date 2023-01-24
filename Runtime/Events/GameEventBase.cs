@@ -9,6 +9,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Collections;
 
 namespace Vaflov {
     [HideInPlayMode]
@@ -17,7 +18,7 @@ namespace Vaflov {
     public class GameEventEditMenu { }
 
     [Serializable]
-    public class ObjSet<T> : ISerializationCallbackReceiver where T : UnityEngine.Object {
+    public class ObjSet<T> : ICollection<T>, ISerializationCallbackReceiver where T : UnityEngine.Object {
         [HideInInspector]
         public string name = "Objects";
 
@@ -54,22 +55,41 @@ namespace Vaflov {
             }
         }
 
-        public void Remove(T obj) {
+        public bool Remove(T obj) {
             //objects.Remove(obj);
             if (!objToIdxs.Remove(obj, out int idx))
-                return;
+                return false;
             var lastObj = objects[objects.Count - 1];
             objects[idx] = lastObj;
             objects.RemoveAt(objects.Count - 1);
             if (idx < objects.Count) {
                 objToIdxs[lastObj] = idx;
             }
+            return true;
         }
 
+        public bool Contains(T obj) {
+            return objToIdxs.ContainsKey(obj);
+        }
+
+        public void Clear() {
+            objects.Clear();
+            objToIdxs.Clear();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex) {
+            objects.CopyTo(array, arrayIndex);
+        }
+
+        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
+
         public int Count => objects.Count;
+
+        public bool IsReadOnly => true;
     }
 
-    public class GameEventBase : EditorScriptableObject<GameEventBase> {
+    public class GameEventBase : EditorScriptableObject {
         [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
@@ -79,6 +99,8 @@ namespace Vaflov {
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(31)]
         public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
+
+        public override Type EditorObjectBaseType => typeof(GameEventBase);
 
         public void AddListener(GameEventListenerBase listener) {
             if (listener.parent is MonoBehaviour) {

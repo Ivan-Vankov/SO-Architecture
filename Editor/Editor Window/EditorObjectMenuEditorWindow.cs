@@ -9,6 +9,7 @@ using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 using System;
 using static Vaflov.EditorStringUtil;
+using System.IO;
 
 namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
@@ -17,17 +18,20 @@ namespace Vaflov {
         public Type forcedDefaultType;
 
         public static T Open<T>(string title, string icon = null) where T : EditorObjectMenuEditorWindow {
+            return Open<T>(title, Resources.Load<Texture2D>(icon));
+        }
+
+        public static T Open<T>(string title, Texture2D icon) where T : EditorObjectMenuEditorWindow {
             return Open<T>(title, icon, new Vector2Int(600, 400));
         }
 
-        public static T Open<T>(string title, string icon, Vector2Int size) where T : EditorObjectMenuEditorWindow {
+        public static T Open<T>(string title, Texture2D icon, Vector2Int size) where T : EditorObjectMenuEditorWindow {
             var wasOpen = HasOpenInstances<T>();
             var window = GetWindow<T>();
             if (!wasOpen) {
                 window.position = GUIHelper.GetEditorWindowRect().AlignCenter(size.x, size.y);
                 window.MenuWidth = size.x / 2;
-                var tex = string.IsNullOrEmpty(icon) ? null : Resources.Load<Texture2D>(icon);
-                window.titleContent = new GUIContent(title, tex);
+                window.titleContent = new GUIContent(title, icon);
             }
             return window;
         }
@@ -65,7 +69,7 @@ namespace Vaflov {
             if (selected == null || selected.Value is not IEditorObjectCreator) {
                 editorObjectCreator.Reset(forcedDefaultType);
             }
-            TrySelectMenuItemWithObject(editorObjectCreator);
+            editorObjectCreator.OpenEditorObjectCreator(this);
         }
 
         protected override OdinMenuTree BuildMenuTree() {
@@ -203,9 +207,38 @@ namespace Vaflov {
     public interface IEditorObjectCreator {
         string Description { get; }
         void Reset(Type defaultType = null);
+        void OpenEditorObjectCreator(OdinMenuEditorWindow editorWindow);
     }
 
-    public class DefaultEditorObjectCreator : IEditorObjectCreator {
+    public class DefaultEditorObjectCreator<T> : IEditorObjectCreator where T: EditorScriptableObject {
+        [HideInInspector] public string description;
+        [HideInInspector] public string resourcesPath;
+        [HideInInspector] public string defaultEditorObjectName;
+        public string Description => description;
+        public void Reset(Type defaultType = null) {}
+
+        public DefaultEditorObjectCreator(string description, string resourcesPath, string defaultEditorObjectName) {
+            this.description = description;
+            this.resourcesPath = resourcesPath;
+            this.defaultEditorObjectName = defaultEditorObjectName;
+        }
+
+        public void OpenEditorObjectCreator(OdinMenuEditorWindow editorWindow) {
+            var soAsset = ScriptableObject.CreateInstance<T>();
+            var dir = $"Assets/Resources/{resourcesPath}";
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            var path = $"{dir}/{defaultEditorObjectName}.asset";
+            path = AssetDatabase.GenerateUniqueAssetPath(path);
+            AssetDatabase.CreateAsset(soAsset, path);
+            AssetDatabase.SaveAssets();
+            editorWindow.ForceMenuTreeRebuild();
+            editorWindow.TrySelectMenuItemWithObject(soAsset);
+            EditorObject.FocusEditorObjName();
+        }
+    }
+
+    public class GenericEditorObjectCreator : IEditorObjectCreator {
         [HideInInspector] public Type baseType;
         [HideInInspector] public string defaultName;
         [HideInInspector] public string description;
@@ -219,7 +252,7 @@ namespace Vaflov {
 
         public const int labelWidth = 40;
 
-        public DefaultEditorObjectCreator(Type baseType,
+        public GenericEditorObjectCreator(Type baseType,
                                           string defaultName,
                                           string description,
                                           Action<string, Type> generatorFunc) {
@@ -230,7 +263,11 @@ namespace Vaflov {
             this.name = defaultName;
         }
 
-        public DefaultEditorObjectCreator SetTypeFilter(Func<Type, bool> typeFilter, Type defaultType) {
+        public void OpenEditorObjectCreator(OdinMenuEditorWindow editorWindow) {
+            editorWindow.TrySelectMenuItemWithObject(this);
+        }
+
+        public GenericEditorObjectCreator SetTypeFilter(Func<Type, bool> typeFilter, Type defaultType) {
             this.typeFilter = typeFilter;
             this.defaultType = defaultType;
             return this;

@@ -10,7 +10,7 @@ namespace Vaflov {
         public override Type EditorObjBaseType => typeof(Constant<>);
 
         public override IEditorObjectCreator CreateEditorObjectCreator() =>
-            new DefaultEditorObjectCreator(EditorObjBaseType, "New Constant", "Add a new constant", ConstantsGenerator.GenerateConstantAsset);
+            new GenericEditorObjectCreator(EditorObjBaseType, "New Constant", "Add a new constant", ConstantsGenerator.GenerateConstantAsset);
 
         [MenuItem("Tools/" + Config.PACKAGE_NAME + "/Constants Editor", priority = 10)]
         public static ConstantsEditorWindow Open() => Open<ConstantsEditorWindow>("Constants", "pi");

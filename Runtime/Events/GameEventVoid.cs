@@ -1,17 +1,31 @@
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using System;
-using UnityEngine;
 
 namespace Vaflov {
-    //[CreateAssetMenu(
-    //    fileName = "Game Event", 
-    //    menuName = "SO Architecture/Events/Game Event")]
     public class GameEventVoid : GameEventBase {
         public Action action;
 
+        #if ODIN_INSPECTOR
         [Button]
+        #endif
         public void Raise() {
             action?.Invoke();
+        }
+
+        public void AddListener(GameEventListenerVoid listener) {
+            #if UNITY_EDITOR
+            base.AddListener(listener);
+            #endif
+            action += listener.CallResponse;
+        }
+
+        public void RemoveListener(GameEventListenerVoid listener) {
+            #if UNITY_EDITOR
+            base.RemoveListener(listener);
+            #endif
+            action -= listener.CallResponse;
         }
     }
 }

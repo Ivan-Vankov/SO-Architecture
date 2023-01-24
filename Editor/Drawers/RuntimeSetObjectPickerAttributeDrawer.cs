@@ -41,16 +41,11 @@ namespace Vaflov {
                 CallNextDrawer(label);
                 if (objectPicker != null && Event.current.commandName == "ObjectSelectorSelectionDone") {
                     var result = EditorGUIUtility.GetObjectPickerObject();
-                    AddResult(result);
+                    (Property.ChildResolver as ICollectionResolver).QueueAdd(new[] { result });
                     objectPicker = null;
                 }
                 CollectionDrawerStaticInfo.NextCustomAddFunction = null;
             }
-        }
-
-        private void AddResult(object item) {
-            ICollectionResolver collectionResolver = Property.ChildResolver as ICollectionResolver;
-            collectionResolver.QueueAdd(new[] { item });
         }
 
         private void OpenObjectPicker() {

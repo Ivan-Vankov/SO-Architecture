@@ -29,6 +29,7 @@ namespace Vaflov {
         [ValueDropdown(nameof(GetEditorObjGroups), AppendNextDrawer = true)]
         [FoldoutGroup("Editor Props", true)]
         [LabelWidth(preferedEditorLabelWidth)]
+        [HideInInlineEditors]
         [PropertyOrder(0)]
         [DelayedProperty]
         [OnValueChanged(nameof(EditorPropChanged))]
@@ -38,6 +39,7 @@ namespace Vaflov {
         #if ODIN_INSPECTOR
         [FoldoutGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
+        [HideInInlineEditors]
         [PropertyOrder(5)]
         [DelayedProperty]
         [OnValueChanged(nameof(EditorPropChanged))]
@@ -49,6 +51,7 @@ namespace Vaflov {
         [TextArea(1, 5)]
         [FoldoutGroup("Editor Props")]
         [LabelWidth(preferedEditorLabelWidth)]
+        [HideInInlineEditors]
         [PropertyOrder(10)]
         #endif
         public string editorComment;
@@ -72,6 +75,7 @@ namespace Vaflov {
 
         #if ODIN_INSPECTOR && UNITY_EDITOR
         [FoldoutGroup("Editor Props")]
+        [HideInInlineEditors]
         [OnInspectorGUI]
         public void ShowName() {
             // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg
@@ -157,7 +161,6 @@ namespace Vaflov {
         }
     }
 
-
     public class OdinContextMenuItem {
         public string name;
         public Action action;
@@ -225,19 +228,19 @@ namespace Vaflov {
         }
     }
 
-    public abstract class EditorScriptableObject<T> : ScriptableObject, ISortKeyObject, IEditorObject
-            where T: EditorScriptableObject<T> {
+    public abstract class EditorScriptableObject : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector] public EditorObject editorObj = null;
         [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
         public EditorObject EditorObject {
             get {
                 editorObj ??= new EditorObject();
-                editorObj.Init(this, typeof(T));
+                editorObj.Init(this, EditorObjectBaseType);
                 return editorObj;
             }
             set => Debug.Assert(true, "Editing editor object internals");
         }
 
+        public virtual Type EditorObjectBaseType => GetType();
         public string EditorGroup { get => EditorObject.editorGroup; set => EditorObject.editorGroup = value; }
         public int SortKey { get => EditorObject.sortKey; set => EditorObject.sortKey = value; }
         public string EditorComment { get => EditorObject.editorComment; set => EditorObject.editorComment = value; }

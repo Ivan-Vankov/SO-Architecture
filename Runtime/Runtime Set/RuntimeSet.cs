@@ -7,7 +7,8 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    public abstract class RuntimeSetBase : EditorScriptableObject<RuntimeSetBase> {
+    public abstract class RuntimeSetBase : EditorScriptableObject {
+        public override Type EditorObjectBaseType => typeof(RuntimeSetBase);
         public abstract void Add(UnityEngine.Object obj);
         public abstract bool Remove(UnityEngine.Object item);
     }

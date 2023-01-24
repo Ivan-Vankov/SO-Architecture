@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8500250721263659189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eba9b3f56df40f34faac6d55ee0b1ee6, type: 3}
+  m_Name: Example Achievement 1 Listener 0
+  m_EditorClassIdentifier: 
+  editorObj:
+    editorGroup: Achievements
+    sortKey: 0
+    editorComment: 
+    editorObjParent: {fileID: -8500250721263659189}
+  eventRef: {fileID: 11400000, guid: 11986b2c4373c7342bcf6ba7ab0416c8, type: 2}
+  listener: {fileID: -7037106086357161893}
+--- !u!114 &-7037106086357161893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68be5e1fa6bd2aa4085966d86bcf9b69, type: 3}
+  m_Name: Listener
+  m_EditorClassIdentifier: 
+  parent: {fileID: -8500250721263659189}
+  eventRef: {fileID: 11400000, guid: 11986b2c4373c7342bcf6ba7ab0416c8, type: 2}
+  response:
+    _persistentListeners:
+    - _persistentArguments:
+      - _index: 0
+        _isSerialized: 1
+        _targetType:
+          GuidAssignmentFailed: 0
+          GUID: 35802848c68e0a24cb864842621fcae6
+          _typeNameAndAssembly: Vaflov.ExampleAchievement, Assembly-CSharp
+          _suppressLogs: 1
+        _fromType:
+          GuidAssignmentFailed: 0
+          GUID: 
+          _typeNameAndAssembly: 
+          _suppressLogs: 0
+        _serializationData:
+          DataFormat: 2
+          ReferencedUnityObjects:
+          - {fileID: 11400000}
+          SerializationNodes:
+          - Name: 
+            Entry: 10
+            Data: 0
+          Bytes: 
+        _canBeDynamic: 0
+        _serializedArg: 
+      _target: {fileID: 11400000, guid: 77c7698cb0538a14581495fff464aee2, type: 2}
+      _isStatic: 0
+      CallState: 2
+      _staticType:
+        GuidAssignmentFailed: 0
+        GUID: 
+        _typeNameAndAssembly: 
+        _suppressLogs: 0
+      _methodName: OnClicked
+    Expanded: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35802848c68e0a24cb864842621fcae6, type: 3}
+  m_Name: Example Achievement
+  m_EditorClassIdentifier: 
+  editorObj:
+    editorGroup: 
+    sortKey: 0
+    editorComment: 
+    editorObjParent: {fileID: 11400000}
+  achievementImage: {fileID: 21300000, guid: 21e743dde44c9d54ea0e6717be165452, type: 3}
+  achievementName: Woof
+  achievementDescription: You pet the dog!
+  listeners:
+  - {fileID: -8500250721263659189}
+--- !u!114 &6112768238758562755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68be5e1fa6bd2aa4085966d86bcf9b69, type: 3}
+  m_Name: Listener
+  m_EditorClassIdentifier: 
+  parent: {fileID: -8500250721263659189}
+  eventRef: {fileID: 11400000, guid: 11986b2c4373c7342bcf6ba7ab0416c8, type: 2}
+  response:
+    _persistentListeners: []
+    Expanded: 1
