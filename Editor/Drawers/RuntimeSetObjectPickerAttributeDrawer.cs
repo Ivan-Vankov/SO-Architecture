@@ -22,7 +22,7 @@ namespace Vaflov {
         // Summary:
         //     Initializes this instance.
         protected override void Initialize() {
-            typeGetter = ValueResolver.Get<Type>(Property, Attribute.Type);
+            typeGetter = ValueResolver.Get<Type>(Property, Attribute.type);
             error = typeGetter.ErrorMessage;
         }
 

@@ -130,7 +130,7 @@ namespace Vaflov {
             //name = SirenixEditorFields.DelayedTextField(GUIHelper.TempContent("Name"), name);
             creationData.name = SirenixEditorFields.TextField(GUIHelper.TempContent("Name"), creationData.name);
             if (creationData.name != oldName) {
-                creationData.nameError = EditorStringUtil.ValidateAssetName(creationData.name, assetNames);
+                creationData.nameError = ValidateAssetName(creationData.name, assetNames);
             }
             GUIHelper.PopLabelWidth();
             GUIHelper.PushLabelWidth(70);

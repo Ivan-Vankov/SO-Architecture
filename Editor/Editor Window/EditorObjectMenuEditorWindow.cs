@@ -347,7 +347,7 @@ namespace Vaflov {
         }
 
         public static void TrySelectMenuItemFromPath(string path, List<EditorObjectMenuEditorWindow> activeEditorObjMenus) {
-            if (activeEditorObjMenus?.Count == 0)
+            if (activeEditorObjMenus == null || activeEditorObjMenus.Count == 0)
                 return;
             var type = AssetDatabase.GetMainAssetTypeAtPath(path);
             if (type == null)
