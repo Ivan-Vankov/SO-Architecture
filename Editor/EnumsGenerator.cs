@@ -6,21 +6,24 @@ using UnityEditor;
 using UnityEngine;
 using static Vaflov.TypeUtil;
 using static Vaflov.SingletonCodeGenerator;
+using Sirenix.Utilities;
 
 namespace Vaflov {
     public class EnumsGenerator {
-        //[MenuItem("Tools/SO Architecture/Generate Enums")]
+        [MenuItem("Tools/SO Architecture/Generate Enums")]
         public static void GenerateEnums() {
-            AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass && !type.IsAbstract && IsInheritedFrom(type, typeof(ScriptableEnum)))
-                .ToList()
-                .ForEach(GenerateEnum);
+            TypeCache.GetTypesDerivedFrom<ScriptableEnum>().ForEach(GenerateEnum);
+            //AppDomain.CurrentDomain.GetAssemblies()
+            //    .SelectMany(assembly => assembly.GetTypes())
+            //    .Where(type => type.IsClass && !type.IsAbstract && IsInheritedFrom(type, typeof(ScriptableEnum)))
+            //    .ToList()
+            //    .ForEach(GenerateEnum);
         }
 
         public static void GenerateEnum(Type enumType) {
             var enumName = enumType.Name;
             new SingletonCodeGenerator(singletonClassName: enumName, singletonConceptName: enumName)
+            .SetSingletonInstancerString($"CreateInstance<{enumName}>()")
             .StartSingletonCodegenTimer()
             .SetSingletonClassModifiers(" partial")
             .AddSingletonHeader()
@@ -38,7 +41,7 @@ namespace Vaflov {
                     var enumAsset = AssetDatabase.LoadAssetAtPath(assetPath, enumType);
 
                     var enumFieldTypeName = enumType.Name;
-                    var enumFieldName = nameFilter(enumAsset.name, true);
+                    var enumFieldName = "_" + nameFilter(enumAsset.name, true);
 
                     var resourcesPathName = "Resources";
                     var resourcesIdx = assetPath.IndexOf(resourcesPathName);

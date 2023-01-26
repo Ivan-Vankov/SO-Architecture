@@ -1,13 +1,9 @@
-﻿using Microsoft.CSharp;
-using System;
+﻿using System;
 using System.CodeDom;
-using System.IO;
-using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.FileUtil;
-using static Vaflov.EditorStringUtil;
 
 namespace Vaflov {
     public class SingletonCodeGenerator {
@@ -18,15 +14,14 @@ namespace Vaflov {
         public string singletonInstanceName = "Instance";
         public string singletonConceptName;
         public string singletonFieldSuffix;
-        public string singletonDirectoryName = "SO Architecture";
+        public string singletonDirectoryName = Config.PACKAGE_NAME;
         public StringBuilder singletonCodeBuilder = new StringBuilder();
         public System.Diagnostics.Stopwatch singletonCodegenTimer = new System.Diagnostics.Stopwatch();
         public string singletonCodePath = null;
+        public string singletonInstancerString;
 
         public delegate string NameFilter(string name, bool isFirstLetterLowerCase);
         public StringBuilder singletonNameBuilder = new StringBuilder();
-
-        public static CSharpCodeProvider codeProvider = new CSharpCodeProvider();
 
         public SingletonCodeGenerator(string singletonClassName, string singletonConceptName) {
             this.singletonClassName = singletonClassName;
@@ -76,7 +71,7 @@ namespace Vaflov {
             singletonNamespacePrefix = singletonNamespacePrefix != null
                 ? singletonNamespacePrefix
                 : singletonNamespaceName + ".";
-            var realTypeName = codeProvider.GetTypeOutput(new CodeTypeReference(type));
+            var realTypeName = Config.codeProvider.GetTypeOutput(new CodeTypeReference(type));
             return realTypeName.StartsWith(singletonNamespacePrefix)
                 ? realTypeName.Substring(singletonNamespacePrefix.Length)
                 : realTypeName;
@@ -97,6 +92,15 @@ namespace Vaflov {
             //    : name;
         }
 
+        public SingletonCodeGenerator SetSingletonInstancerString(string singletonInstancerString) {
+            this.singletonInstancerString = singletonInstancerString;
+            return this;
+        }
+
+        public string GetSingletonInstanceString() {
+            return singletonInstancerString ?? $"new {singletonClassName}()";
+        }
+
         public SingletonCodeGenerator AddSingletonHeader() {
             singletonCodeBuilder
                 .AppendLine(Config.AUTO_GENERATED_HEADER)
@@ -108,7 +112,7 @@ namespace Vaflov {
                 .AppendLine($"\t\tpublic static {singletonClassName} {singletonInstanceName} {{")
                 .AppendLine("\t\t\tget {")
                 .AppendLine("\t\t\t\tif (_instance == null) {")
-                .AppendLine($"\t\t\t\t\t_instance = new {singletonClassName}();")
+                .AppendLine($"\t\t\t\t\t_instance = {GetSingletonInstanceString()};")
                 .AppendLine($"\t\t\t\t\t_instance.Assign{singletonConceptName}References();")
                 .AppendLine("\t\t\t\t}")
                 .AppendLine("\t\t\t\treturn _instance;")
