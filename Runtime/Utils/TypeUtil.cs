@@ -7,20 +7,19 @@ using UnityEditor;
 namespace Vaflov {
     public static partial class TypeUtil {
         public static bool IsInheritedFrom(Type type, Type targetType) {
-            var baseType = type.BaseType;
-            if (baseType == null) {
+            if (type == null) {
                 return false;
             }
 
-            if (baseType.IsGenericType) {
-                if (baseType.GetGenericTypeDefinition() == targetType) {
+            if (type.IsGenericType) {
+                if (type.GetGenericTypeDefinition() == targetType) {
                     return true;
                 }
-            } else if (baseType == targetType) {
+            } else if (type == targetType) {
                 return true;
             }
 
-            return IsInheritedFrom(baseType, targetType);
+            return IsInheritedFrom(type.BaseType, targetType);
         }
 
         public static FieldInfo GetFieldRecursive(Type type, string name, BindingFlags flags) {
