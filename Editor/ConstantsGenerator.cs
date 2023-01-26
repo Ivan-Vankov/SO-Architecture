@@ -44,9 +44,7 @@ namespace Vaflov {
                 return;
             }
 
-            var constantAsset = ScriptableObject.CreateInstance(constantType);
-            AssetDatabase.CreateAsset(constantAsset, $"Assets/Resources/Constant/{name}.asset");
-            AssetDatabase.SaveAssets();
+            AssetDatabaseUtil.SaveScriptableObject(constantType, "Assets/Resources/Constant", name);
         }
 
         public static void GenerateConstantClass(Type wrappedConstantType) {

@@ -34,9 +34,7 @@ namespace Vaflov {
                 return;
             }
 
-            var asset = ScriptableObject.CreateInstance(targetType);
-            AssetDatabase.CreateAsset(asset, $"Assets/Resources/Runtime Sets/{name}.asset");
-            AssetDatabase.SaveAssets();
+            AssetDatabaseUtil.SaveScriptableObject(targetType, "Assets/Resources/Runtime Sets", name);
         }
 
         public static void GenerateClass(Type wrappedType) {

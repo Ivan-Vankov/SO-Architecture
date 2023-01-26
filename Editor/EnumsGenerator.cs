@@ -10,7 +10,7 @@ using Sirenix.Utilities;
 
 namespace Vaflov {
     public class EnumsGenerator {
-        [MenuItem("Tools/SO Architecture/Generate Enums")]
+        //[MenuItem("Tools/SO Architecture/Generate Enums")]
         public static void GenerateEnums() {
             TypeCache.GetTypesDerivedFrom<ScriptableEnum>().ForEach(GenerateEnum);
             //AppDomain.CurrentDomain.GetAssemblies()

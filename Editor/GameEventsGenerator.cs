@@ -117,10 +117,7 @@ namespace Vaflov {
                 return;
             }
 
-            var gameEvent = ScriptableObject.CreateInstance(gameEventType);
-            gameEvent.name = name;
-            AssetDatabase.CreateAsset(gameEvent, $"Assets/Resources/Game Events/{name}.asset");
-            AssetDatabase.SaveAssets();
+            AssetDatabaseUtil.SaveScriptableObject(gameEventType, "Assets/Resources/Game Events", name);
         }
 
         public static void GenerateGameEventClass(string name, List<GameEventArgData> args) {
