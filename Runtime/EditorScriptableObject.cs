@@ -36,14 +36,15 @@ namespace Vaflov {
         #endif
         public string editorGroup;
 
-        #if ODIN_INSPECTOR
-        [FoldoutGroup("Editor Props")]
-        [LabelWidth(preferedEditorLabelWidth)]
-        [HideInInlineEditors]
-        [PropertyOrder(5)]
-        [DelayedProperty]
-        [OnValueChanged(nameof(EditorPropChanged))]
-        #endif
+        //#if ODIN_INSPECTOR
+        //[FoldoutGroup("Editor Props")]
+        //[LabelWidth(preferedEditorLabelWidth)]
+        //[HideInInlineEditors]
+        //[PropertyOrder(5)]
+        //[DelayedProperty]
+        //[OnValueChanged(nameof(EditorPropChanged))]
+        //#endif
+        [HideInInspector]
         public int sortKey;
 
         #if ODIN_INSPECTOR

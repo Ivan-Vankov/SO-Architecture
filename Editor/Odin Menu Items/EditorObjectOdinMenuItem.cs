@@ -72,6 +72,8 @@ namespace Vaflov {
         protected override void OnDrawMenuItem(Rect rect, Rect labelRect) {
             //GUI.Label(rect, new GUIContent((string)null, SmartName + " test tooltip"));
 
+            DragAndDropUtilities.DragZone(rect, Value, false, false);
+
             var editorObj = Value as IEditorObject;
             var valueLabel = editorObj.EditorToString();
             if (!string.IsNullOrEmpty(valueLabel)) {

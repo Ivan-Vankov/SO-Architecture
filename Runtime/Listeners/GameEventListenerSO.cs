@@ -60,6 +60,12 @@ namespace Vaflov {
                 listener.OnDone();
             }
         }
+
+        private void OnDestroy() {
+            if (listener) {
+                DestroyImmediate(listener, true);
+            }
+        }
     }
 
     #if UNITY_EDITOR
@@ -67,8 +73,11 @@ namespace Vaflov {
         static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) {
             var listenerSO = AssetDatabase.LoadAssetAtPath<GameEventListenerSO>(path);
             if (listenerSO) {
-                // Unity doesn't call destroy on scriptable objects that are deleted for some reason ;(
-                listenerSO.OnDisable();
+                // Unity doesn't call OnDisable/Destroy on scriptable objects that are deleted for some reason ;(
+                if (listenerSO.listener) {
+                    listenerSO.listener.OnDone();
+                    Object.DestroyImmediate(listenerSO.listener, true);
+                }
             }
             return AssetDeleteResult.DidNotDelete;
         }

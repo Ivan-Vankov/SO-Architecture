@@ -129,9 +129,29 @@ namespace Vaflov {
                 var groupResult = new HashSet<OdinMenuItem>();
                 foreach (var editorObjAsset in groupList) {
                     var menuItem = new EditorObjectOdinMenuItem(tree, editorObjAsset.name, editorObjAsset);
-                    menuItem.IconGetter = (editorObjAsset as IEditorObject).GetEditorIcon;
+                    var editorObj = (editorObjAsset as IEditorObject);
+                    menuItem.IconGetter = editorObj.GetEditorIcon;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
+                    menuItem.OnDrawItem += x => {
+                        var dragNDroppedEditorObj = DragAndDropUtilities.DropZone(x.Rect, null, EditorObjBaseType);
+                        if (dragNDroppedEditorObj == null || dragNDroppedEditorObj == editorObj)
+                            return;
+                        var targetSortKey = (editorObj as ISortKeyObject).SortKey + 1;
+                        (dragNDroppedEditorObj as ISortKeyObject).SortKey = targetSortKey++;
+                        var afterCurrentObj = false;
+                        foreach (var siblingMenuItem in menuItem.Parent.ChildMenuItems) {
+                            if (afterCurrentObj && siblingMenuItem is EditorObjectOdinMenuItem) {
+                                var siblingSortKeyObj = siblingMenuItem.Value as ISortKeyObject;
+                                if (siblingSortKeyObj.SortKey >= targetSortKey)
+                                    break;
+                                siblingSortKeyObj.SortKey = targetSortKey++;
+                            }
+                            afterCurrentObj = afterCurrentObj || siblingMenuItem == menuItem;
+                        }
+                        (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorObj.EditorGroup;
+                        RebuildEditorGroups();
+                    };
                 }
                 foreach (var menuItem in groupResult) {
                     if (menuItem.GetType() != typeof(OdinMenuItem))
@@ -146,22 +166,27 @@ namespace Vaflov {
                         GUIHelper.PushColor(Color.green);
                         GUI.Label(valueRect, valueContent, labelStyle);
                         GUIHelper.PopColor();
+
+                        var dragNDroppedEditorObj = DragAndDropUtilities.DropZone(x.Rect, null, EditorObjBaseType);
+                        if (dragNDroppedEditorObj == null)
+                            return;
+                        if (menuItem.ChildMenuItems.Count > 0) {
+                            var firstMenuItem = menuItem.ChildMenuItems[0];
+                            if (firstMenuItem.Value != null
+                                && TypeUtil.IsInheritedFrom(firstMenuItem.Value.GetType(), EditorObjBaseType)) {
+                                var sortKey = (firstMenuItem.Value as ISortKeyObject).SortKey;
+                                var sortKeyObj = (dragNDroppedEditorObj as ISortKeyObject);
+                                if (sortKeyObj.SortKey >= sortKey) {
+                                    sortKeyObj.SortKey = sortKey - 1;
+                                }
+                            }
+                        }
+                        var editorGroup = menuItem.GetFullPath();
+                        editorGroup = editorGroup == "Default" ? "" : editorGroup;
+                        (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorGroup;
+                        RebuildEditorGroups();
                     };
                 }
-                //var groupMenuItem = tree.GetMenuItem(groupName);
-                //if (groupMenuItem != null) {
-                //    groupMenuItem.OnDrawItem += x => {
-                //        var itemCountLabel = $" {x.ChildMenuItems.Count}";
-                //        var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
-                //        var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
-                //        var valueRect = new Rect(x.LabelRect.x + nameLabelSize.x, x.LabelRect.y, x.LabelRect.width - nameLabelSize.x, x.LabelRect.height);
-                //        var valueContent = GUIHelper.TempContent(itemCountLabel);
-
-                //        GUIHelper.PushColor(Color.green);
-                //        GUI.Label(valueRect, valueContent, labelStyle);
-                //        GUIHelper.PopColor();
-                //    };
-                //}
             }
 
             tree.EnumerateTree().ForEach(menuItem => menuItem.Toggled = true);
