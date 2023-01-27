@@ -150,7 +150,7 @@ namespace Vaflov {
                             afterCurrentObj = afterCurrentObj || siblingMenuItem == menuItem;
                         }
                         (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorObj.EditorGroup;
-                        RebuildEditorGroups();
+                        UnityEditorEventUtility.DelayAction(RebuildEditorGroups);
                     };
                 }
                 foreach (var menuItem in groupResult) {
@@ -184,7 +184,7 @@ namespace Vaflov {
                         var editorGroup = menuItem.GetFullPath();
                         editorGroup = editorGroup == "Default" ? "" : editorGroup;
                         (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorGroup;
-                        RebuildEditorGroups();
+                        UnityEditorEventUtility.DelayAction(RebuildEditorGroups);
                     };
                 }
             }

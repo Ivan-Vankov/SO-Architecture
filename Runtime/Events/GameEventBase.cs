@@ -19,10 +19,10 @@ namespace Vaflov {
 
     [Serializable]
     public class ObjSet<T> : ICollection<T>, ISerializationCallbackReceiver where T : UnityEngine.Object {
-        [HideInInspector]
+        //[HideInInspector]
         public string name = "Objects";
 
-        //[ReadOnly]
+        [ReadOnly]
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
             DraggableItems = false,
@@ -90,12 +90,12 @@ namespace Vaflov {
     }
 
     public class GameEventBase : EditorScriptableObject {
-        [HideLabel]
+        //[HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
         public ObjSet<Component> componentListeners = new ObjSet<Component>() { name = "Component Listeners" };
 
-        [HideLabel]
+        //[HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(31)]
         public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
