@@ -18,8 +18,8 @@ namespace Vaflov {
     public class GameEventEditMenu { }
 
     [Serializable]
-    public class ObjSet<T> : ICollection<T>, ISerializationCallbackReceiver where T : UnityEngine.Object {
-        //[HideInInspector]
+    public class ObjSet<T> : ISerializationCallbackReceiver where T : UnityEngine.Object {
+        [HideInInspector]
         public string name = "Objects";
 
         [ReadOnly]
@@ -29,6 +29,7 @@ namespace Vaflov {
             //Expanded = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 10
+            //IsReadOnly = true
             //ShowItemCount = false
             //HideRemoveButton = true
             )]
@@ -82,7 +83,6 @@ namespace Vaflov {
         }
 
         public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
 
         public int Count => objects.Count;
 
@@ -90,12 +90,12 @@ namespace Vaflov {
     }
 
     public class GameEventBase : EditorScriptableObject {
-        //[HideLabel]
+        [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
         public ObjSet<Component> componentListeners = new ObjSet<Component>() { name = "Component Listeners" };
 
-        //[HideLabel]
+        [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(31)]
         public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
