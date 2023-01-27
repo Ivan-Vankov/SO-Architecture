@@ -1,9 +1,15 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
+#endif
+#endif
 using System;
 using System.Collections.Generic;
 using System.Text;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using static Vaflov.Config;
 
@@ -252,5 +258,12 @@ namespace Vaflov {
         public virtual List<OdinContextMenuItem> GetContextMenuItems() {
             return editorObj?.GetDefaultContextMenuItems();
         }
+
+        [PropertyOrder(10000)]
+        [HideInInlineEditors]
+        public OpenInEditorWindowButton openInEditorWindowButton;
     }
+
+    [Serializable]
+    public class OpenInEditorWindowButton { }
 }
