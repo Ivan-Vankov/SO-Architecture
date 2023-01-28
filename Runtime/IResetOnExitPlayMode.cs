@@ -7,8 +7,6 @@ using UnityEditor;
 namespace Vaflov {
     public interface IResetOnExitPlayMode { }
 
-    public abstract class RuntimeScriptableObject : ScriptableObject, IResetOnExitPlayMode { }
-
     #if UNITY_EDITOR
     public static class SOPlayModeResetter {
         public static Dictionary<ScriptableObject, string> defaultSOValues = new Dictionary<ScriptableObject, string>();

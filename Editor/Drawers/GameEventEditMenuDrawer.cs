@@ -12,15 +12,14 @@ using System.Reflection;
 
 namespace Vaflov {
     public class GameEventEditMenuDrawer : OdinValueDrawer<GameEventEditMenu> {
+        public static event Action<GameEventBase> PreGameEventArgsEdited;
         public GameEventCreationData creationData = new GameEventCreationData();
 
         public const int labelWidth = 40;
 
         public ParameterInfo[] methodParams;
 
-        [HideInInspector]
         protected override void Initialize() {
-            //foldoutExpandedProp = this.Property.Children[nameof(GameEventEditMenu.foldoutExpanded)];
             creationData.Reset();
             methodParams = Property.ParentType.GetMethod("Raise")?.GetParameters();
             creationData.argCount = methodParams.Length;
@@ -89,6 +88,7 @@ namespace Vaflov {
                     }
                     var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
                     var name = gameEvent.name;
+                    PreGameEventArgsEdited?.Invoke(gameEvent);
                     AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(gameEvent));
                     AssetDatabase.SaveAssets();
                     GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);

@@ -12,7 +12,7 @@ namespace Vaflov {
             var stackFrames = new System.Diagnostics.StackTrace().GetFrames();
             foreach (var stackFrame in stackFrames) {
                 var method = stackFrame.GetMethod();
-                if (method.DeclaringType == typeof(OdinEditorWindow) && method.Name == "DrawEditors") {
+                if (method.Name == "DrawEditors" && TypeUtil.IsInheritedFrom(method.DeclaringType, typeof(OdinEditorWindow))) {
                     show = false;
                     break;
                 }
@@ -20,7 +20,9 @@ namespace Vaflov {
         }
 
         protected override void DrawPropertyLayout(GUIContent label) {
-            if (show && GUILayout.Button(GUIHelper.TempContent("Open in Editor Window"))) {
+            if (!show)
+                return;
+            if (GUILayout.Button(GUIHelper.TempContent("Open in Editor Window"))) {
                 var obj = Property.Parent.ValueEntry.WeakSmartValue;
                 foreach (var editorObjectMenuType in EditorObjectMenuHook.EditorObjectMenuTypes) {
                     var openMenus = Resources.FindObjectsOfTypeAll(editorObjectMenuType);
@@ -42,9 +44,10 @@ namespace Vaflov {
                             openedEditorMenu = EditorWindow.GetWindow(editorObjectMenuType) as EditorObjectMenuEditorWindow;
                         }
                         openedEditorMenu.TrySelectMenuItemWithObject(obj);
-                        break;
+                        return;
                     }
                 }
+                Debug.LogError($"No editor window defined for {obj}");
             }
         }
     }
