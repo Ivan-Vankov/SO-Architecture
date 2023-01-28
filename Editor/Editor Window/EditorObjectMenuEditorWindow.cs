@@ -13,6 +13,7 @@ using System.IO;
 
 namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
+        [NonSerialized]
         public IEditorObjectCreator editorObjectCreator;
         public abstract Type EditorObjBaseType { get; }
         public Type forcedDefaultType;

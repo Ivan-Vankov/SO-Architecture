@@ -8,8 +8,6 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    // TODO: Research if DefaultExecutionOrder affects scriptable objects, I think it doesn't
-    [DefaultExecutionOrder(-2000)]
     public class GameEventListenerSO : EditorScriptableObject {
         [HideInInspector]
         public GameEventBase eventRef;

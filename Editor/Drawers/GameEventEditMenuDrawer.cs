@@ -1,18 +1,13 @@
 ﻿using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
-using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
-using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using System.Linq;
 using System;
-using static UnityEngine.Mathf;
 using System.Reflection;
 
 namespace Vaflov {
     public class GameEventEditMenuDrawer : OdinValueDrawer<GameEventEditMenu> {
-        public static event Action<GameEventBase> PreGameEventArgsEdited;
         public GameEventCreationData creationData = new GameEventCreationData();
 
         public const int labelWidth = 40;
@@ -88,10 +83,13 @@ namespace Vaflov {
                     }
                     var gameEvent = Property.Parent.ValueEntry.WeakSmartValue as GameEventBase;
                     var name = gameEvent.name;
-                    PreGameEventArgsEdited?.Invoke(gameEvent);
-                    AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(gameEvent));
-                    AssetDatabase.SaveAssets();
-                    GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
+                    // This is delayed since deleting and then recreating the asset
+                    // while it is being drawn makes unity vomit and/or crash
+                    UnityEditorEventUtility.DelayAction(() => {
+                        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(gameEvent));
+                        AssetDatabase.SaveAssets();
+                        GameEventsGenerator.GenerateGameEventAsset(name, passedArgData);
+                    });
                 }
             }
 

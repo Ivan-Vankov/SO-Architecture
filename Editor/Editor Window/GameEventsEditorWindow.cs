@@ -23,29 +23,6 @@ namespace Vaflov {
         [MenuItem("Assets/Create/" + Config.PACKAGE_NAME + "/Game Event", priority = 20)]
         public static void CreateEvent() => Open().TryOpenEditorObjectCreationMenu();
 
-        public void DeselectGameEvent(GameEventBase gameEvent) {
-            OdinMenuItem gameEventMenuItem = null;
-            MenuTree.EnumerateTree(menuItem => {
-                if (ReferenceEquals(menuItem.Value, gameEvent)) {
-                    gameEventMenuItem = menuItem;
-                }
-            });
-            Debug.Log(gameEventMenuItem);
-            if (gameEventMenuItem != null) {
-                MenuTree.Selection.Remove(gameEventMenuItem);
-            }
-        }
-
-        protected override void OnEnable() {
-            base.OnEnable();
-            GameEventEditMenuDrawer.PreGameEventArgsEdited += DeselectGameEvent;
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            GameEventEditMenuDrawer.PreGameEventArgsEdited -= DeselectGameEvent;
-        }
-
         public override List<OdinContextMenuItem> GetToolbarItems() {
             var items = new List<OdinContextMenuItem>();
             items.AddRange(base.GetToolbarItems());
