@@ -1,9 +1,15 @@
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Vaflov {
     public class ExampleAchievementUITracker : MonoBehaviour {
         public Text text;
+        #if ODIN_INSPECTOR
+        [Required]
+        #endif
         public ExampleAchievementUnlocker achievementUnlocker;
 
         public GameObject achievementRoot;
@@ -29,6 +35,14 @@ namespace Vaflov {
 
         private void Start() {
             SetAchievementProgressText();
+        }
+
+        private void OnEnable() {
+            achievementUnlocker.OnExampleAchievementProgressed += SetAchievementProgressText;
+        }
+
+        private void OnDisable() {
+            achievementUnlocker.OnExampleAchievementProgressed -= SetAchievementProgressText;
         }
     }
 }

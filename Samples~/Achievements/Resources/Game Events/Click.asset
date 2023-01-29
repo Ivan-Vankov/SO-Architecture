@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   editorObj:
     editorGroup: 
-    sortKey: 0
+    sortKey: 1
     editorComment: 
     editorObjParent: {fileID: 11400000}
   componentListeners:
     name: Component Listeners
-    objects: []
+    objects:
+    - {fileID: 0}
   SOListeners:
     name: SO Listeners
     objects:
-    - {fileID: 5559374571042809555, guid: 5dd9515bb83e1ff4fac002c11cedeb2a, type: 2}
+    - {fileID: -7285363756229174744, guid: d2ebae415ffb6e54eba814dc0a703d15, type: 2}

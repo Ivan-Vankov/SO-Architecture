@@ -410,7 +410,6 @@ GameObject:
   m_Component:
   - component: {fileID: 903936824}
   - component: {fileID: 903936826}
-  - component: {fileID: 903936825}
   - component: {fileID: 903936827}
   m_Layer: 5
   m_Name: Achievement Unlock Base
@@ -441,20 +440,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &903936825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 903936823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49d477d6326cd204fa7fd15df75f4e8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventRef: {fileID: 11400000, guid: 11986b2c4373c7342bcf6ba7ab0416c8, type: 2}
-  listener: {fileID: 1419846132}
 --- !u!114 &903936826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,7 +507,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -283.92404, y: 0}
+  m_AnchoredPosition: {x: -406, y: 0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1050625793
@@ -639,7 +624,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -664,33 +649,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1419846132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68be5e1fa6bd2aa4085966d86bcf9b69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parent: {fileID: 903936825}
-  eventRef: {fileID: 11400000, guid: 11986b2c4373c7342bcf6ba7ab0416c8, type: 2}
-  response:
-    _persistentListeners:
-    - _persistentArguments: []
-      _target: {fileID: 903936826}
-      _isStatic: 0
-      CallState: 2
-      _staticType:
-        GuidAssignmentFailed: 0
-        GUID: 
-        _typeNameAndAssembly: 
-        _suppressLogs: 0
-      _methodName: SetAchievementProgressText
-    Expanded: 1
 --- !u!1 &1493578809
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,7 +689,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -180}
-  m_SizeDelta: {x: 897.421, y: 273.004}
+  m_SizeDelta: {x: 1129.781, y: 273.004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1493578811
 MonoBehaviour:
@@ -806,7 +764,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -283.92404, y: 0}
+  m_AnchoredPosition: {x: -405.99994, y: 0}
   m_SizeDelta: {x: 220, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1495247968
@@ -882,8 +840,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 214.91075, y: 50}
-  m_SizeDelta: {x: -170.1785, y: 63.675}
+  m_AnchoredPosition: {x: 141.926, y: 50}
+  m_SizeDelta: {x: -316.149, y: 63.675}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1531673168
 MonoBehaviour:

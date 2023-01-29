@@ -1,15 +1,11 @@
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-#if UNITY_EDITOR
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
 #endif
-#endif
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using static Vaflov.Config;
 
@@ -79,20 +75,30 @@ namespace Vaflov {
         public List<GameEventListenerSO> listeners = new List<GameEventListenerSO>();
 
         public GameEventListenerSO AddListener() {
+            #if UNITY_EDITOR
             var listener = CreateInstance<GameEventListenerSO>();
-            listener.name = $"{name} Listener {listeners.Count}";
-            listener.EditorGroup = "Achievements";
-
-            AssetDatabase.AddObjectToAsset(listener, this);
+            var name = $"{this.name} Listener {listeners.Count}";
+            listener.EditorGroup = $"Achievements/{this.name}";
+            var dir = "Assets/Resources/" + GameEventListenerSO.RESOURCES_PATH;
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            var path = $"{dir}/{name}.asset";
+            path = AssetDatabase.GenerateUniqueAssetPath(path);
+            AssetDatabase.CreateAsset(listener, path);
             AssetDatabase.SaveAssets();
             return listener;
+            #else
+            return null;
+            #endif
         }
 
         public void RemoveListener(GameEventListenerSO listener) {
+            #if UNITY_EDITOR
             if (listeners.Remove(listener) && listener) {
-                AssetDatabase.RemoveObjectFromAsset(listener);
+                DestroyImmediate(listener, true);
                 AssetDatabase.SaveAssets();
             }
+            #endif
         }
     }
 }
