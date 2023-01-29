@@ -1,11 +1,10 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
 namespace Vaflov {
     public static class AssetUtil {
-#if ODIN_INSPECTOR
         public static List<string> GetAssetPathsForType(Type baseType) {
             var types = TypeUtil.GetFlatTypesDerivedFrom(baseType);
             var assetNames = new List<string>();
@@ -22,6 +21,6 @@ namespace Vaflov {
             }
             return assetNames;
         }
-#endif
     }
 }
+#endif

@@ -1,16 +1,13 @@
-﻿using System;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using System;
 using System.Text;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Microsoft.CSharp;
-using System.CodeDom;
-using static Vaflov.EditorTypeUtil;
 using static Vaflov.FileUtil;
 using static Vaflov.SingletonCodeGenerator;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor.Callbacks;
-using System.IO;
 using Sirenix.Utilities;
 
 namespace Vaflov {
@@ -170,3 +167,4 @@ namespace Vaflov {
     //    }
     //}
 }
+#endif

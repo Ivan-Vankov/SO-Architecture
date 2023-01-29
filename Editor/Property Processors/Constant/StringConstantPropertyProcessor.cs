@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,3 +11,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

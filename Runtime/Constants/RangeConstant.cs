@@ -5,13 +5,11 @@ using System;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    #if ODIN_INSPECTOR
-    public static class RangeConstantEditorEvents {
+    public static class RangeConstant {
         public static Action OnConstantRangeChanged;
     }
-    #endif
 
-    [CodegenInapplicableAttribute]
+    [CodegenInapplicable]
     public class RangeConstant<T, C> : Constant<T> {
         #if ODIN_INSPECTOR
         [LabelText("Range")]
@@ -39,10 +37,8 @@ namespace Vaflov {
         #endif
         public C max;
 
-        #if ODIN_INSPECTOR
         public void OnRangeChanged() {
-            RangeConstantEditorEvents.OnConstantRangeChanged.Invoke();
+            RangeConstant.OnConstantRangeChanged.Invoke();
         }
-        #endif
     }
 }

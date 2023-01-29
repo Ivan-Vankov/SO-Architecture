@@ -6,11 +6,9 @@ using UnityEngine;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    public static class ColorConstantEditorEvents {
-        public static Action OnColorConstantChanged;
-    }
-
     public class ColorConstant : Constant<Color> {
+        public static Action OnColorConstantChanged;
+
         public const int colorTexSize = 15;
         public const int transparentGridSize = 3;
         public static readonly Color[] gridColors = new Color[] {
@@ -23,7 +21,7 @@ namespace Vaflov {
         [LabelText("Use palette")]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(13)]
-        [OnValueChanged(nameof(OnColorConstantChanged))]
+        [OnValueChanged(nameof(OnColorChanged))]
         #endif
         public bool useColorPalette = true;
 
@@ -57,8 +55,8 @@ namespace Vaflov {
             return colorTex;
         }
 
-        public void OnColorConstantChanged() {
-            ColorConstantEditorEvents.OnColorConstantChanged?.Invoke();
+        public void OnColorChanged() {
+            OnColorConstantChanged?.Invoke();
         }
 
         public override string EditorToString() {

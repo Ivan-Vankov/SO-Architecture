@@ -1,4 +1,5 @@
-﻿//using Sirenix.OdinInspector.Editor.Validation;
+﻿//#if ODIN_INSPECTOR
+//using Sirenix.OdinInspector.Editor.Validation;
 //using System.Linq;
 //using UnityEditor;
 //using UnityEngine;
@@ -36,3 +37,4 @@
 //        }
 //    }
 //}
+//#endif

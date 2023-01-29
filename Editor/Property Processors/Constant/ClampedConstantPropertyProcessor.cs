@@ -1,7 +1,6 @@
-﻿#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +9,7 @@ namespace Vaflov {
         where C : ClampedConstant<T>
         where T : IComparable, IComparable<T>, IEquatable<T> {
 
-        public override ref Action ReloadAction => ref ClampedConstantEditorEvents.OnConstantClampedChanged;
+        public override ref Action ReloadAction => ref ClampedConstant.OnConstantClampedChanged;
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var constant = ValueEntry.SmartValue;

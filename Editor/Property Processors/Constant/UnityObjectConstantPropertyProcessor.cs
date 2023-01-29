@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ namespace Vaflov {
     public class UnityObjectConstantPropertyProcessor<T, C> : ReloadingPropertyProcessor<T>, IDisposable
         where T : UnityObjectConstant<C>
         where C : UnityEngine.Object {
-        public override ref Action ReloadAction => ref UnityObjectConstantEditorEvents.OnUnityObjectConstantChanged;
+        public override ref Action ReloadAction => ref UnityObjectConstant.OnUnityObjectConstantChanged;
 
         public override void ProcessMemberProperties(List<InspectorPropertyInfo> propertyInfos) {
             var valueAttributes = propertyInfos.Find("value").GetEditableAttributesList();
@@ -36,3 +37,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

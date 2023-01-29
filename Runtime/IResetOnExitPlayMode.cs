@@ -13,10 +13,10 @@ namespace Vaflov {
 
         [InitializeOnLoadMethod]
         public static void RegisterResets() {
-            EditorApplication.playModeStateChanged += ResetSOsWithIResetOnExitPlay;
+            EditorApplication.playModeStateChanged += ResetSOsWithIResetOnExitPlayMode;
         }
 
-        public static void ResetSOsWithIResetOnExitPlay(PlayModeStateChange change) {
+        public static void ResetSOsWithIResetOnExitPlayMode(PlayModeStateChange change) {
             if (change == PlayModeStateChange.EnteredPlayMode) {
                 foreach (var asset in FindAssets<ScriptableObject>()) {
                     if (asset is IResetOnExitPlayMode) {

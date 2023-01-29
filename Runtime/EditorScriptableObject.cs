@@ -28,7 +28,9 @@ namespace Vaflov {
 
     [Serializable]
     public class EditorObject {
+        #if UNITY_EDITOR
         public static event Action<ScriptableObject> OnEditorPropChanged;
+        #endif
 
         #if ODIN_INSPECTOR && UNITY_EDITOR
         [LabelText("Group")]
@@ -111,7 +113,9 @@ namespace Vaflov {
         }
 
         public void EditorPropChanged() {
+            #if UNITY_EDITOR
             OnEditorPropChanged?.Invoke(editorObjParent);
+            #endif
         }
 
         public IEnumerable<string> GetEditorObjGroups() {
@@ -142,7 +146,7 @@ namespace Vaflov {
         #endif
 
         public List<OdinContextMenuItem> GetDefaultContextMenuItems() {
-        #if ODIN_INSPECTOR && UNITY_EDITOR
+            #if ODIN_INSPECTOR && UNITY_EDITOR
             return new List<OdinContextMenuItem> {
                 new OdinContextMenuItem("Rename", () => {
                     FocusEditorObjName();
@@ -193,10 +197,9 @@ namespace Vaflov {
 
         #if ODIN_INSPECTOR && UNITY_EDITOR
         public OdinContextMenuItem(string name, Action action,
-                               KeyCode shortcut = KeyCode.None,
-                               EventModifiers modifiers = EventModifiers.None,
-                               SdfIconType icon = SdfIconType.None
-                               ) {
+                                   KeyCode shortcut = KeyCode.None,
+                                   EventModifiers modifiers = EventModifiers.None,
+                                   SdfIconType icon = SdfIconType.None) {
             this.name = name;
             this.action = action;
             this.shortcut = shortcut;

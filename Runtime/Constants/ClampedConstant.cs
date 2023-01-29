@@ -5,11 +5,9 @@ using System;
 using static Vaflov.Config;
 
 namespace Vaflov {
-    #if ODIN_INSPECTOR
-    public static class ClampedConstantEditorEvents {
+    public static class ClampedConstant {
         public static Action OnConstantClampedChanged;
     }
-    #endif
 
     public class ClampedConstant<T> : Constant<T> where T: IComparable, IComparable<T>, IEquatable<T> {
         #if ODIN_INSPECTOR
@@ -37,10 +35,8 @@ namespace Vaflov {
         #endif
         public T max;
 
-        #if ODIN_INSPECTOR
         public void OnClampedChanged() {
-            ClampedConstantEditorEvents.OnConstantClampedChanged?.Invoke();
+            ClampedConstant.OnConstantClampedChanged?.Invoke();
         }
-        #endif
     }
 }

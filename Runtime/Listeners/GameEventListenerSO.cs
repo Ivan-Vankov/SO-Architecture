@@ -21,11 +21,14 @@ namespace Vaflov {
         public GameEventBase EventRef {
             get => eventRef;
             set {
+                #if UNITY_EDITOR
                 if (listener) {
                     DestroyImmediate(listener, true);
                     AssetDatabase.SaveAssets();
                 }
+                #endif
                 eventRef = value;
+                #if UNITY_EDITOR
                 listener = GameEventListenerUtil.GetListenerInstance(eventRef);
                 if (listener) {
                     listener.parent = this;
@@ -34,6 +37,7 @@ namespace Vaflov {
                     AssetDatabase.AddObjectToAsset(listener, this);
                     AssetDatabase.SaveAssets();
                 }
+                #endif
             }
         }
 

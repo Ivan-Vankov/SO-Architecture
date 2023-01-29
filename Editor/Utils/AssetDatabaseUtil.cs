@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Vaflov {
@@ -10,6 +12,7 @@ namespace Vaflov {
         }
 
         public static ScriptableObject SaveScriptableObject(Type soType, string dir, string name) {
+            #if UNITY_EDITOR
             var soAsset = ScriptableObject.CreateInstance(soType);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
@@ -18,6 +21,9 @@ namespace Vaflov {
             AssetDatabase.CreateAsset(soAsset, path);
             AssetDatabase.SaveAssets();
             return soAsset;
+            #else
+            return null;
+            #endif
         }
     }
 }

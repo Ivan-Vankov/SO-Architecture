@@ -1,8 +1,10 @@
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
+#if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
+#endif
 #endif
 using UnityEngine;
 using static Vaflov.Config;
@@ -18,7 +20,6 @@ namespace Vaflov {
             get => GlobalConfig<GeneralDrawerConfig>.Instance.QuaternionDrawMode;
             set => GlobalConfig<GeneralDrawerConfig>.Instance.QuaternionDrawMode = value;
         }
-        #endif
 
         public override string EditorToString() {
             var v = Value;
@@ -33,5 +34,6 @@ namespace Vaflov {
                 default: return null;
             }
         }
+        #endif
     }
 }

@@ -1,3 +1,4 @@
+#if ODIN_INSPECTOR && UNITY_EDITOR
 using System;
 using System.Text;
 using System.Linq;
@@ -122,3 +123,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

@@ -51,7 +51,7 @@ namespace Vaflov {
         }
 
         public static List<Type> GetFlatTypesDerivedFrom(Type baseType, bool includeBaseType = true) {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (baseType == null)
                 return null;
             var types = TypeCache.GetTypesDerivedFrom(baseType)
@@ -60,9 +60,9 @@ namespace Vaflov {
             if (includeBaseType && !baseType.IsGenericType)
                 types.Add(baseType);
             return types;
-#else
+            #else
             return null;
-#endif
+            #endif
         }
     }
 }

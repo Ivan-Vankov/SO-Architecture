@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using System;
 using System.CodeDom;
 using System.Collections;
@@ -14,6 +16,7 @@ namespace Vaflov {
     }
 
     public class RuntimeSet<T> : RuntimeSetBase, ICollection<T>, IEnumerable<T>, IEnumerable, ISerializationCallbackReceiver where T : UnityEngine.Object {
+        #if ODIN_INSPECTOR
         [ReadOnly]
         [ListDrawerSettings(
             DraggableItems = false,
@@ -24,6 +27,7 @@ namespace Vaflov {
             //HideRemoveButton = true
             )]
         [PropertyOrder(20)]
+        #endif
         public List<T> items = new List<T>();
         public Dictionary<T, int> itemToIdx = new Dictionary<T, int>();
 

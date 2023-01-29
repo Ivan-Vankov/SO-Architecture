@@ -1,11 +1,8 @@
-﻿#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
-using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Vaflov {
     public static class SirenixEditorGUIUtil {

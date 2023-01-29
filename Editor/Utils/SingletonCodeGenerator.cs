@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.CodeDom;
 using System.Text;
 using UnityEditor;
@@ -159,3 +160,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

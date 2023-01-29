@@ -1,10 +1,9 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 
@@ -101,3 +100,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

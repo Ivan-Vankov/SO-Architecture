@@ -1,12 +1,9 @@
-﻿#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using static UnityEngine.Mathf;
 using UnityEditor;
 using UnityEngine;
 using static Vaflov.EditorStringUtil;

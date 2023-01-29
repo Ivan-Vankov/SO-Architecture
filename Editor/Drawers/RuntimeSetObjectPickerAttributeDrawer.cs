@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector.Editor.Drawers;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.OdinInspector.Editor.ValueResolvers;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
@@ -77,3 +78,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

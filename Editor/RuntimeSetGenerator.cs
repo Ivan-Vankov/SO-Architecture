@@ -1,10 +1,10 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using UnityEditor.Callbacks;
 using UnityEditor;
 using UnityEngine;
 using System;
 using System.Linq;
-using Sirenix.Utilities;
 using static Vaflov.FileUtil;
 
 namespace Vaflov {
@@ -77,3 +77,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

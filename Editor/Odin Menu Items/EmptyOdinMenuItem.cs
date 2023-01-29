@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 
 namespace Vaflov {
     public class EmptyOdinMenuItem : OdinMenuItem {
@@ -12,3 +13,4 @@ namespace Vaflov {
         public override void DrawMenuItem(int indentLevel) { }
     }
 }
+#endif

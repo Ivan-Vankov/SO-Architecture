@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using Sirenix.Utilities;
@@ -9,7 +10,6 @@ using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 using System;
 using static Vaflov.EditorStringUtil;
-using System.IO;
 
 namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
@@ -402,3 +402,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if ODIN_INSPECTOR && UNITY_EDITOR
+using System;
 using System.CodeDom;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +7,6 @@ using Microsoft.CSharp;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.ActionResolvers;
-using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.OdinInspector.Editor.ValueResolvers;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
@@ -482,3 +482,4 @@ namespace Vaflov {
         }
     }
 }
+#endif

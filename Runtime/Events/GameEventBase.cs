@@ -1,15 +1,10 @@
 ﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-#if UNITY_EDITOR
-using Sirenix.Utilities.Editor;
-#endif
 #endif
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Collections;
 
 namespace Vaflov {
     [HideInPlayMode]
@@ -22,6 +17,7 @@ namespace Vaflov {
         [HideInInspector]
         public string name = "Objects";
 
+        #if ODIN_INSPECTOR
         [ReadOnly]
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
@@ -33,6 +29,7 @@ namespace Vaflov {
             //ShowItemCount = false
             //HideRemoveButton = true
             )]
+        #endif
         public List<T> objects = new List<T>();
         public Dictionary<T, int> objToIdxs = new Dictionary<T, int>();
 
@@ -90,18 +87,27 @@ namespace Vaflov {
     }
 
     public class GameEventBase : EditorScriptableObject {
+        #if UNITY_EDITOR
+        #if ODIN_INSPECTOR
         [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(30)]
+        #endif
         public ObjSet<Component> componentListeners = new ObjSet<Component>() { name = "Component Listeners" };
+        #endif
 
+        #if UNITY_EDITOR
+        #if ODIN_INSPECTOR
         [HideLabel]
         [FoldoutGroup("Listeners", true)]
         [PropertyOrder(31)]
+        #endif
         public ObjSet<ScriptableObject> SOListeners = new ObjSet<ScriptableObject>() { name = "SO Listeners" };
+        #endif
 
         public override Type EditorObjectBaseType => typeof(GameEventBase);
 
+        #if UNITY_EDITOR
         public void AddListener(GameEventListenerBase listener) {
             if (listener.parent is MonoBehaviour) {
                 componentListeners.Add(Unsafe.As<MonoBehaviour>(listener.parent));
@@ -119,8 +125,10 @@ namespace Vaflov {
                 Debug.Assert(false, "Unknown game event listener object");
             }
         }
+        #endif
 
         [PropertyOrder(40)]
+        [NonSerialized]
         public GameEventEditMenu editMenu;
     }
 }

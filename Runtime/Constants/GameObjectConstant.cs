@@ -1,4 +1,6 @@
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Vaflov {
@@ -6,6 +8,7 @@ namespace Vaflov {
         public static Texture prefabIcon;
 
         public override Texture GetEditorIcon() {
+            #if UNITY_EDITOR
             prefabIcon = prefabIcon == null ? EditorGUIUtility.FindTexture("Prefab Icon") : prefabIcon;
             if (Value == null) {
                 return prefabIcon;
@@ -14,6 +17,9 @@ namespace Vaflov {
             return root != null
                 ? PrefabUtility.GetIconForGameObject(root)
                 : prefabIcon;
+            #else
+            return null;
+            #endif
         }
     }
 }

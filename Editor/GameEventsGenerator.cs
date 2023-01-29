@@ -1,11 +1,10 @@
+#if ODIN_INSPECTOR && UNITY_EDITOR
 using System;
 using System.Text;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static Vaflov.EditorTypeUtil;
 using static Vaflov.FileUtil;
-using static Vaflov.EditorStringUtil;
 using static Vaflov.SingletonCodeGenerator;
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
@@ -317,3 +316,4 @@ namespace Vaflov {
     //    }
     //}
 }
+#endif

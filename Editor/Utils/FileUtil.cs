@@ -1,5 +1,7 @@
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Vaflov {
@@ -18,14 +20,7 @@ namespace Vaflov {
                     .Replace('\\', '/'); // A bit sus but should work for now
         }
 
-        public static void TryCreateDirectoryAsset(string dirPath) {
-            if (Directory.Exists(dirPath)) { return; }
-            Directory.CreateDirectory(dirPath);
-            var dirAssetPath = FullPathToAssetPath(dirPath);
-            if (dirAssetPath == null) { return; }
-            AssetDatabase.ImportAsset(dirAssetPath, ImportAssetOptions.ForceUpdate);
-        }
-
+        #if UNITY_EDITOR
         public static string TryCreateFileAsset(string fileContents, string fileName, 
                                                 ImportAssetOptions importAssetOptions = ImportAssetOptions.ForceUpdate,
                                                 Texture2D icon = null,
@@ -56,5 +51,6 @@ namespace Vaflov {
             }
             return fileAssetPath;
         }
+        #endif
     }
 }
