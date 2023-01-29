@@ -9,6 +9,8 @@ using static Vaflov.Config;
 
 namespace Vaflov {
     public class GameEventListenerSO : EditorScriptableObject {
+        public const string RESOURCES_PATH = "Listeners";
+
         [HideInInspector]
         public GameEventBase eventRef;
 
@@ -67,6 +69,20 @@ namespace Vaflov {
             if (listener) {
                 DestroyImmediate(listener, true);
             }
+        }
+    }
+
+    public static class GameEventListenerSOBuildInitializer {
+        public static Object[] listenersKeepRef;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        public static void InitializeListenerSOs() {
+            // Load all the listener scriptable objects at the start of the game.
+            // This will call their OnEnable methods and they will be added
+            // to their respective game events.
+            // This is necessary as unity doesn't load them automatically.
+            // Listeners are kept in an array so that unity doesn't randomly unload them.
+            listenersKeepRef = Resources.LoadAll(GameEventListenerSO.RESOURCES_PATH);
         }
     }
 

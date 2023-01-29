@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 
 namespace Vaflov {
-    public static class AssetUtil {
+    public static class EditorAssetUtil {
         public static List<string> GetAssetPathsForType(Type baseType) {
             var types = TypeUtil.GetFlatTypesDerivedFrom(baseType);
             var assetNames = new List<string>();

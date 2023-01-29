@@ -109,7 +109,7 @@ namespace Vaflov {
 
         public void Reset(Type defaultType = null) {
             creationData.Reset();
-            assetNames = AssetUtil.GetAssetPathsForType(typeof(GameEventBase));
+            assetNames = EditorAssetUtil.GetAssetPathsForType(typeof(GameEventBase));
         }
 
         [OnInspectorGUI]

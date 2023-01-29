@@ -18,6 +18,7 @@ namespace Vaflov {
             #if UNITY_EDITOR
             base.AddListener(listener);
             #endif
+            action -= listener.CallResponse;
             action += listener.CallResponse;
         }
 

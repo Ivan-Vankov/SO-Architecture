@@ -317,7 +317,7 @@ namespace Vaflov {
                 types = types.Where(typeFilter).ToList();
             }
             typeDropdownFieldDrawer = new TypeDropdownFieldDrawer(types, defaultType ?? this.defaultType);
-            assetNames = AssetUtil.GetAssetPathsForType(baseType);
+            assetNames = EditorAssetUtil.GetAssetPathsForType(baseType);
         }
 
         [OnInspectorGUI]

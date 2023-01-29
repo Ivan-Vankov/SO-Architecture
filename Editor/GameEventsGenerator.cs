@@ -156,6 +156,7 @@ namespace Vaflov {
                 .AppendLine("\t\t\t#if UNITY_EDITOR")
                 .AppendLine("\t\t\tbase.AddListener(listener);")
                 .AppendLine("\t\t\t#endif")
+                .AppendLine("\t\t\taction -= listener.CallResponse;")
                 .AppendLine("\t\t\taction += listener.CallResponse;")
                 .AppendLine("\t\t}")
                 .AppendLine()

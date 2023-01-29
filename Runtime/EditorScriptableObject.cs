@@ -87,9 +87,7 @@ namespace Vaflov {
         [HideInInlineEditors]
         [OnInspectorGUI]
         public void ShowName() {
-            // TODO: Add name validation, move this to an attribute drawer https://www.youtube.com/watch?v=v9yNUctD4Qg
-            // Or at liest it should become multi-editing aware
-            // It should use the same logic as the "new constant" name
+            // TODO: Make this multi-editing aware
             if (editorObjParent == null)
                 return;
             var oldName = editorObjParent.name;
