@@ -128,7 +128,6 @@ namespace Vaflov {
         #endif
 
         [PropertyOrder(40)]
-        [NonSerialized]
         public GameEventEditMenu editMenu;
     }
 }

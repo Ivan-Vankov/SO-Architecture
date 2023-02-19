@@ -392,6 +392,7 @@ namespace Vaflov {
                 if (TypeUtil.IsInheritedFrom(type, editorObjMenu.EditorObjBaseType)) {
                     //Debug.Log("Selecting " + path);
                     editorObjMenu.TrySelectMenuItemWithObject(AssetDatabase.LoadAssetAtPath<ScriptableObject>(path));
+                    break;
                 }
             }
         }

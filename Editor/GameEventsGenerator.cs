@@ -276,27 +276,38 @@ namespace Vaflov {
         }
     }
 
-    // TODO: Change this to an AssetModificationProcessor like the one in https://forum.unity.com/threads/ondestroy-and-ondisable-are-not-called-when-deleting-a-scriptableobject-file.1129220/
-    public class GameEventClassRemover : AssetPostprocessor {
-        public const string gameEventPrefix = "Assets/Resources/Game Events/";
+    public class GameEventClassRemover : AssetModificationProcessor {
+        public static HashSet<Type> deletedGameEventTypes = new HashSet<Type>();
 
-        public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
-            for (int i = 0; i < deletedAssets?.Length; ++i) {
-                var deletedAsset = deletedAssets[i];
-                if (!deletedAsset.StartsWith(gameEventPrefix) || !deletedAsset.EndsWith(".asset"))
+        public static void DeleteGameEventClassesDelayed() {
+            foreach (var gameEventType in deletedGameEventTypes) {
+                //Debug.Log(gameEventType.Name);
+                var assets = AssetDatabase.FindAssets($"t: {gameEventType}");
+                if (assets?.Length > 0)
                     continue;
 
-                var assetName = deletedAsset[gameEventPrefix.Length..^6]
-                    .RemoveWhitespaces();
-
-                AssetDatabase.DeleteAsset($"Assets/SO Architecture/Generated/Game Event Listeners/{assetName}GameEventListener.cs");
-                AssetDatabase.DeleteAsset($"Assets/SO Architecture/Generated/Game Events/{assetName}GameEvent.cs");
+                var gameEventClassName = gameEventType.Name;
+                var gameEventListenerClassName = gameEventClassName + "Listener";
+                AssetDatabase.DeleteAsset($"Assets/{Config.PACKAGE_NAME}/Generated/Game Event Listeners/{gameEventListenerClassName}.cs");
+                AssetDatabase.DeleteAsset($"Assets/{Config.PACKAGE_NAME}/Generated/Game Events/{gameEventClassName}.cs");
             }
+            deletedGameEventTypes.Clear();
+        }
+
+        public static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) {
+            var gameEventAsset = AssetDatabase.LoadAssetAtPath<GameEventBase>(path);
+            if (gameEventAsset) {
+                var gameEventType = gameEventAsset.GetType();
+                if (gameEventType == typeof(GameEventVoid))
+                    return AssetDeleteResult.DidNotDelete;
+                deletedGameEventTypes.Add(gameEventType);
+                if (deletedGameEventTypes.Count == 1) {
+                    UnityEditorEventUtility.DelayAction(DeleteGameEventClassesDelayed);
+                }
+            }
+            return AssetDeleteResult.DidNotDelete;
         }
     }
-
-    //public class GameEventsUpdater : AssetPostprocessor {
-    //}
 
     //public class GameEventsUpdater : AssetPostprocessor {
     //    public static bool CheckUpdateGameEvents(string[] modifiedAssetPaths) {

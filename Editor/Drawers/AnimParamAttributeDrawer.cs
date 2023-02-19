@@ -93,7 +93,8 @@ namespace Vaflov {
                     .ToArray();
             }
             GenericSelector<string> animParamSelector = new GenericSelector<string>(null, paramNames, false);
-            
+
+            animParamSelector.SetSelection(Property.ValueEntry.WeakSmartValue as string);
             animParamSelector.SelectionTree.Config.DrawSearchToolbar = paramNames.Length > 5;
             animParamSelector.EnableSingleClickToSelect();
             animParamSelector.SelectionTree.SortMenuItemsByName();
