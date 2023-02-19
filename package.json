@@ -9,8 +9,7 @@
   "description": "Scriptable Object (SO) Architecture provides scriptable object-based events, event listeners, constants and enums.\nThe project is based on Ryan Hipple's talk at Unite Austin 2017 https://www.youtube.com/watch?v=raQ3iHhE_Kk and borrows from SolidAlloy's projects https://github.com/SolidAlloy.",
   "unity": "2021.3",
   "dependencies": {
-    "com.solidalloy.extevents": "1.7.0",
-    "com.solidalloy.type-references": "2.16.0"
+    "com.solidalloy.extevents": "1.7.0"
   },
   "samples": [
     {
