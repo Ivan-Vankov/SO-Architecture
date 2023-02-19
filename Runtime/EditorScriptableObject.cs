@@ -117,26 +117,24 @@ namespace Vaflov {
         }
 
         public IEnumerable<string> GetEditorObjGroups() {
-            var editorObjTypes = TypeUtil.GetFlatTypesDerivedFrom(editorObjParentBaseType);
-            if (editorObjTypes == null)
-                Array.Empty<string>();
-
             var seenGroups = new HashSet<string>();
             var folders = SOArchitectureConfig.Instance.editorFolders.GetValueOrDefault(editorObjParentBaseType)?.ToArray();
-            foreach (var editorObjType in editorObjTypes) {
-                var editorObjAssetGuids = AssetDatabase.FindAssets($"t: {editorObjType}", folders);
-                foreach (var editorObjAssetGuid in editorObjAssetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(editorObjAssetGuid);
-                    var editorObjAsset = AssetDatabase.LoadAssetAtPath(assetPath, editorObjType);
-
-                    var groupName = (editorObjAsset as IEditorObject).EditorGroup;
-                    if (groupName == null) {
-                        continue;
-                    }
-                    if (!seenGroups.Contains(groupName)) {
-                        seenGroups.Add(groupName);
-                    }
+            var editorObjAssetGuids = AssetDatabase.FindAssets($"t: {nameof(EditorScriptableObject)}", folders);
+            foreach (var editorObjAssetGuid in editorObjAssetGuids) {
+                var assetPath = AssetDatabase.GUIDToAssetPath(editorObjAssetGuid);
+                var editorObjAsset = AssetDatabase.LoadAssetAtPath(assetPath, typeof(EditorScriptableObject));
+                if (!editorObjAsset || !TypeUtil.IsInheritedFrom(editorObjAsset.GetType(), editorObjParentBaseType))
+                    continue;
+                var groupName = (editorObjAsset as IEditorObject).EditorGroup;
+                if (groupName == null) {
+                    continue;
                 }
+                if (!seenGroups.Contains(groupName)) {
+                    seenGroups.Add(groupName);
+                }
+            }
+            if (!seenGroups.Contains("")) {
+                seenGroups.Add("");
             }
             var groupsList = new List<string>(seenGroups);
             groupsList.Sort();
