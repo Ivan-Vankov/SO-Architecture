@@ -51,7 +51,7 @@ namespace Vaflov {
             TryCreateFileAsset(code, $"{wrapperClassName}.cs",
                 ImportAssetOptions.ForceUpdate,
                 Resources.Load<Texture2D>("Set Large"),
-                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Runtime Sets");
+                Application.dataPath, SOArchitectureConfig.PACKAGE_NAME, "Generated", "Runtime Sets");
         }
 
         [DidReloadScripts]

@@ -7,7 +7,7 @@ using Sirenix.Utilities.Editor;
 #endif
 #endif
 using UnityEngine;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     public class QuaternionConstant : Constant<Quaternion> {

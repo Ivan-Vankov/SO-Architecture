@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 #endif
 using System;
 using UnityEngine;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     public class ColorConstant : Constant<Color> {

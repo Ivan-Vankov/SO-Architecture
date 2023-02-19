@@ -11,13 +11,14 @@ using static Vaflov.EditorStringUtil;
 namespace Vaflov {
     public class GameEventsEditorWindow : EditorObjectMenuEditorWindow {
         public override Type EditorObjBaseType => typeof(GameEventBase);
+        public override string DefaultEditorObjFolderPath() => "Assets/Resources/Game Events";
 
         public override IEditorObjectCreator CreateEditorObjectCreator() => new CreateNewGameEvent();
 
-        [MenuItem("Tools/" + Config.PACKAGE_NAME + "/Game Events Editor", priority = 20)]
+        [MenuItem("Tools/" + SOArchitectureConfig.PACKAGE_NAME + "/Game Events Editor", priority = 20)]
         public static GameEventsEditorWindow Open() => Open<GameEventsEditorWindow>("Game Events", "Game Events");
 
-        [MenuItem("Assets/Create/" + Config.PACKAGE_NAME + "/Game Event", priority = 20)]
+        [MenuItem("Assets/Create/" + SOArchitectureConfig.PACKAGE_NAME + "/Game Event", priority = 20)]
         public static void CreateEvent() => Open().TryOpenEditorObjectCreationMenu();
 
         public override List<OdinContextMenuItem> GetToolbarItems() {

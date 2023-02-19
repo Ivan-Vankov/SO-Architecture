@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 #endif
 using System;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     public static class RangeConstant {

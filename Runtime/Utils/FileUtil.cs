@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -20,8 +20,8 @@ namespace Vaflov {
                     .Replace('\\', '/'); // A bit sus but should work for now
         }
 
-        #if UNITY_EDITOR
-        public static string TryCreateFileAsset(string fileContents, string fileName, 
+#if UNITY_EDITOR
+        public static string TryCreateFileAsset(string fileContents, string fileName,
                                                 ImportAssetOptions importAssetOptions = ImportAssetOptions.ForceUpdate,
                                                 Texture2D icon = null,
                                                 params string[] directoryArgs) {
@@ -38,8 +38,8 @@ namespace Vaflov {
             }
 
             var fileAssetPath = FullPathToAssetPath(filePath);
-            if (fileAssetPath == null) { 
-                return null; 
+            if (fileAssetPath == null) {
+                return null;
             }
             AssetDatabase.ImportAsset(fileAssetPath, importAssetOptions);
             if (icon != null) {
@@ -51,6 +51,6 @@ namespace Vaflov {
             }
             return fileAssetPath;
         }
-        #endif
+#endif
     }
 }

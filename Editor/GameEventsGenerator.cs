@@ -128,7 +128,7 @@ namespace Vaflov {
             var className = name + codegen.singletonConceptName;
 
             gameEventCodeBuilder
-                .AppendLine(Config.AUTO_GENERATED_HEADER)
+                .AppendLine(SOArchitectureConfig.AUTO_GENERATED_HEADER)
                 .AppendLine("#if ODIN_INSPECTOR")
                 .AppendLine("using Sirenix.OdinInspector;")
                 .AppendLine("#endif")
@@ -172,7 +172,7 @@ namespace Vaflov {
             TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{className}.cs",
                 ImportAssetOptions.Default,
                 Resources.Load<Texture2D>("Game Event"),
-                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Events");
+                Application.dataPath, SOArchitectureConfig.PACKAGE_NAME, "Generated", "Game Events");
         }
 
         public static void GenerateGameEventListenerClass(string name, List<GameEventArgData> args) {
@@ -184,7 +184,7 @@ namespace Vaflov {
             var gameEventListenerClassName = gameEventClassName + "Listener";
 
             gameEventCodeBuilder
-                .AppendLine(Config.AUTO_GENERATED_HEADER)
+                .AppendLine(SOArchitectureConfig.AUTO_GENERATED_HEADER)
                 .AppendLine("using ExtEvents;")
                 .AppendLine()
                 .AppendLine($"namespace {codegen.singletonNamespaceName} {{")
@@ -198,7 +198,7 @@ namespace Vaflov {
             TryCreateFileAsset(gameEventCodeBuilder.ToString(), $"{gameEventListenerClassName}.cs",
                 ImportAssetOptions.Default,
                 Resources.Load<Texture2D>("Listener"),
-                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Game Event Listeners");
+                Application.dataPath, SOArchitectureConfig.PACKAGE_NAME, "Generated", "Game Event Listeners");
         }
 
         [DidReloadScripts]
@@ -288,8 +288,8 @@ namespace Vaflov {
 
                 var gameEventClassName = gameEventType.Name;
                 var gameEventListenerClassName = gameEventClassName + "Listener";
-                AssetDatabase.DeleteAsset($"Assets/{Config.PACKAGE_NAME}/Generated/Game Event Listeners/{gameEventListenerClassName}.cs");
-                AssetDatabase.DeleteAsset($"Assets/{Config.PACKAGE_NAME}/Generated/Game Events/{gameEventClassName}.cs");
+                AssetDatabase.DeleteAsset($"Assets/{SOArchitectureConfig.PACKAGE_NAME}/Generated/Game Event Listeners/{gameEventListenerClassName}.cs");
+                AssetDatabase.DeleteAsset($"Assets/{SOArchitectureConfig.PACKAGE_NAME}/Generated/Game Events/{gameEventClassName}.cs");
             }
             deletedGameEventTypes.Clear();
         }

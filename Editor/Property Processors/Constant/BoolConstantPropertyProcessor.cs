@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System.Collections.Generic;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     public class BoolConstantPropertyProcessor<T> : OdinPropertyProcessor<T> where T : Constant<bool> {

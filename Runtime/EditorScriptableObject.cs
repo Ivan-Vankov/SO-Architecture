@@ -11,7 +11,7 @@ using System.Text;
 using UnityEditor;
 #endif
 using UnityEngine;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     public interface ISortKeyObject {
@@ -122,8 +122,9 @@ namespace Vaflov {
                 Array.Empty<string>();
 
             var seenGroups = new HashSet<string>();
+            var folders = SOArchitectureConfig.Instance.editorFolders.GetValueOrDefault(editorObjParentBaseType)?.ToArray();
             foreach (var editorObjType in editorObjTypes) {
-                var editorObjAssetGuids = AssetDatabase.FindAssets($"t: {editorObjType}");
+                var editorObjAssetGuids = AssetDatabase.FindAssets($"t: {editorObjType}", folders);
                 foreach (var editorObjAssetGuid in editorObjAssetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(editorObjAssetGuid);
                     var editorObjAsset = AssetDatabase.LoadAssetAtPath(assetPath, editorObjType);

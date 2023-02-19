@@ -9,13 +9,15 @@ namespace Vaflov {
     public class ConstantsEditorWindow : EditorObjectMenuEditorWindow {
         public override Type EditorObjBaseType => typeof(Constant<>);
 
+        public override string DefaultEditorObjFolderPath() => "Assets/Resources/Constant";
+
         public override IEditorObjectCreator CreateEditorObjectCreator() =>
             new GenericEditorObjectCreator(EditorObjBaseType, "New Constant", "Add a new constant", ConstantsGenerator.GenerateConstantAsset);
 
-        [MenuItem("Tools/" + Config.PACKAGE_NAME + "/Constants Editor", priority = 10)]
+        [MenuItem("Tools/" + SOArchitectureConfig.PACKAGE_NAME + "/Constants Editor", priority = 10)]
         public static ConstantsEditorWindow Open() => Open<ConstantsEditorWindow>("Constants", "pi");
 
-        [MenuItem("Assets/Create/" + Config.PACKAGE_NAME + "/Constant", priority = 10)]
+        [MenuItem("Assets/Create/" + SOArchitectureConfig.PACKAGE_NAME + "/Constant", priority = 10)]
         public static void CreateConstant() => Open().TryOpenEditorObjectCreationMenu();
 
         public override List<OdinContextMenuItem> GetToolbarItems() {

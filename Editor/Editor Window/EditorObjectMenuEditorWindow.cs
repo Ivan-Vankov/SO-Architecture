@@ -10,11 +10,13 @@ using UnityEngine;
 using static Vaflov.ContextMenuItemShortcutHandler;
 using System;
 using static Vaflov.EditorStringUtil;
+using System.IO;
 
 namespace Vaflov {
     public abstract class EditorObjectMenuEditorWindow : OdinMenuEditorWindow {
         [NonSerialized]
         public IEditorObjectCreator editorObjectCreator;
+        public IEditorObjectOptions editorObjectOptions;
         public abstract Type EditorObjBaseType { get; }
         public Type forcedDefaultType;
 
@@ -51,9 +53,13 @@ namespace Vaflov {
 
         public virtual IEditorObjectCreator CreateEditorObjectCreator() => null;
 
+        public virtual string DefaultEditorObjFolderPath() => null;
+        public virtual IEditorObjectOptions CreateEditorObjectOptions() => new DefaultEditorObjectOptions(EditorObjBaseType, DefaultEditorObjFolderPath());
+
         protected override void OnEnable() {
             base.OnEnable();
             editorObjectCreator = CreateEditorObjectCreator();
+            editorObjectOptions = CreateEditorObjectOptions();
             EditorObject.OnEditorPropChanged += RebuildEditorGroupsOnPropChanged;
         }
 
@@ -98,10 +104,11 @@ namespace Vaflov {
             //    .SelectMany(assembly => assembly.GetTypes())
             //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
             //    .ToList();
-
+            
             var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
+            var folders = SOArchitectureConfig.Instance.editorFolders.GetValueOrDefault(EditorObjBaseType)?.ToArray();
             foreach (var type in types) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
+                var assetGuids = AssetDatabase.FindAssets($"t: {type}", folders);
                 foreach (var assetGuid in assetGuids) {
                     var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
                     var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
@@ -201,11 +208,21 @@ namespace Vaflov {
                 tree.AddMenuItemAtPath("", editorObjectCreatorMenuItem);
             }
 
+            if (editorObjectOptions != null) {
+                var editorObjectOptionsMenuItem = new EmptyOdinMenuItem(tree, "Options", editorObjectOptions);
+                tree.AddMenuItemAtPath("", editorObjectOptionsMenuItem);
+            }
+
             return tree;
         }
 
         public virtual List<OdinContextMenuItem> GetToolbarItems() {
             var items = new List<OdinContextMenuItem>();
+            if (editorObjectOptions != null) {
+                items.Add(new OdinContextMenuItem("Options", () => {
+                    TrySelectMenuItemWithObject(editorObjectOptions);
+                }, icon: SdfIconType.Gear));
+            }
             if (editorObjectCreator != null) {
                 items.Add(new OdinContextMenuItem(editorObjectCreator.Description, () => {
                     TryOpenEditorObjectCreationMenu();
@@ -242,6 +259,42 @@ namespace Vaflov {
             SirenixEditorGUI.EndHorizontalToolbar();
 
             HandleContextMenuItemShortcuts(toolbarItems);
+        }
+    }
+
+    public interface IEditorObjectOptions {
+        List<string> FolderPaths { get; }
+    }
+
+    [Serializable]
+    public class DefaultEditorObjectOptions : IEditorObjectOptions {
+        [HideInInspector]
+        public Type editorObjBaseType;
+
+        public DefaultEditorObjectOptions(Type editorObjBaseType, string defaultFolderPath) {
+            this.editorObjBaseType = editorObjBaseType;
+            try {
+                Path.GetFullPath(defaultFolderPath);
+            } catch (Exception) {
+                return;
+            }
+            if (!FolderPaths.Contains(defaultFolderPath)) {
+                FolderPaths.Add(defaultFolderPath);
+            }
+        }
+
+        [FolderPath]
+        [ShowInInspector]
+        public List<string> FolderPaths {
+            get {
+                var config = SOArchitectureConfig.Instance;
+                config.editorFolders ??= new Dictionary<Type, List<string>>();
+                if (!config.editorFolders.ContainsKey(editorObjBaseType)) {
+                    config.editorFolders.Add(editorObjBaseType, new List<string>());
+                }
+                return config.editorFolders[editorObjBaseType];
+            }
+            set {}
         }
     }
 

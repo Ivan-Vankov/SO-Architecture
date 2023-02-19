@@ -15,7 +15,7 @@ namespace Vaflov {
         public string singletonInstanceName = "Instance";
         public string singletonConceptName;
         public string singletonFieldSuffix;
-        public string singletonDirectoryName = Config.PACKAGE_NAME;
+        public string singletonDirectoryName = SOArchitectureConfig.PACKAGE_NAME;
         public StringBuilder singletonCodeBuilder = new StringBuilder();
         public System.Diagnostics.Stopwatch singletonCodegenTimer = new System.Diagnostics.Stopwatch();
         public string singletonCodePath = null;
@@ -72,7 +72,7 @@ namespace Vaflov {
             singletonNamespacePrefix = singletonNamespacePrefix != null
                 ? singletonNamespacePrefix
                 : singletonNamespaceName + ".";
-            var realTypeName = Config.codeProvider.GetTypeOutput(new CodeTypeReference(type));
+            var realTypeName = SOArchitectureConfig.codeProvider.GetTypeOutput(new CodeTypeReference(type));
             return realTypeName.StartsWith(singletonNamespacePrefix)
                 ? realTypeName.Substring(singletonNamespacePrefix.Length)
                 : realTypeName;
@@ -104,7 +104,7 @@ namespace Vaflov {
 
         public SingletonCodeGenerator AddSingletonHeader() {
             singletonCodeBuilder
-                .AppendLine(Config.AUTO_GENERATED_HEADER)
+                .AppendLine(SOArchitectureConfig.AUTO_GENERATED_HEADER)
                 .AppendLine("using UnityEngine;")
                 .AppendLine()
                 .AppendLine($"namespace {singletonNamespaceName} {{")

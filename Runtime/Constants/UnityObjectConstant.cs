@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
-using static Vaflov.Config;
+using static Vaflov.SOArchitectureConfig;
 
 namespace Vaflov {
     #if ODIN_INSPECTOR

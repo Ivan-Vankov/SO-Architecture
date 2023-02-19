@@ -70,7 +70,7 @@ namespace Vaflov {
             TryCreateFileAsset(code, $"{wrapperClassName}.cs",
                 ImportAssetOptions.ForceUpdate,
                 null,
-                Application.dataPath, Config.PACKAGE_NAME, "Generated", "Constants");
+                Application.dataPath, SOArchitectureConfig.PACKAGE_NAME, "Generated", "Constants");
         }
 
         [DidReloadScripts]
