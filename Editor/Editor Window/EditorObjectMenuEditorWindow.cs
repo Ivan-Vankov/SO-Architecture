@@ -99,7 +99,7 @@ namespace Vaflov {
             tree.Config.DefaultMenuStyle = menuStyle;
             tree.DefaultMenuStyle = menuStyle;
 
-            var types = TypeUtil.GetFlatTypesDerivedFrom(EditorObjBaseType);
+            //var types = TypeUtil.GetFlatTypesDerivedFrom(EditorObjBaseType);
             //var constantTypes = AppDomain.CurrentDomain.GetAssemblies()
             //    .SelectMany(assembly => assembly.GetTypes())
             //    .Where(type => type.IsClass && !type.IsGenericType && !type.IsAbstract && IsInheritedFrom(type, typeof(Constant<>)))
@@ -107,21 +107,36 @@ namespace Vaflov {
             
             var groups = new SortedDictionary<string, HashSet<UnityEngine.Object>>();
             var folders = SOArchitectureConfig.Instance.editorFolders.GetValueOrDefault(EditorObjBaseType)?.ToArray();
-            foreach (var type in types) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}", folders);
-                foreach (var assetGuid in assetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
-                    var groupName = (asset as IEditorObject).EditorGroup;
-                    groupName = groupName == null || groupName == "" ? "Default" : groupName;
+            var assetGuids = AssetDatabase.FindAssets($"t: {nameof(EditorScriptableObject)}", folders);
+            foreach (var assetGuid in assetGuids) {
+                var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+                var asset = AssetDatabase.LoadAssetAtPath(assetPath, typeof(EditorScriptableObject));
+                if (!asset || !TypeUtil.IsInheritedFrom(asset.GetType(), EditorObjBaseType))
+                    continue;
+                var groupName = (asset as IEditorObject).EditorGroup;
+                groupName = groupName == null || groupName == "" ? "Default" : groupName;
 
-                    if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
-                        groupResult = new HashSet<UnityEngine.Object>();
-                        groups[groupName] = groupResult;
-                    }
-                    groupResult.Add(asset);
+                if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
+                    groupResult = new HashSet<UnityEngine.Object>();
+                    groups[groupName] = groupResult;
                 }
+                groupResult.Add(asset);
             }
+            //foreach (var type in types) {
+            //    var assetGuids = AssetDatabase.FindAssets($"t: {type}", folders);
+            //    foreach (var assetGuid in assetGuids) {
+            //        var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+            //        var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
+            //        var groupName = (asset as IEditorObject).EditorGroup;
+            //        groupName = groupName == null || groupName == "" ? "Default" : groupName;
+
+            //        if (!groups.TryGetValue(groupName, out HashSet<UnityEngine.Object> groupResult)) {
+            //            groupResult = new HashSet<UnityEngine.Object>();
+            //            groups[groupName] = groupResult;
+            //        }
+            //        groupResult.Add(asset);
+            //    }
+            //}
 
             foreach ((var groupName, var group) in groups) {
                 var groupList = group.ToList();
@@ -370,7 +385,9 @@ namespace Vaflov {
                 types = types.Where(typeFilter).ToList();
             }
             typeDropdownFieldDrawer = new TypeDropdownFieldDrawer(types, defaultType ?? this.defaultType);
-            assetNames = EditorAssetUtil.GetAssetPathsForType(baseType);
+
+            var folders = SOArchitectureConfig.Instance.editorFolders.GetValueOrDefault(baseType)?.ToArray();
+            assetNames = EditorAssetUtil.GetAssetPathsForType(baseType, folders);
         }
 
         [OnInspectorGUI]

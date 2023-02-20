@@ -5,17 +5,13 @@ using UnityEditor;
 
 namespace Vaflov {
     public static class EditorAssetUtil {
-        public static List<string> GetAssetPathsForType(Type baseType) {
-            var types = TypeUtil.GetFlatTypesDerivedFrom(baseType);
+        public static List<string> GetAssetPathsForType(Type baseType, string[] folders = null) {
             var assetNames = new List<string>();
-            if (types == null) {
-                return assetNames;
-            }
-            foreach (var type in types) {
-                var assetGuids = AssetDatabase.FindAssets($"t: {type}");
-                foreach (var assetGuid in assetGuids) {
-                    var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-                    var asset = AssetDatabase.LoadAssetAtPath(assetPath, type);
+            var assetGuids = AssetDatabase.FindAssets($"t: {baseType}", folders);
+            foreach (var assetGuid in assetGuids) {
+                var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+                var asset = AssetDatabase.LoadAssetAtPath(assetPath, baseType);
+                if (asset) {
                     assetNames.Add(asset.name);
                 }
             }
