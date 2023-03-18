@@ -10,7 +10,8 @@ namespace Vaflov {
         public static void HandleContextMenuItemShortcuts(IEnumerable<OdinContextMenuItem> contextMenuItems,
                                                           Action onShortcutPressed = null) {
             #if ODIN_INSPECTOR && UNITY_EDITOR
-            if (contextMenuItems == null)
+            // If a field is currently being edited then context menu shortcuts are skipped
+            if (contextMenuItems == null || GUIUtility.keyboardControl != 0)
                 return;
             var _event = Event.current;
             foreach (var contextMenuItem in contextMenuItems) {
