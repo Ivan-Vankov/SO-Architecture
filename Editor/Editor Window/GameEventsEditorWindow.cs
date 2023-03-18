@@ -110,7 +110,8 @@ namespace Vaflov {
 
         public void Reset(Type defaultType = null) {
             creationData.Reset();
-            assetNames = EditorAssetUtil.GetAssetPathsForType(typeof(GameEventBase));
+            var folders = SOArchitectureConfig.Instance.editorFolders[typeof(GameEventBase)]?.ToArray();
+            assetNames = EditorAssetUtil.GetAssetPathsForType(typeof(GameEventBase), folders);
         }
 
         [OnInspectorGUI]

@@ -5,27 +5,32 @@ using UnityEditor;
 #endif
 
 namespace Vaflov {
-    public interface IResetOnExitPlayMode { }
+    /// <summary>
+    /// <see cref="ScriptableObject"/>s that implement <see cref="IRuntimeAsset"/> will have their
+    /// values saved when play mode is entered and restored when play mode is exited.
+    /// This is useful when you want to use <see cref="ScriptableObject"/>s as data containers.
+    /// </summary>
+    public interface IRuntimeAsset { }
 
     #if UNITY_EDITOR
     public static class SOPlayModeResetter {
         public static Dictionary<ScriptableObject, string> defaultSOValues = new Dictionary<ScriptableObject, string>();
 
-        [InitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void RegisterResets() {
-            EditorApplication.playModeStateChanged += ResetSOsWithIResetOnExitPlayMode;
+            foreach (var asset in FindAssets<ScriptableObject>()) {
+                if (asset is IRuntimeAsset) {
+                    defaultSOValues[asset] = JsonUtility.ToJson(asset);
+                }
+            }
+
+            EditorApplication.playModeStateChanged += ResetSOsWithIRuntimeAsset;
         }
 
-        public static void ResetSOsWithIResetOnExitPlayMode(PlayModeStateChange change) {
-            if (change == PlayModeStateChange.EnteredPlayMode) {
+        public static void ResetSOsWithIRuntimeAsset(PlayModeStateChange change) {
+            if (change == PlayModeStateChange.EnteredEditMode) {
                 foreach (var asset in FindAssets<ScriptableObject>()) {
-                    if (asset is IResetOnExitPlayMode) {
-                        defaultSOValues[asset] = JsonUtility.ToJson(asset);
-                    }
-                }
-            } else if (change == PlayModeStateChange.ExitingPlayMode) {
-                foreach (var asset in FindAssets<ScriptableObject>()) {
-                    if (asset is IResetOnExitPlayMode) {
+                    if (asset is IRuntimeAsset) {
                         var defaultValue = defaultSOValues[asset];
                         if (defaultValue != null) {
                             //EditorJsonUtility.FromJsonOverwrite(defaultValue, asset);
@@ -35,6 +40,8 @@ namespace Vaflov {
                 }
                 defaultSOValues.Clear();
                 AssetDatabase.SaveAssets();
+
+                EditorApplication.playModeStateChanged -= ResetSOsWithIRuntimeAsset;
             }
         }
 
