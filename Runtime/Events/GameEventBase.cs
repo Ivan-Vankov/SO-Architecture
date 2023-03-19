@@ -22,12 +22,9 @@ namespace Vaflov {
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
             DraggableItems = false,
-            //Expanded = true,
+            Expanded = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 10
-            //IsReadOnly = true
-            //ShowItemCount = false
-            //HideRemoveButton = true
             )]
         #endif
         public List<T> objects = new List<T>();
@@ -39,22 +36,20 @@ namespace Vaflov {
         // Fill dictionary with list contents
         public void OnAfterDeserialize() {
             objToIdxs.Clear();
+            objects.RemoveAll(x => !x);
             for (int i = 0; i < objects.Count; ++i) {
                 objToIdxs.Add(objects[i], i);
             }
         }
 
         public void Add(T listener) {
-            //if (!objects.Contains(listener))
-            //    objects.Add(listener);
-            if (!objToIdxs.ContainsKey(listener)) {
+            if (listener && !objToIdxs.ContainsKey(listener)) {
                 objects.Add(listener);
                 objToIdxs[listener] = objects.Count - 1;
             }
         }
 
         public bool Remove(T obj) {
-            //objects.Remove(obj);
             if (!objToIdxs.Remove(obj, out int idx))
                 return false;
             var lastObj = objects[objects.Count - 1];

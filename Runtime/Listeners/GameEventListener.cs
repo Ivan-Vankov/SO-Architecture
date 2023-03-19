@@ -61,6 +61,9 @@ namespace Vaflov {
                     }
                 }
                 #endif
+                if (listener) {
+                    listener.parent = this;
+                }
                 return listener;
             }
             private set {
