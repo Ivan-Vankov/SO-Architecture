@@ -9,6 +9,7 @@ namespace Vaflov {
         public abstract void OnInit();
         public abstract void OnDone();
         public abstract void AssignGameEvent(GameEventBase gameEvent);
+        public abstract GameEventBase GetEventRef();
     }
 
     public abstract class GameEventListener<V, T> : GameEventListenerBase where V : GameEvent1Base<V, T> {
@@ -35,6 +36,8 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+
+        public override GameEventBase GetEventRef() => eventRef;
     }
 
     public abstract class GameEventListener<V, T1, T2> : GameEventListenerBase where V : GameEvent2Base<V, T1, T2> {
@@ -61,6 +64,7 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+        public override GameEventBase GetEventRef() => eventRef;
     }
 
     public abstract class GameEventListener<V, T1, T2, T3> : GameEventListenerBase where V : GameEvent3Base<V, T1, T2, T3> {
@@ -87,6 +91,7 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+        public override GameEventBase GetEventRef() => eventRef;
     }
 
     public abstract class GameEventListener<V, T1, T2, T3, T4> : GameEventListenerBase where V : GameEvent4Base<V, T1, T2, T3, T4> {
@@ -113,6 +118,7 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+        public override GameEventBase GetEventRef() => eventRef;
     }
 
     public abstract class GameEventListener<V, T1, T2, T3, T4, T5> : GameEventListenerBase where V : GameEvent5Base<V, T1, T2, T3, T4, T5> {
@@ -139,6 +145,7 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+        public override GameEventBase GetEventRef() => eventRef;
     }
 
     public abstract class GameEventListener<V, T1, T2, T3, T4, T5, T6> : GameEventListenerBase where V : GameEvent6Base<V, T1, T2, T3, T4, T5, T6> {
@@ -165,5 +172,6 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (V)gameEvent;
         }
+        public override GameEventBase GetEventRef() => eventRef;
     }
 }

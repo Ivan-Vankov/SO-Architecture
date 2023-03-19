@@ -26,5 +26,7 @@ namespace Vaflov {
         public override void AssignGameEvent(GameEventBase gameEvent) {
             eventRef = (GameEventVoid)gameEvent;
         }
+
+        public override GameEventBase GetEventRef() => eventRef;
     }
 }

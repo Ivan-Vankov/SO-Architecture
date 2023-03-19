@@ -72,16 +72,18 @@ namespace Vaflov {
         }
     }
 
+    /// <summary>
+    /// Load all the listener scriptable objects at the start of the game.
+    /// This will call their OnEnable methods and they will be added
+    /// to their respective game events.
+    /// This is necessary as unity doesn't load them automatically.
+    /// Listeners are kept in an array so that unity doesn't randomly unload them.
+    /// </summary>
     public static class GameEventListenerSOBuildInitializer {
         public static Object[] listenersKeepRef;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InitializeListenerSOs() {
-            // Load all the listener scriptable objects at the start of the game.
-            // This will call their OnEnable methods and they will be added
-            // to their respective game events.
-            // This is necessary as unity doesn't load them automatically.
-            // Listeners are kept in an array so that unity doesn't randomly unload them.
             listenersKeepRef = Resources.LoadAll(GameEventListenerSO.RESOURCES_PATH);
         }
     }

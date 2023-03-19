@@ -300,6 +300,10 @@ namespace Vaflov {
 
         [FolderPath]
         [ShowInInspector]
+        [ListDrawerSettings(
+            Expanded = true,
+            ShowPaging = true,
+            NumberOfItemsPerPage = 10)]
         public List<string> FolderPaths {
             get {
                 var config = SOArchitectureConfig.Instance;
