@@ -25,6 +25,7 @@ namespace Vaflov {
         [PropertyOrder(10)]
         [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
         [ShowInInspector]
+        [EnableGUI]
         #endif
         public GameEventListenerBase Listener {
             get {
@@ -65,9 +66,6 @@ namespace Vaflov {
                     listener.parent = this;
                 }
                 return listener;
-            }
-            private set {
-                Debug.LogError("The game event listener should not be set externally");
             }
         }
 

@@ -300,6 +300,7 @@ namespace Vaflov {
 
         [FolderPath]
         [ShowInInspector]
+        [EnableGUI]
         [ListDrawerSettings(
             Expanded = true,
             ShowPaging = true,
@@ -313,7 +314,6 @@ namespace Vaflov {
                 }
                 return config.editorFolders[editorObjBaseType];
             }
-            set {}
         }
     }
 

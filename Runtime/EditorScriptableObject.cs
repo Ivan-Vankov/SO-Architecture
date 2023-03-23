@@ -237,14 +237,13 @@ namespace Vaflov {
 
     public abstract class EditorScriptableObject : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector] public EditorObject editorObj = null;
-        [ShowInInspector, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
+        [ShowInInspector, EnableGUI, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
         public EditorObject EditorObject {
             get {
                 editorObj ??= new EditorObject();
                 editorObj.Init(this, EditorObjectBaseType);
                 return editorObj;
             }
-            set => Debug.Assert(true, "Editing editor object internals");
         }
 
         public virtual Type EditorObjectBaseType => GetType();
