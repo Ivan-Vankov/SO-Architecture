@@ -244,6 +244,9 @@ namespace Vaflov {
                 editorObj.Init(this, EditorObjectBaseType);
                 return editorObj;
             }
+            set {
+                Debug.Assert(true, "The EditorObject is only set through the inspector");
+            }
         }
 
         public virtual Type EditorObjectBaseType => GetType();

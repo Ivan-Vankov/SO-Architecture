@@ -22,7 +22,7 @@ namespace Vaflov {
         [LabelText("$" + nameof(name))]
         [ListDrawerSettings(
             DraggableItems = false,
-            Expanded = true,
+            ShowFoldout = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 10
             )]

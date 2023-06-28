@@ -76,6 +76,21 @@ namespace Vaflov {
 
         private float previousFrameWidth;
 
+        private static GUIStyle _sdfIconButtonLabelStyle;
+        private static GUIStyle SdfIconButtonLabelStyle {
+            get {
+                if (_sdfIconButtonLabelStyle == null) {
+                    _sdfIconButtonLabelStyle = new GUIStyle {
+                        alignment = TextAnchor.MiddleCenter,
+                        padding = new RectOffset(0, 0, 0, 0),
+                        clipping = TextClipping.Clip
+                    };
+                }
+
+                return _sdfIconButtonLabelStyle;
+            }
+        }
+
         protected override bool CanDrawMethodProperty(InspectorProperty property) {
             return property.Attributes.HasAttribute<DrawButtonTypesAttribute>();
         }
@@ -233,8 +248,9 @@ namespace Vaflov {
 
         private void DrawNormalButton() {
             bool flag = buttonAttribute != null && buttonAttribute.HasDefinedIcon;
-            float num = SirenixEditorGUI.CalculateMinimumSDFIconButtonWidth(label, buttonHeight);
-            Rect rect = GUILayoutUtility.GetRect(GUIContent.none, style, stretch ? GUILayoutOptions.Height(buttonHeight) : GUILayoutOptions.Height(buttonHeight).MaxWidth(num));
+            //float num = SirenixEditorGUI.CalculateMinimumSDFIconButtonWidth(label, buttonHeight);
+            SirenixEditorGUI.CalculateMinimumSDFIconButtonWidth(label?.text, style, buttonAttribute?.HasDefinedIcon ?? false, buttonHeight, out var _, out var _, out var _, out var totalWidth);
+            Rect rect = GUILayoutUtility.GetRect(GUIContent.none, style, stretch ? GUILayoutOptions.Height(buttonHeight) : GUILayoutOptions.Height(buttonHeight).MaxWidth(totalWidth));
             if (!stretch && !drawnByGroup) {
                 Rect controlRect = EditorGUILayout.GetControlRect(true, 0f);
                 GUILayout.Space(-2f);
@@ -242,7 +258,7 @@ namespace Vaflov {
                     previousFrameWidth = controlRect.width;
                 }
 
-                rect = rect.SetX(Mathf.Clamp(rect.x + buttonAlignment * previousFrameWidth - num / 2f, rect.x, rect.x + previousFrameWidth - num));
+                rect = rect.SetX(Mathf.Clamp(rect.x + buttonAlignment * previousFrameWidth - totalWidth / 2f, rect.x, rect.x + previousFrameWidth - totalWidth));
             }
 
             rect = EditorGUI.IndentedRect(rect);

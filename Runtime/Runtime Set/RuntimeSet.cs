@@ -20,7 +20,7 @@ namespace Vaflov {
         [ReadOnly]
         [ListDrawerSettings(
             DraggableItems = false,
-            Expanded = true,
+            ShowFoldout = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 20
             //ShowItemCount = false

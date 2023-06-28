@@ -98,6 +98,7 @@ namespace Vaflov {
         public static void GenerateConstants() {
             new SingletonCodeGenerator(singletonClassName: "Constants", singletonConceptName: "Constant")
             .StartSingletonCodegenTimer()
+            .SetSingletonClassModifiers(" partial")
             .AddSingletonHeader()
             .AddSingletonCustomCode(codegen => {
                 (var namespaceName, var className        ) = (codegen.singletonNamespaceName, codegen.singletonClassName  );

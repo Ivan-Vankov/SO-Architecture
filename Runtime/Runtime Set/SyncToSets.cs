@@ -63,7 +63,7 @@ namespace Vaflov {
         [HideIf("@this." + nameof(objectToSync) + " == null && !this." + nameof(syncGameObject))]
         [PropertyOrder(5)]
         [ListDrawerSettings(
-            Expanded = true,
+            ShowFoldout = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 10
             )]

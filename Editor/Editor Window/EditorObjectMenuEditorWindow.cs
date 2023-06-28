@@ -302,7 +302,7 @@ namespace Vaflov {
         [ShowInInspector]
         [EnableGUI]
         [ListDrawerSettings(
-            Expanded = true,
+            ShowFoldout = true,
             ShowPaging = true,
             NumberOfItemsPerPage = 10)]
         public List<string> FolderPaths {
