@@ -102,7 +102,7 @@ namespace Vaflov {
 
         public const int labelWidth = 40;
 
-        public string Description => "Add a new game event";
+        public string Description => "Add";
 
         public void ResetName() {
             creationData.name = GameEventCreationData.DEFAULT_GAME_EVENT_NAME;

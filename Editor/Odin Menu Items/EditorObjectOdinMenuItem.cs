@@ -52,7 +52,10 @@ namespace Vaflov {
     }
 
     public class EditorObjectOdinMenuItem : OdinMenuItem {
-        public EditorObjectOdinMenuItem(OdinMenuTree tree, string name, UnityEngine.Object value) : base(tree, name, value) {
+        public EditorObjectMenuEditorWindow editorObjMenu; 
+
+        public EditorObjectOdinMenuItem(OdinMenuTree tree, string name, Object value, EditorObjectMenuEditorWindow editorObjMenu) : base(tree, name, value) {
+            this.editorObjMenu = editorObjMenu;
             OnRightClick += OpenRightClickMenu;
         }
 
@@ -61,10 +64,10 @@ namespace Vaflov {
         }
 
         public void OpenRightClickMenu() {
-            if (!MenuTree.Selection.Contains(this)) {
+            if (!MenuTree.Selection.Contains(this))
                 Select(true);
-            }
-            var contextMenuItems = (Value as IEditorObject).GetContextMenuItems();
+            var contextMenuItems = editorObjMenu.GetRightClickContextMenuItems();
+            contextMenuItems.AddRange((Value as IEditorObject).GetContextMenuItems());
             new ContextMenuItemSelector(contextMenuItems).ShowInPopup(150);
         }
 

@@ -139,6 +139,8 @@ namespace Vaflov {
             //}
 
             foreach ((var groupName, var group) in groups) {
+                var groupMenuItem = new EditorObjectGroupContextMenuItem(tree, groupName, null, this);
+                tree.AddMenuItemAtPath("", groupMenuItem);
                 var groupList = group.ToList();
                 groupList.Sort((UnityEngine.Object obj1, UnityEngine.Object obj2) => {
                     var sortKey1 = (obj1 as ISortKeyObject).SortKey;
@@ -151,8 +153,8 @@ namespace Vaflov {
                 });
                 var groupResult = new HashSet<OdinMenuItem>();
                 foreach (var editorObjAsset in groupList) {
-                    var menuItem = new EditorObjectOdinMenuItem(tree, editorObjAsset.name, editorObjAsset);
-                    var editorObj = (editorObjAsset as IEditorObject);
+                    var menuItem = new EditorObjectOdinMenuItem(tree, editorObjAsset.name, editorObjAsset, this);
+                    var editorObj = editorObjAsset as IEditorObject;
                     menuItem.IconGetter = editorObj.GetEditorIcon;
                     groupResult.Add(menuItem);
                     tree.AddMenuItemAtPath(groupResult, groupName, menuItem);
@@ -173,40 +175,6 @@ namespace Vaflov {
                             afterCurrentObj = afterCurrentObj || siblingMenuItem == menuItem;
                         }
                         (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorObj.EditorGroup;
-                        UnityEditorEventUtility.DelayAction(RebuildEditorGroups);
-                    };
-                }
-                foreach (var menuItem in groupResult) {
-                    if (menuItem.GetType() != typeof(OdinMenuItem))
-                        continue;
-                    menuItem.OnDrawItem += x => {
-                        var itemCountLabel = $" {x.ChildMenuItems.Count}";
-                        var labelStyle = x.IsSelected ? x.Style.SelectedLabelStyle : x.Style.DefaultLabelStyle;
-                        var nameLabelSize = labelStyle.CalcSize(GUIHelper.TempContent(x.SmartName));
-                        var valueRect = new Rect(x.LabelRect.x + nameLabelSize.x, x.LabelRect.y, x.LabelRect.width - nameLabelSize.x, x.LabelRect.height);
-                        var valueContent = GUIHelper.TempContent(itemCountLabel);
-
-                        GUIHelper.PushColor(Color.green);
-                        GUI.Label(valueRect, valueContent, labelStyle);
-                        GUIHelper.PopColor();
-
-                        var dragNDroppedEditorObj = DragAndDropUtilities.DropZone(x.Rect, null, EditorObjBaseType);
-                        if (dragNDroppedEditorObj == null)
-                            return;
-                        if (menuItem.ChildMenuItems.Count > 0) {
-                            var firstMenuItem = menuItem.ChildMenuItems[0];
-                            if (firstMenuItem.Value != null
-                                && TypeUtil.IsInheritedFrom(firstMenuItem.Value.GetType(), EditorObjBaseType)) {
-                                var sortKey = (firstMenuItem.Value as ISortKeyObject).SortKey;
-                                var sortKeyObj = (dragNDroppedEditorObj as ISortKeyObject);
-                                if (sortKeyObj.SortKey >= sortKey) {
-                                    sortKeyObj.SortKey = sortKey - 1;
-                                }
-                            }
-                        }
-                        var editorGroup = menuItem.GetFullPath();
-                        editorGroup = editorGroup == "Default" ? "" : editorGroup;
-                        (dragNDroppedEditorObj as IEditorObject).EditorGroup = editorGroup;
                         UnityEditorEventUtility.DelayAction(RebuildEditorGroups);
                     };
                 }
@@ -231,6 +199,15 @@ namespace Vaflov {
             return tree;
         }
 
+        public OdinContextMenuItem GetEditorObjectCreationContextMenuItem() {
+            if (editorObjectCreator == null)
+                return null;
+            return new OdinContextMenuItem(editorObjectCreator.Description, () => {
+                TryOpenEditorObjectCreationMenu();
+                // EditorIconsOverview.OpenEditorIconsOverview();
+            }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle);
+        }
+
         public virtual List<OdinContextMenuItem> GetToolbarItems() {
             var items = new List<OdinContextMenuItem>();
             if (editorObjectOptions != null) {
@@ -238,16 +215,21 @@ namespace Vaflov {
                     TrySelectMenuItemWithObject(editorObjectOptions);
                 }, icon: SdfIconType.Gear));
             }
-            if (editorObjectCreator != null) {
-                items.Add(new OdinContextMenuItem(editorObjectCreator.Description, () => {
-                    TryOpenEditorObjectCreationMenu();
-                    // EditorIconsOverview.OpenEditorIconsOverview();
-                }, KeyCode.N, EventModifiers.Control | EventModifiers.Shift, SdfIconType.PlusCircle));
-            }
+            var objectCreationContextMenuItem = GetEditorObjectCreationContextMenuItem();
+            if (objectCreationContextMenuItem != null)
+                items.Add(objectCreationContextMenuItem);
             var selected = MenuTree?.Selection?.FirstOrDefault();
             if (selected != null && selected.Value is IEditorObject editorObject) {
                 items.AddRange(editorObject.GetContextMenuItems().Where(cmi => cmi.showInToolbar));
             }
+            return items;
+        }
+
+        public virtual List<OdinContextMenuItem> GetRightClickContextMenuItems() {
+            var items = new List<OdinContextMenuItem>();
+            var objectCreationContextMenuItem = GetEditorObjectCreationContextMenuItem();
+            if (objectCreationContextMenuItem != null)
+                items.Add(objectCreationContextMenuItem);
             return items;
         }
 

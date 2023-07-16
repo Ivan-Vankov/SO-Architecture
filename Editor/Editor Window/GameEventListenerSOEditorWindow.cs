@@ -8,7 +8,7 @@ namespace Vaflov {
         public override string DefaultEditorObjFolderPath() => "Assets/Resources/Listeners";
 
         public override IEditorObjectCreator CreateEditorObjectCreator() =>
-            new DefaultEditorObjectCreator<GameEventListenerSO>("Add a new game event listener", GameEventListenerSO.RESOURCES_PATH, "Game Event Listener");
+            new DefaultEditorObjectCreator<GameEventListenerSO>("Add", GameEventListenerSO.RESOURCES_PATH, "Game Event Listener");
 
         [MenuItem("Tools/" + SOArchitectureConfig.PACKAGE_NAME + "/Game Event Listeners Editor", priority = 25)]
         public static GameEventListenerSOEditorWindow Open() => Open<GameEventListenerSOEditorWindow>("Listeners", "Listener Small");

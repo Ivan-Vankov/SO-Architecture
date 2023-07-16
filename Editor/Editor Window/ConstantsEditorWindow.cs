@@ -12,7 +12,7 @@ namespace Vaflov {
         public override string DefaultEditorObjFolderPath() => "Assets/Resources/Constant";
 
         public override IEditorObjectCreator CreateEditorObjectCreator() =>
-            new GenericEditorObjectCreator(EditorObjBaseType, "New Constant", "Add a new constant", ConstantsGenerator.GenerateConstantAsset);
+            new GenericEditorObjectCreator(EditorObjBaseType, "New Constant", "Add", ConstantsGenerator.GenerateConstantAsset);
 
         [MenuItem("Tools/" + SOArchitectureConfig.PACKAGE_NAME + "/Constants Editor", priority = 10)]
         public static ConstantsEditorWindow Open() => Open<ConstantsEditorWindow>("Constants", "pi");
