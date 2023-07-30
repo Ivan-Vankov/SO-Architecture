@@ -7,6 +7,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 #endif
 using System.IO;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace Vaflov {
@@ -25,7 +26,9 @@ namespace Vaflov {
           + "/////////////////// AUTOMATICALLY GENERATED FILE ///////////////////" + Environment.NewLine
           + "////////////////////////////////////////////////////////////////////" + Environment.NewLine;
 
+        #if ODIN_INSPECTOR
         [ReadOnly]
+        #endif
         public Dictionary<Type, List<string>> editorFolders;
 
         private static SOArchitectureConfig instance;
@@ -45,7 +48,7 @@ namespace Vaflov {
                         AssetDatabase.SaveAssets();
                         
                     }
-                    #endif
+                #endif
                 }
                 return instance;
             }

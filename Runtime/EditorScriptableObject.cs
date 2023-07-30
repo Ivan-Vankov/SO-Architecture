@@ -237,7 +237,9 @@ namespace Vaflov {
 
     public abstract class EditorScriptableObject : ScriptableObject, ISortKeyObject, IEditorObject {
         [HideInInspector] public EditorObject editorObj = null;
+        #if ODIN_INSPECTOR
         [ShowInInspector, EnableGUI, HideLabel, HideReferenceObjectPicker, DisableContextMenu]
+        #endif
         public EditorObject EditorObject {
             get {
                 editorObj ??= new EditorObject();
@@ -261,9 +263,11 @@ namespace Vaflov {
             return editorObj?.GetDefaultContextMenuItems();
         }
 
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         [PropertyOrder(10000)]
         [HideInInlineEditors]
         public OpenInEditorWindowButton openInEditorWindowButton;
+        #endif
     }
 
     [Serializable]

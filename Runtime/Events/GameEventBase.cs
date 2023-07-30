@@ -7,8 +7,10 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 
 namespace Vaflov {
+    #if ODIN_INSPECTOR
     [HideInPlayMode]
     [HideLabel]
+    #endif
     [Serializable]
     public class GameEventEditMenu { }
 
@@ -122,7 +124,9 @@ namespace Vaflov {
         }
         #endif
 
+        #if ODIN_INSPECTOR && UNITY_EDITOR
         [PropertyOrder(40)]
         public GameEventEditMenu editMenu;
+        #endif
     }
 }

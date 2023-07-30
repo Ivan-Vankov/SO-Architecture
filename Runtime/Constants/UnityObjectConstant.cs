@@ -34,8 +34,8 @@ namespace Vaflov {
         [OnValueChanged(nameof(OnUnityObjectConstantChanged))]
         [LabelWidth(preferedEditorLabelWidth)]
         [PropertyOrder(16)]
-        #endif
         public InlineEditorModes editorMode = InlineEditorModes.GUIOnly;
+        #endif
 
         #if UNITY_EDITOR
         public override Texture GetEditorIcon() {
